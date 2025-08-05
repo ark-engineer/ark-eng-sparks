@@ -5,20 +5,24 @@
       "color": "orange",
       "style": "float"
     },
-    "name": "Tina Starter",
+    "name": "ARK",
     "color": "default",
     "nav": [
       {
         "href": "/",
-        "label": "Home"
+        "label": "Projetos"
       },
       {
-        "href": "/about",
-        "label": "About"
+        "href": "/",
+        "label": "Serviços"
       },
       {
-        "href": "/posts",
-        "label": "Blog"
+        "href": "/",
+        "label": "Sobre nós"
+      },
+      {
+        "href": "/",
+        "label": "Fale Conosco"
       }
     ]
   },

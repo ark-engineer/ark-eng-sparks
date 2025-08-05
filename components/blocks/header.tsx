@@ -3,7 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import type { Template } from 'tinacms';
 import { tinaField } from 'tinacms/dist/react';
-import { useLayout } from '../layout-context';
+import { useLayout } from '../layout/layout-context';
 
 interface HeaderNavItem {
   label: string;

@@ -42,7 +42,6 @@ const transitionVariants = {
 };
 
 export const Hero = ({ data }: { data: PageBlocksHero }) => {
-  // Extract the background style logic into a more readable format
   let gradientStyle: React.CSSProperties | undefined = undefined;
   if (data.background) {
     const colorName = data.background
@@ -62,11 +61,12 @@ export const Hero = ({ data }: { data: PageBlocksHero }) => {
       <div className='text-center sm:mx-auto lg:mr-auto lg:mt-0'>
         {data.headline && (
           <div data-tina-field={tinaField(data, 'headline')}>
-            <TextEffect preset='fade-in-blur' speedSegment={0.3} as='h1' className='mt-8 text-balance text-6xl md:text-7xl xl:text-[5.25rem]'>
+            <TextEffect preset='fade-in-blur' speedSegment={0.3} as='h1'>
               {data.headline!}
             </TextEffect>
           </div>
         )}
+        bg aqui
         {data.tagline && (
           <div data-tina-field={tinaField(data, 'tagline')}>
             <TextEffect per='line' preset='fade-in-blur' speedSegment={0.3} delay={0.5} as='p' className='mx-auto mt-8 max-w-2xl text-balance text-lg'>
@@ -74,7 +74,6 @@ export const Hero = ({ data }: { data: PageBlocksHero }) => {
             </TextEffect>
           </div>
         )}
-
         <AnimatedGroup variants={transitionVariants} className='mt-12 flex flex-col items-center justify-center gap-2 md:flex-row'>
           {data.actions &&
             data.actions.map((action) => (
