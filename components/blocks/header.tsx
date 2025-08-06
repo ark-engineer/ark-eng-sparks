@@ -53,7 +53,7 @@ export const Header = ({ data }: { data?: HeaderData }) => {
           mx-auto my-1
           w-full max-w-[1172px]
           h-[72px] max-md:h-[60px] max-sm:h-[52px]
-          px-[12px] py-[6px]
+          p-[10px]
           bg-black text-white
           rounded-[20px]
           flex items-center justify-between
@@ -63,19 +63,8 @@ export const Header = ({ data }: { data?: HeaderData }) => {
           bottom-2 lg:bottom-auto
         `}
       >
-        <Link 
-          href='/' 
-          aria-label={logoAlt} 
-          className='flex items-center space-x-2' 
-          data-tina-field={tinaField(header, 'name')}
-        >
-          <svg 
-            width='40' 
-            height='36' 
-            viewBox='0 0 40 36' 
-            fill='none' 
-            xmlns='http://www.w3.org/2000/svg'
-          >
+        <Link href='/' aria-label={logoAlt} className='flex items-center space-x-2 border border-[#2E2E2E] rounded-lg px-2 py-2' data-tina-field={tinaField(header, 'name')}>
+          <svg width='40' height='36' viewBox='0 0 40 36' fill='none' xmlns='http://www.w3.org/2000/svg'>
             <path d='M11.7102 7.29765L14.6223 0.426758L29.1281 35.5742H23.4584L11.7102 7.29765Z' fill='white' />
             <path
               d='M3.11808 28.207C2.07872 30.6602 1.03936 33.114 0 35.5671C5.12373 35.5623 10.2475 35.5574 15.3718 35.5526C13.6228 35.2325 10.8043 34.4843 7.86436 32.5517C5.63163 31.0848 4.09584 29.439 3.11869 28.207H3.11808Z'
@@ -107,7 +96,7 @@ export const Header = ({ data }: { data?: HeaderData }) => {
                     className='flex items-center gap-2.5 border border-[#2E2E2E] rounded-lg cursor-pointer hover:bg-[#1a1a1a] transition-colors'
                     data-tina-field={tinaField(item, 'href')}
                   >
-                    <span className='px-2 py-5' data-tina-field={tinaField(item, 'label')}>
+                    <span className='px-2 py-4' data-tina-field={tinaField(item, 'label')}>
                       {item.label}
                     </span>
                   </Link>
@@ -128,7 +117,7 @@ export const Header = ({ data }: { data?: HeaderData }) => {
                       className='flex items-center gap-2.5 border border-[#2E2E2E] rounded-lg cursor-pointer hover:bg-[#1a1a1a] transition-colors'
                       data-tina-field={tinaField(item, 'href')}
                     >
-                      <span className='px-2 py-5' data-tina-field={tinaField(item, 'label')}>
+                      <span className='px-2 py-4' data-tina-field={tinaField(item, 'label')}>
                         {item.label}
                       </span>
                     </Link>
