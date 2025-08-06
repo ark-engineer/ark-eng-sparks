@@ -51,9 +51,10 @@ export const Header = ({ data }: { data?: HeaderData }) => {
           fixed z-50
           left-0 right-0
           mx-auto my-1
-          w-full max-w-[1172px]
-          h-[72px] max-md:h-[60px] max-sm:h-[52px]
-          p-[10px]
+          w-full max-w-[65%]
+          max-sm:w-[90%]
+          h-[72px] max-md:h-[60px] max-sm:h-[62px]
+          px-4 py-[10px]
           bg-black text-white
           rounded-[20px]
           flex items-center justify-between
@@ -63,7 +64,12 @@ export const Header = ({ data }: { data?: HeaderData }) => {
           bottom-2 lg:bottom-auto
         `}
       >
-        <Link href='/' aria-label={logoAlt} className='flex items-center space-x-2 border border-[#2E2E2E] rounded-lg px-2 py-2' data-tina-field={tinaField(header, 'name')}>
+        <Link
+          href='/'
+          aria-label={logoAlt}
+          className='flex items-center space-x-2 border border-[#2E2E2E] rounded-lg px-2 py-2'
+          data-tina-field={tinaField(header, 'name')}
+        >
           <svg width='40' height='36' viewBox='0 0 40 36' fill='none' xmlns='http://www.w3.org/2000/svg'>
             <path d='M11.7102 7.29765L14.6223 0.426758L29.1281 35.5742H23.4584L11.7102 7.29765Z' fill='white' />
             <path
@@ -105,7 +111,7 @@ export const Header = ({ data }: { data?: HeaderData }) => {
             })}
           </ul>
 
-          <ul className='flex lg:hidden justify-around w-full text-sm'>
+          <ul className='flex lg:hidden justify-around w-full text-sm gap-4 h-[52px] items-center' data-tina-field={tinaField(header, 'nav')}>
             {header.nav
               ?.filter((item) => item && item.label && item.label !== 'Fale Conosco')
               .map((item, index) => {
