@@ -8,15 +8,31 @@ import { useLayout } from '../layout-context';
 interface HeaderNavItem {
   label: string;
   href: string;
+  [key: string]: unknown;
 }
 
 interface HeaderData {
-  nav: HeaderNavItem[];
-  logo?: {
-    alt?: string;
-    width?: number;
-    height?: number;
-  };
+  nav?:
+    | (
+        | HeaderNavItem
+        | {
+            __typename?: string;
+            href?: string | null;
+            label?: string | null;
+            [key: string]: unknown;
+          }
+      )[]
+    | null;
+  name?: string | null;
+  color?: string | null;
+  icon?: {
+    __typename?: string;
+    name?: string | null;
+    color?: string | null;
+    style?: string | null;
+    [key: string]: unknown;
+  } | null;
+  [key: string]: unknown;
 }
 
 export const Header = ({ data }: { data?: HeaderData }) => {
@@ -24,7 +40,9 @@ export const Header = ({ data }: { data?: HeaderData }) => {
 
   const header = data || globalSettings?.header;
 
-  if (!header) return null;
+  if (!header || !header.nav) return null;
+
+  const logoAlt = header.name || 'home';
 
   return (
     <header>
@@ -45,9 +63,19 @@ export const Header = ({ data }: { data?: HeaderData }) => {
           bottom-2 lg:bottom-auto
         `}
       >
-        {/* Logo à esquerda */}
-        <Link href='/' aria-label={header.logo?.alt || 'home'} className='flex items-center space-x-2' data-tina-field={tinaField(header, 'logo')}>
-          <svg width={header.logo?.width || 40} height={header.logo?.height || 36} viewBox='0 0 40 36' fill='none' xmlns='http://www.w3.org/2000/svg'>
+        <Link 
+          href='/' 
+          aria-label={logoAlt} 
+          className='flex items-center space-x-2' 
+          data-tina-field={tinaField(header, 'name')}
+        >
+          <svg 
+            width='40' 
+            height='36' 
+            viewBox='0 0 40 36' 
+            fill='none' 
+            xmlns='http://www.w3.org/2000/svg'
+          >
             <path d='M11.7102 7.29765L14.6223 0.426758L29.1281 35.5742H23.4584L11.7102 7.29765Z' fill='white' />
             <path
               d='M3.11808 28.207C2.07872 30.6602 1.03936 33.114 0 35.5671C5.12373 35.5623 10.2475 35.5574 15.3718 35.5526C13.6228 35.2325 10.8043 34.4843 7.86436 32.5517C5.63163 31.0848 4.09584 29.439 3.11869 28.207H3.11808Z'
@@ -68,33 +96,14 @@ export const Header = ({ data }: { data?: HeaderData }) => {
           </svg>
         </Link>
 
-        {/* Menu items */}
         <div className='flex items-center gap-6 w-full justify-end'>
-          {/* Desktop nav */}
           <ul className='hidden lg:flex gap-4 text-sm' data-tina-field={tinaField(header, 'nav')}>
-            {header.nav?.map((item, index) => (
-              <li key={index}>
-                <Link
-                  href={item.href}
-                  className='flex items-center gap-2.5 border border-[#2E2E2E] rounded-lg cursor-pointer hover:bg-[#1a1a1a] transition-colors'
-                  data-tina-field={tinaField(item, 'href')}
-                >
-                  <span className='px-2 py-5' data-tina-field={tinaField(item, 'label')}>
-                    {item.label}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          {/* Mobile nav (dock style) */}
-          <ul className='flex lg:hidden justify-around w-full text-sm'>
-            {header.nav
-              ?.filter((item) => item.label !== 'Fale Conosco')
-              .map((item, index) => (
+            {header.nav?.map((item, index) => {
+              if (!item || !item.label) return null;
+              return (
                 <li key={index}>
                   <Link
-                    href={item.href}
+                    href={item.href || '/'}
                     className='flex items-center gap-2.5 border border-[#2E2E2E] rounded-lg cursor-pointer hover:bg-[#1a1a1a] transition-colors'
                     data-tina-field={tinaField(item, 'href')}
                   >
@@ -103,7 +112,29 @@ export const Header = ({ data }: { data?: HeaderData }) => {
                     </span>
                   </Link>
                 </li>
-              ))}
+              );
+            })}
+          </ul>
+
+          <ul className='flex lg:hidden justify-around w-full text-sm'>
+            {header.nav
+              ?.filter((item) => item && item.label && item.label !== 'Fale Conosco')
+              .map((item, index) => {
+                if (!item || !item.label) return null;
+                return (
+                  <li key={index}>
+                    <Link
+                      href={item.href || '/'}
+                      className='flex items-center gap-2.5 border border-[#2E2E2E] rounded-lg cursor-pointer hover:bg-[#1a1a1a] transition-colors'
+                      data-tina-field={tinaField(item, 'href')}
+                    >
+                      <span className='px-2 py-5' data-tina-field={tinaField(item, 'label')}>
+                        {item.label}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
           </ul>
         </div>
       </nav>
@@ -111,18 +142,12 @@ export const Header = ({ data }: { data?: HeaderData }) => {
   );
 };
 
-// Schema para o Tina CMS
 export const headerBlockSchema: Template = {
   name: 'header',
   label: 'Header',
   ui: {
     previewSrc: '/blocks/header.png',
     defaultItem: {
-      logo: {
-        alt: 'Logo da empresa',
-        width: 40,
-        height: 36,
-      },
       nav: [
         {
           label: 'Home',
@@ -150,36 +175,11 @@ export const headerBlockSchema: Template = {
   fields: [
     {
       type: 'object',
-      label: 'Logo',
-      name: 'logo',
-      fields: [
-        {
-          type: 'string',
-          label: 'Alt Text',
-          name: 'alt',
-          description: 'Texto alternativo para acessibilidade',
-        },
-        {
-          type: 'number',
-          label: 'Largura',
-          name: 'width',
-          description: 'Largura do logo em pixels',
-        },
-        {
-          type: 'number',
-          label: 'Altura',
-          name: 'height',
-          description: 'Altura do logo em pixels',
-        },
-      ],
-    },
-    {
-      type: 'object',
       label: 'Navegação',
       name: 'nav',
       list: true,
       ui: {
-        itemProps: (item) => {
+        itemProps: (item: any) => {
           return { label: item?.label || 'Item do Menu' };
         },
       },
@@ -202,7 +202,6 @@ export const headerBlockSchema: Template = {
   ],
 };
 
-// Schema para configuração global (caso você queira usar no tina/config.ts)
 export const globalHeaderSchema = {
   label: 'Header Global',
   name: 'header',
@@ -213,24 +212,36 @@ export const globalHeaderSchema = {
   },
   fields: [
     {
+      type: 'string',
+      label: 'Nome do Site',
+      name: 'name',
+      description: 'Nome do site usado como fallback para o alt do logo',
+    },
+    {
+      type: 'string',
+      label: 'Cor Principal',
+      name: 'color',
+      description: 'Cor principal do tema',
+    },
+    {
       type: 'object',
-      label: 'Logo',
-      name: 'logo',
+      label: 'Ícone',
+      name: 'icon',
       fields: [
         {
           type: 'string',
-          label: 'Alt Text',
-          name: 'alt',
+          label: 'Nome',
+          name: 'name',
         },
         {
-          type: 'number',
-          label: 'Largura',
-          name: 'width',
+          type: 'string',
+          label: 'Cor',
+          name: 'color',
         },
         {
-          type: 'number',
-          label: 'Altura',
-          name: 'height',
+          type: 'string',
+          label: 'Estilo',
+          name: 'style',
         },
       ],
     },
@@ -240,7 +251,7 @@ export const globalHeaderSchema = {
       name: 'nav',
       list: true,
       ui: {
-        itemProps: (item) => {
+        itemProps: (item: any) => {
           return { label: item?.label || 'Item do Menu' };
         },
       },
