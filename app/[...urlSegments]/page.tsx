@@ -4,7 +4,7 @@ import client from '@/tina/__generated__/client';
 import Layout from '@/components/layout/layout';
 import { Section } from '@/components/layout/section';
 import ClientPage from './client-page';
-
+import SlowSmoothScroll from '@/components/SlowSmoothScroll';
 export const revalidate = 300;
 
 export default async function Page({
@@ -26,6 +26,7 @@ export default async function Page({
 
   return (
     <Layout rawPageData={data}>
+      <SlowSmoothScroll />
       <Section>
         <ClientPage {...data} />
       </Section>

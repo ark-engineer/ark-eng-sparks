@@ -13,6 +13,7 @@ import { TextEffect } from '../motion-primitives/text-effect';
 import { Button } from '../ui/button';
 import HeroVideoDialog from '../ui/hero-video-dialog';
 import { Transition } from 'motion/react';
+
 const transitionVariants = {
   container: {
     visible: {
@@ -57,8 +58,18 @@ export const Hero = ({ data }: { data: PageBlocksHero }) => {
   }
 
   return (
-    <Section background={data.background!}>
-      <div className='text-center sm:mx-auto lg:mr-auto lg:mt-0'>
+    <Section
+      background={data.background!}
+      style={{
+        backgroundColor: 'linear-gradient(180deg, rgba(255, 255, 255, 0.00) 0%, #FFF 14.65%)',
+        backgroundImage: data.backgroundImage ? `url(${data.backgroundImage})` : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      
+      }}
+      >
+        <div className="h-dvh"></div>
+      {/* <div className='text-center sm:mx-auto lg:mr-auto lg:mt-0'>
         {data.headline && (
           <div data-tina-field={tinaField(data, 'headline')}>
             <TextEffect preset='fade-in-blur' speedSegment={0.3} as='h1'>
@@ -66,7 +77,7 @@ export const Hero = ({ data }: { data: PageBlocksHero }) => {
             </TextEffect>
           </div>
         )}
-        bg aqui
+        
         {data.tagline && (
           <div data-tina-field={tinaField(data, 'tagline')}>
             <TextEffect per='line' preset='fade-in-blur' speedSegment={0.3} delay={0.5} as='p' className='mx-auto mt-8 max-w-2xl text-balance text-lg'>
@@ -74,6 +85,7 @@ export const Hero = ({ data }: { data: PageBlocksHero }) => {
             </TextEffect>
           </div>
         )}
+        
         <AnimatedGroup variants={transitionVariants} className='mt-12 flex flex-col items-center justify-center gap-2 md:flex-row'>
           {data.actions &&
             data.actions.map((action) => (
@@ -88,7 +100,7 @@ export const Hero = ({ data }: { data: PageBlocksHero }) => {
             ))}
         </AnimatedGroup>
       </div>
-
+      
       {data.image && (
         <AnimatedGroup variants={transitionVariants}>
           <div className='relative -mr-56 mt-8 overflow-hidden px-2 sm:mr-0 sm:mt-12 md:mt-20 max-w-full' data-tina-field={tinaField(data, 'image')}>
@@ -98,7 +110,7 @@ export const Hero = ({ data }: { data: PageBlocksHero }) => {
             </div>
           </div>
         </AnimatedGroup>
-      )}
+      )} */}
     </Section>
   );
 };
@@ -155,6 +167,21 @@ export const heroBlockSchema: Template = {
       name: 'tagline',
     },
     {
+      type: 'image',
+      label: 'Background Image',
+      name: 'backgroundImage',
+      ui: {
+        format(value) {
+          // Add leading slash to value if it doesn't exist
+          return value && !value.startsWith("/") ? `/${value}` : value;
+        },
+        parse(value) {
+          // Remove leading slash if it exists for storage
+          return value && value.startsWith("/") ? value.slice(1) : value;
+        },
+      },
+    },
+    {
       label: 'Actions',
       name: 'actions',
       type: 'object',
@@ -193,7 +220,7 @@ export const heroBlockSchema: Template = {
     },
     {
       type: 'object',
-      label: 'Image',
+      label: 'Hero Image/Video',
       name: 'image',
       fields: [
         {
