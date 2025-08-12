@@ -61,14 +61,14 @@ export const Hero = ({ data }: { data: PageBlocksHero }) => {
     <Section
       background={data.background!}
       style={{
-        backgroundColor: 'linear-gradient(180deg, rgba(255, 255, 255, 0.00) 0%, #FFF 14.65%)',
+        padding: 0,
         backgroundImage: data.backgroundImage ? `url(${data.backgroundImage})` : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       
       }}
       >
-        <div className="h-dvh"></div>
+        <div className="h-dvh hero-gradient"></div>
       {/* <div className='text-center sm:mx-auto lg:mr-auto lg:mt-0'>
         {data.headline && (
           <div data-tina-field={tinaField(data, 'headline')}>

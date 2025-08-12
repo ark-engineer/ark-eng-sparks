@@ -48,26 +48,28 @@ export const Header = ({ data }: { data?: HeaderData }) => {
     <header>
       <nav
         className={`
-          fixed z-50
+          absolute
+          z-50
           left-0 right-0
           mx-auto my-1
-          w-full max-w-[65%]
+          w-full w-[93.59%]
           max-sm:w-[90%]
           h-[72px] max-md:h-[60px] max-sm:h-[62px]
           px-4 py-[10px]
-          bg-black text-white
+          text-white
           rounded-[20px]
           flex items-center justify-between
           box-border
           lg:top-0
           lg:bottom-auto
           bottom-2 lg:bottom-auto
+          text-white text-xs font-semibold font-inter
         `}
       >
         <Link
           href='/'
           aria-label={logoAlt}
-          className='flex items-center space-x-2 border border-[#2E2E2E] rounded-lg px-2 py-2'
+          className='flex items-center space-x-2 px-2 py-2'
           data-tina-field={tinaField(header, 'name')}
         >
           <svg width='40' height='36' viewBox='0 0 40 36' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -99,7 +101,7 @@ export const Header = ({ data }: { data?: HeaderData }) => {
                 <li key={index}>
                   <Link
                     href={item.href || '/'}
-                    className='flex items-center gap-2.5 border border-[#2E2E2E] rounded-lg cursor-pointer hover:bg-[#1a1a1a] transition-colors'
+                    className='flex items-center gap-2.5rounded-lg cursor-pointer transition-colors'
                     data-tina-field={tinaField(item, 'href')}
                   >
                     <span className='px-2 py-4' data-tina-field={tinaField(item, 'label')}>
@@ -120,7 +122,7 @@ export const Header = ({ data }: { data?: HeaderData }) => {
                   <li key={index}>
                     <Link
                       href={item.href || '/'}
-                      className='flex items-center gap-2.5 border border-[#2E2E2E] rounded-lg cursor-pointer hover:bg-[#1a1a1a] transition-colors'
+                      className='flex items-center gap-2.5 cursor-pointer'
                       data-tina-field={tinaField(item, 'href')}
                     >
                       <span className='px-2 py-4' data-tina-field={tinaField(item, 'label')}>
