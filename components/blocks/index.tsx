@@ -9,6 +9,7 @@ import { Video } from "./video";
 import { Callout } from "./callout";
 import { Stats } from "./stats";
 import { CallToAction } from "./call-to-action";
+import { Monochrome } from "./monochrome";
 
 export const Blocks = (props: Omit<Page, "id" | "_sys" | "_values">) => {
   if (!props.blocks) return null;
@@ -33,8 +34,8 @@ const Block = (block: PageBlocks) => {
       return <Hero data={block} />;
     case "PageBlocksHeader":
        return <Header data={block as any} />;
-    // case "PageBlocksCallout":
-    //   return <Callout data={block} />;
+    case "PageBlocksMonochrome":
+      return <Monochrome data={block as any} />;
     case "PageBlocksStats":
       return <Stats data={block} />;
     case "PageBlocksContent":

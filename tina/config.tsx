@@ -32,7 +32,10 @@ const config = defineConfig({
     basePath: nextConfig.basePath?.replace(/^\//, '') || '', // The base path of the app (could be /blog)
   },
   schema: {
-    collections: [Page, Post, Author, Tag, Global],
+    collections: [Page, 
+      Post, Author, Tag,
+      Global
+    ],
   },
 });
 

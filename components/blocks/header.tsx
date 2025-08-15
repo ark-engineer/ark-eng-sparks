@@ -63,7 +63,7 @@ export const Header = ({ data }: { data?: HeaderData }) => {
           lg:top-0
           lg:bottom-auto
           bottom-2 lg:bottom-auto
-          text-white text-xs font-semibold font-inter
+          text-white text-xs font-semibold
         `}
       >
         <Link
