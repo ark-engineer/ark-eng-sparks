@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import type { Template } from "tinacms";
-// import { PageBlocksProjects, PageBlocksProjectsProjects } from "../../tina/__generated__/types";
+import { PageBlocksProjects, PageBlocksProjectsProjects } from "../../tina/__generated__/types";
 import { Section } from "../layout/section";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Button } from "../ui/button";
