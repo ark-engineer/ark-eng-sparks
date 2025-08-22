@@ -9,6 +9,7 @@ import { calloutBlockSchema } from '@/components/blocks/callout';
 import { statsBlockSchema } from '@/components/blocks/stats';
 import { ctaBlockSchema } from '@/components/blocks/call-to-action';
 import { monochromeBlockSchema } from '@/components/blocks/monochrome';
+import { projectsBlockSchema } from '@/components/blocks/projects';
 
 const Page: Collection = {
   label: 'Pages',
@@ -44,6 +45,7 @@ const Page: Collection = {
         contentBlockSchema,
         testimonialBlockSchema,
         videoBlockSchema,
+        projectsBlockSchema,
       ],
     },
   ],
