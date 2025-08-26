@@ -158,8 +158,7 @@ const ProjectSidebar = ({
       <div className="fixed inset-0 z-40" onClick={onClose} />
 
       {/* Bottom Sidebar */}
-      <div className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[1920px] min-w-[995px] h-[75vh] bg-white/95 dark:bg-gray-900/95 shadow-xl z-50 overflow-y-auto rounded-t-2xl backdrop-blur-md shadow-lg">
-        {/* Header */}
+<div className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[1920px] min-w-[995px] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 overflow-y-auto rounded-t-2xl backdrop-blur-md shadow-lg [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)]">        {/* Header */}
         <div className="flex items-center justify-between p-6 pb-0">
           <div className="flex flex-col align-left">
             <h2 className="text-2xl font-semibold leading-none" data-tina-field={tinaField(project, "constructorName")}>
@@ -500,95 +499,130 @@ const ProjectSidebar = ({
           {!isFullscreen && (
             <>
               <div>
-                <h3 className="text-lg font-semibold mb-3">Detalhes do Projeto</h3>
-                <div className="grid grid-cols-1 gap-3 text-sm">
-                  {project.location && (
-                    <div className="flex items-center space-x-3">
-                      <MapPin className="w-5 h-5 text-gray-500" />
-                      <span data-tina-field={tinaField(project, "location")}>
-                        <strong>Localização:</strong> {project.location}
-                      </span>
-                    </div>
-                  )}
-                  {project.landArea && (
-                    <div className="flex items-center space-x-3">
-                      <Ruler className="w-5 h-5 text-gray-500" />
-                      <span>
-                        <strong>Terreno:</strong> {project.landArea}m²
-                      </span>
-                    </div>
-                  )}
-                  {project.builtArea && (
-                    <div className="flex items-center space-x-3">
-                      <Ruler className="w-5 h-5 text-gray-500" />
-                      <span>
-                        <strong>Área Construída:</strong> {project.builtArea}m²
-                      </span>
-                    </div>
-                  )}
-                  {project.height && (
-                    <div className="flex items-center space-x-3">
-                      <Building className="w-5 h-5 text-gray-500" />
-                      <span>
-                        <strong>Altura:</strong> {project.height}
-                      </span>
-                    </div>
-                  )}
-                  {project.pavilions && (
-                    <div className="flex items-center space-x-3">
-                      <Building className="w-5 h-5 text-gray-500" />
-                      <span>
-                        <strong>Pavilhões:</strong> {project.pavilions}
-                      </span>
-                    </div>
-                  )}
-                  {project.residentialUnits && (
-                    <div className="flex items-center space-x-3">
-                      <Home className="w-5 h-5 text-gray-500" />
-                      <span>
-                        <strong>Unidades Residenciais:</strong> {project.residentialUnits}
-                      </span>
-                    </div>
-                  )}
-                  {project.commercialUnits && (
-                    <div className="flex items-center space-x-3">
-                      <Building className="w-5 h-5 text-gray-500" />
-                      <span>
-                        <strong>Unidades Comerciais:</strong> {project.commercialUnits}
-                      </span>
-                    </div>
-                  )}
-                  {project.parkingSpaces && (
-                    <div className="flex items-center space-x-3">
-                      <Car className="w-5 h-5 text-gray-500" />
-                      <span>
-                        <strong>Vagas de Garagem:</strong> {project.parkingSpaces}
-                      </span>
-                    </div>
-                  )}
+                <h3 className="text-lg font-semibold mb-4">Detalhes do Projeto</h3>
+                {/* Grid 4 colunas para os detalhes - responsivo */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                  {/* Primeira coluna */}
+                  <div className="space-y-4">
+                    {project.landArea && (
+                      <div className="flex items-center space-x-3">
+                        <Ruler className="w-5 h-5 text-gray-500" />
+                        <div className="flex flex-col">
+                          <span className="text-xs text-black font-normal capitalize">área do terreno:</span>
+                          <span className="text-base text-black font-bold capitalize">{project.landArea} M²</span>
+                        </div>
+                      </div>
+                    )}
+                    {project.location && (
+                      <div className="flex items-center space-x-3" data-tina-field={tinaField(project, "location")}>
+                        <MapPin className="w-5 h-5 text-gray-500" />
+                        <div className="flex flex-col">
+                          <span className="text-xs text-black font-normal capitalize">localização:</span>
+                          <span className="text-base text-black font-bold capitalize">{project.location}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Segunda coluna */}
+                  <div className="space-y-4">
+                    {project.height && (
+                      <div className="flex items-center space-x-3">
+                        <Building className="w-5 h-5 text-gray-500" />
+                        <div className="flex flex-col">
+                          <span className="text-xs text-black font-normal capitalize">altura:</span>
+                          <span className="text-base text-black font-bold capitalize">{project.height}</span>
+                        </div>
+                      </div>
+                    )}
+                    {project.pavilions && (
+                      <div className="flex items-center space-x-3">
+                        <Building className="w-5 h-5 text-gray-500" />
+                        <div className="flex flex-col">
+                          <span className="text-xs text-black font-normal capitalize">pavimentos:</span>
+                          <span className="text-base text-black font-bold capitalize">{project.pavilions}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Terceira coluna */}
+                  <div className="space-y-4">
+                    {project.builtArea && (
+                      <div className="flex items-center space-x-3">
+                        <Ruler className="w-5 h-5 text-gray-500" />
+                        <div className="flex flex-col">
+                          <span className="text-xs text-black font-normal capitalize">área construída:</span>
+                          <span className="text-base text-black font-bold capitalize">{project.builtArea} M²</span>
+                        </div>
+                      </div>
+                    )}
+                    {project.residentialUnits && (
+                      <div className="flex items-center space-x-3">
+                        <Home className="w-5 h-5 text-gray-500" />
+                        <div className="flex flex-col">
+                          <span className="text-xs text-black font-normal capitalize">unid. residenciais:</span>
+                          <span className="text-base text-black font-bold capitalize">{project.residentialUnits}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Quarta coluna */}
+                  <div className="space-y-4">
+                    {project.commercialUnits && (
+                      <div className="flex items-center space-x-3">
+                        <Building className="w-5 h-5 text-gray-500" />
+                        <div className="flex flex-col">
+                          <span className="text-xs text-black font-normal capitalize">unid. comerciais:</span>
+                          <span className="text-base text-black font-bold capitalize">{project.commercialUnits}</span>
+                        </div>
+                      </div>
+                    )}
+                    {project.parkingSpaces && (
+                      <div className="flex items-center space-x-3">
+                        <Car className="w-5 h-5 text-gray-500" />
+                        <div className="flex flex-col">
+                          <span className="text-xs text-black font-normal capitalize">vagas de garagem:</span>
+                          <span className="text-base text-black font-bold capitalize">{project.parkingSpaces}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Serviços */}
-              {activeServices.length > 0 && (
+              {/* Serviços - 3 colunas */}
+              {project.services && project.services.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Serviços {activeTab}</h3>
-                  <div className="space-y-4">
-                    {activeServices.map((service, serviceIndex) => (
-                      <div key={serviceIndex} className="space-y-2">
-                        {service?.serviceItems?.map((item, itemIndex) => (
-                          <div
-                            key={itemIndex}
-                            className="flex items-center space-x-3 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                          >
-                            {item?.icon && <span className="text-xl">{item.icon}</span>}
-                            <span className="flex-1" data-tina-field={tinaField(item, "text")}>
-                              {item?.text}
-                            </span>
+                  <h3 className="text-lg font-semibold mb-4">Serviços</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {["ARKENG", "ebim", "ARKANE"].map((companyName) => {
+                      const companyServices = project.services?.filter(service => service?.company === companyName) || []
+                      
+                      // Só renderiza a coluna se tiver serviços
+                      if (companyServices.length === 0) return null
+                      
+                      return (
+                        <div key={companyName} className="space-y-3">
+                          <h4 className="font-medium text-base">{companyName}</h4>
+                          <div className="space-y-2">
+                            {companyServices.map((service, serviceIndex) => (
+                              <div key={serviceIndex}>
+                                {service?.serviceItems?.map((item, itemIndex) => (
+                                  <div key={itemIndex} className="flex items-start space-x-2 text-sm">
+                                    {item?.icon && <span className="text-base mt-0.5">{item.icon}</span>}
+                                    <span className="flex-1" data-tina-field={tinaField(item, "text")}>
+                                      {item?.text}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    ))}
+                        </div>
+                      )
+                    }).filter(Boolean)}
                   </div>
                 </div>
               )}
