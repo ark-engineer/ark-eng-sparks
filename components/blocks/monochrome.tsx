@@ -5,26 +5,30 @@ import { tinaField } from 'tinacms/dist/react';
 import { Section } from '../layout/section';
 import { PageBlocksMonochrome } from "@/tina/__generated__/types";
 
+
 export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
   return (
     <Section
-    className='mt-15 grid center w-[75%] min-h-[375px] rounded-3xl bg-cover bg-center bg-no-repeat'
-    style={{ 
-      backgroundImage: `url(${data.backgroundImage})`, 
-    }}>
-      <div className="mx-8 flex flex-row items-center gap-8">
-        <div className="w-[70%]">
-        {data.leftImage && (
-          <img 
-            src={data.leftImage} 
-            alt="logos left" 
-            className="max-w-[300px] md:w-1/2 h-auto" 
-            data-tina-field={tinaField(data, 'leftImage')} 
-          />
-        )}
+      className='mt-15 w-[90%] md:w-[75%] rounded-3xl bg-cover bg-center bg-no-repeat'
+      style={{ 
+        backgroundImage: `url(${data.backgroundImage})`, 
+      }}
+    >
+      <div className="flex flex-col md:flex-row items-center gap-8 p-8 min-h-[375px]">
+        
+        <div className="w-full md:w-1/2 flex justify-center md:justify-start">
+          {data.leftImage && (
+            <img 
+              src={data.leftImage} 
+              alt="logos left" 
+              className="max-w-[300px] w-full h-auto"
+              data-tina-field={tinaField(data, 'leftImage')} 
+            />
+          )}
         </div>
+        
         <p 
-          className="text-white text-[18.317px] font-extralight leading-normal" 
+          className="w-full md:w-1/2 text-white text-center md:text-left text-[18.317px] font-extralight leading-normal" 
           data-tina-field={tinaField(data, 'text')}
         >
           {data.text}
