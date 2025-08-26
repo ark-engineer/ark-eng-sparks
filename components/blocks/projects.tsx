@@ -390,7 +390,6 @@ const ProjectSidebar = ({
                       >
                         <foreignObject x="-8.3" y="-8.3" width="51.6" height="51.6">
                           <div
-                            xmlns="http://www.w3.org/1999/xhtml"
                             style={{
                               backdropFilter: "blur(4.15px)",
                               clipPath: "url(#bgblur_0_162_4937_clip_path_right)",
