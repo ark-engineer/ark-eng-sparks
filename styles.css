@@ -133,3 +133,39 @@ body {
 .hero-gradient {
   background: linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 14.65%);
 }
+
+.carousel-container {
+  mask-image: linear-gradient(to right,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent);
+  -webkit-mask-image: linear-gradient(to right,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent);
+}
+
+.carousel-track {
+  animation: scroll 60s linear infinite;
+  width: fit-content;
+}
+
+.carousel-container:hover .carousel-track {
+  animation-duration: 200s;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
+
+.carousel-track>div {
+  flex-shrink: 0;
+}

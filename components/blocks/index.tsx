@@ -6,11 +6,12 @@ import { Features } from './features';
 import { Testimonial } from './testimonial';
 import { Header } from './header';
 import { Video } from './video';
-import { Callout } from './callout';
 import { Stats } from './stats';
 import { CallToAction } from './call-to-action';
 import { Monochrome } from './monochrome';
 import { Projects } from './projects';
+import { TeamSection as Team} from './team';
+import { ClientsCarousel } from './clients';
 
 export const Blocks = (props: Omit<Page, 'id' | '_sys' | '_values'>) => {
   if (!props.blocks) return null;
@@ -49,6 +50,11 @@ const Block = (block: PageBlocks) => {
       return <CallToAction data={block} />;
     case 'PageBlocksProjects':
       return <Projects data={block} />;
+    case 'PageBlocksTeamSection':
+       return <Team data={block} />;
+    case 'PageBlocksClientsCarousel':
+       return <ClientsCarousel data={block} />;
+       
     default:
       return null;
   }
