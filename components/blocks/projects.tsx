@@ -84,7 +84,7 @@ const ProjectCard = ({
 
   return (
     <Card
-      className="overflow-hidden grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer min-w-[18.625rem] max-w-[24.5rem] mb-[0.625rem] break-inside-avoid"
+      className="overflow-hidden grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer  max-w-[24.5rem] mb-[0.625rem] break-inside-avoid"
       onClick={onProjectClick}
     >
       {images.length > 0 && (
@@ -154,17 +154,14 @@ const ProjectSidebar = ({
 
   return (
     <>
-      {/* Overlay clicável transparente */}
       <div className="fixed inset-0 z-40" onClick={onClose} />
 
-      {/* Bottom Sidebar */}
-<div className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[1920px] min-w-[995px] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 overflow-y-auto rounded-t-2xl backdrop-blur-md shadow-lg [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)]">        {/* Header */}
+      <div className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[1920px] min-w-[995px] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 overflow-y-auto rounded-t-2xl backdrop-blur-md shadow-lg [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)]">        {/* Header */}
         <div className="flex items-center justify-between p-6 pb-0">
           <div className="flex flex-col align-left">
             <h2 className="text-2xl font-semibold leading-none" data-tina-field={tinaField(project, "constructorName")}>
               {project.constructorName}
             </h2>
-            {/* Descrição */}
             {project.description && (
               <p className="text-lg leading-tight" data-tina-field={tinaField(project, "description")}>
                 {project.description}
@@ -185,7 +182,6 @@ const ProjectSidebar = ({
                 <>
                   {/* Normal Gallery View */}
                   <div className="flex gap-[0.625rem] h-[290px] overflow-hidden">
-                    {/* Large main image - sempre 50% */}
                     <div className="w-1/2 relative overflow-hidden rounded-lg group">
                       <img
                         key={`main-${currentPage}`}
@@ -197,7 +193,6 @@ const ProjectSidebar = ({
                         }}
                         data-tina-field={tinaField(project, "images")}
                       />
-                      {/* Zoom icon for main image */}
                       <button
                         onClick={() => openFullscreen(startIndex)}
                         className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
@@ -210,7 +205,7 @@ const ProjectSidebar = ({
                       </button>
                     </div>
 
-                    {/* 4 small thumbnail images - os outros 50% */}
+                    {/* 4 small thumbnail images - others 50% */}
                     <div className="w-1/2 grid grid-cols-2 gap-[0.625rem] relative max-h-[290px]">
                       {thumbnailImages.map((img, index) => (
                         <div
@@ -523,7 +518,7 @@ const ProjectSidebar = ({
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Segunda coluna */}
                   <div className="space-y-4">
                     {project.height && (
@@ -545,7 +540,7 @@ const ProjectSidebar = ({
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Terceira coluna */}
                   <div className="space-y-4">
                     {project.builtArea && (
@@ -567,7 +562,7 @@ const ProjectSidebar = ({
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Quarta coluna */}
                   <div className="space-y-4">
                     {project.commercialUnits && (
@@ -597,12 +592,12 @@ const ProjectSidebar = ({
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Serviços</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {["ARKENG", "ebim", "ARKANE"].map((companyName) => {
+                    {[ "ARKENG", "ebim", "ARKANE" ].map((companyName) => {
                       const companyServices = project.services?.filter(service => service?.company === companyName) || []
-                      
+
                       // Só renderiza a coluna se tiver serviços
                       if (companyServices.length === 0) return null
-                      
+
                       return (
                         <div key={companyName} className="space-y-3">
                           <h4 className="font-medium text-base">{companyName}</h4>

@@ -10,6 +10,8 @@ import { statsBlockSchema } from '@/components/blocks/stats';
 import { ctaBlockSchema } from '@/components/blocks/call-to-action';
 import { monochromeBlockSchema } from '@/components/blocks/monochrome';
 import { projectsBlockSchema } from '@/components/blocks/projects';
+import { teamSectionSchema } from '@/components/blocks/team';
+import { clientsCarouselSchema } from '@/components/blocks/clients';
 
 const Page: Collection = {
   label: 'Pages',
@@ -46,6 +48,8 @@ const Page: Collection = {
         testimonialBlockSchema,
         videoBlockSchema,
         projectsBlockSchema,
+        teamSectionSchema,
+        clientsCarouselSchema
       ],
     },
   ],
