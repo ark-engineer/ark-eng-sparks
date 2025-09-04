@@ -21,7 +21,7 @@ export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
             <img 
               src={data.leftImage} 
               alt="logos left" 
-              className="max-w-[300px] w-full h-auto"
+              className="max-w-[26rem] w-full h-auto"
               data-tina-field={tinaField(data, 'leftImage')} 
             />
           )}
