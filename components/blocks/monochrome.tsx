@@ -14,7 +14,7 @@ export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
         backgroundImage: `url(${data.backgroundImage})`, 
       }}
     >
-      <div className="flex flex-col md:flex-row items-center gap-8 p-8 min-h-[375px]">
+      <div className="flex flex-col md:flex-row items-center gap-8 p-8 min-h-[90%]">
         
         <div className="w-full md:w-1/2 flex justify-center md:justify-start">
           {data.leftImage && (

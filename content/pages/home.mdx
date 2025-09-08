@@ -7,7 +7,7 @@ blocks:
       - label: Serviços
         href: /servicos
       - label: Fale Conosco
-        href: /fale-conosco
+        href: '#contact'
     _template: header
   - background: bg-default
     headline: agora damos setup!
@@ -148,6 +148,11 @@ blocks:
         logo: /uploads/logos/ark-eng.svg
         servicesTitle: Serviços de Engenharia
         services:
+          - serviceName: Lorem ipsum dolor sit amet consectetur adipiscing elit.
+            modalContent:
+              detailedDescription: Descrição detalhada...
+              features:
+                - Recurso 1
           - serviceName: Projetos Estruturais
             modalContent:
               detailedDescription: >-
@@ -159,7 +164,7 @@ blocks:
                 - Projetos de concreto armado
               howItWorksUrl: 'https://exemplo.com/projetos-estruturais'
               howItWorksButtonText: Saiba Mais
-          - serviceName: Consultoria Técnica
+          - serviceName: amet consectetur adipiscing elit.
             modalContent:
               detailedDescription: >-
                 Consultoria especializada para tomada de decisões técnicas em
@@ -169,6 +174,33 @@ blocks:
                 - Pareceres especializados
                 - Auditoria de projetos
               howItWorksUrl: 'https://exemplo.com/consultoria-tecnica'
+      - id: ebim
+        name: ebim
+        logo: /uploads/logos/ebim.svg
+        servicesTitle: ''
+        services:
+          - serviceName: Novo Serviço
+            modalContent:
+              detailedDescription: Descrição detalhada...
+              features:
+                - Recurso 1
+          - serviceName: Novo Serviço
+            modalContent:
+              detailedDescription: Descrição detalhada...
+              features:
+                - Recurso 1
+          - serviceName: Novo Serviço
+            modalContent:
+              detailedDescription: Descrição detalhada...
+              features:
+                - Recurso 1
+          - serviceName: Novo Serviço
+            modalContent:
+              detailedDescription: Descrição detalhada...
+              features:
+                - Recurso 1
+          - serviceName: Novo Serviço
+            modalContent: {}
     _template: solutions
   - titleAbout: Sobre Nós
     description: >-
@@ -249,5 +281,27 @@ blocks:
         alt: Logo Cliente 5
         link: ''
     _template: clientsCarousel
+  - background: bg-black/80
+    contactTitle: Tem alguma dúvida? Entre em contato conosco!
+    contactSubtitle: Sua opinião é importante para nós! Entre em contato e deixe seu feedback.
+    backgroundImage: uploads/contato/Rectangle 7.png
+    contactItems:
+      - icon: chat
+        itemTitle: Chat Online
+        itemDescription: Converse conosco em tempo real
+        itemExtraText: Disponível 24/7
+      - icon: location
+        itemTitle: Endereço
+        itemDescription: Nos visite em nosso escritório
+        itemExtraText: 'Rua das Flores, 123 - Centro'
+      - icon: phone
+        itemTitle: Telefone
+        itemDescription: Ligue para nós
+        itemExtraText: (11) 99999-9999
+      - icon: users
+        itemTitle: Suporte
+        itemDescription: Nossa equipe está pronta para ajudar
+        itemExtraText: suporte@empresa.com
+    _template: contact
 ---
 

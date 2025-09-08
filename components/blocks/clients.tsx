@@ -27,17 +27,18 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
     if (trackRef.current && !animationRef.current) {
       animationRef.current = trackRef.current.animate(
         [
-          { transform: 'translateX(0)' },
-          { transform: 'translateX(-33.333%)' }
+          { transform: "translateX(0)" },
+          { transform: "translateX(-33.333%)" },
         ],
         {
           duration: 30000, // 30 segundos
           iterations: Infinity,
-          easing: 'linear'
+          easing: "linear",
         }
       )
     }
   }, [])
+
   const handleMouseEnter = () => {
     if (animationRef.current) {
       animationRef.current.playbackRate = 0.25
@@ -52,47 +53,46 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
 
   const handleClientClick = (client: ClientLogo) => {
     if (client.link) {
-      window.open(client.link, '_blank', 'noopener,noreferrer')
+      window.open(client.link, "_blank", "noopener,noreferrer")
     }
   }
 
   return (
     <div
-      className="w-full py-16 bg-white overflow-hidden"
+      className="w-full lg:py-10 bg-white overflow-hidden"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       <div className="text-center mb-12">
         <h2
-          className="text-[36px] font-medium text-black text-center capitalize font-inter leading-normal not-italic"
+          className="text-[28px] sm:text-[36px] font-medium text-black text-center capitalize font-inter leading-normal not-italic"
           data-tina-field={tinaField(data, "carouselTitle")}
         >
           {data.carouselTitle}
         </h2>
-
       </div>
 
       <div
-        className="carousel-container relative w-full"
-        style={{ height: '10.75rem' }}
+        className="carousel-container relative w-full h-32 sm:h-44 lg:h-60"
       >
         <div ref={trackRef} className="carousel-track flex items-center">
           {duplicatedClients.map((client, index) => (
             <div
               key={`${client.name}-${index}`}
-              className={`carousel-item flex-shrink-0 flex items-center justify-center mx-8 ${client.link ? 'cursor-pointer' : ''
+              className={`carousel-item flex-shrink-0 flex items-center justify-center mx-4 sm:mx-8 ${client.link ? "cursor-pointer" : ""
                 }`}
-              style={{
-                height: '10.75rem',
-                minWidth: '12rem'
-              }}
               onClick={() => handleClientClick(client)}
               data-tina-field={tinaField(data, "clients")}
             >
               <img
                 src={client.image || "/api/placeholder/200/100"}
                 alt={client.alt || client.name || "Cliente"}
-                className="max-w-full max-h-full object-contain filter grayscale hover:grayscale-0 transition-all duration-300 hover:scale-105"
+                className="
+                  max-h-16 sm:max-h-28 lg:max-h-44
+                  max-w-[8rem] sm:max-w-[12rem]
+                  object-contain filter grayscale hover:grayscale-0
+                  transition-all duration-300 hover:scale-105
+                "
               />
             </div>
           ))}
@@ -101,8 +101,6 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
     </div>
   )
 }
-
-
 
 export const clientsCarouselSchema: Template = {
   name: "clientsCarousel",

@@ -54,7 +54,7 @@ export const AboutUsBlock = ({ data }: { data: any }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-        {data.columns?.map((column, index) => (
+        {(data.columns as AboutUsColumn[])?.map((column, index) => (
           <div key={index} className="text-center">
             <h4 
               className="text-xl font-semibold text-gray-900 mb-4"

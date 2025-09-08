@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { Template } from "tinacms"
 import { tinaField } from "tinacms/dist/react"
 import { sectionBlockSchemaField } from "../layout/section"
@@ -42,7 +42,32 @@ const ServiceModal = ({
   serviceName?: string
   modalContent?: ServiceModalContent
 }) => {
-  if (!isOpen || !modalContent) return null
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [shouldRender, setShouldRender] = useState(false)
+
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true)
+      // Small delay to ensure DOM is ready before animation
+      const timer = setTimeout(() => {
+        setIsAnimating(true)
+      }, 10)
+      return () => clearTimeout(timer)
+    } else {
+      setIsAnimating(false)
+      // Wait for animation to complete before unmounting
+      const timer = setTimeout(() => {
+        setShouldRender(false)
+      }, 300)
+      return () => clearTimeout(timer)
+    }
+  }, [isOpen])
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
+  }
 
   const handleHowItWorksClick = () => {
     if (modalContent?.howItWorksUrl) {
@@ -50,12 +75,26 @@ const ServiceModal = ({
     }
   }
 
+  if (!shouldRender || !modalContent) return null
+
   return (
-    <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-51 p-4">
-      <div className="bg-white shadow-sm rounded-3xl max-w-md w-full mx-4 relative">
+    <div 
+      className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-all duration-300 ease-out ${
+        isAnimating ? 'bg-opacity-50' : 'bg-opacity-0'
+      }`}
+      onClick={handleBackdropClick}
+    >
+      <div 
+        className={`bg-white shadow-lg rounded-3xl max-w-md w-full mx-4 relative transition-all duration-300 ease-out ${
+          isAnimating 
+            ? 'opacity-100 scale-100 translate-y-0' 
+            : 'opacity-0 scale-95 translate-y-4'
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-light"
+          className="cursor-pointer absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-light transition-colors duration-200 z-10"
         >
           ×
         </button>
@@ -102,7 +141,7 @@ const ServiceModal = ({
           {modalContent?.howItWorksUrl && (
             <button
               onClick={handleHowItWorksClick}
-              className="w-full bg-white border-2 border-gray-900 text-gray-900 py-3 px-6 rounded-full font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+              className="cursor-pointer w-full bg-white border-2 border-gray-900 text-gray-900 py-3 px-6 rounded-full font-medium hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center gap-2"
             >
               <div className="w-6 h-6 rounded-full border border-gray-900 flex items-center justify-center">
                 <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
@@ -115,7 +154,7 @@ const ServiceModal = ({
                   />
                 </svg>
               </div>
-              {modalContent?.howItWorksButtonText || "Como Funciona"}
+              {modalContent?.howItWorksButtonText ?? "Confira"}
             </button>
           )}
         </div>
@@ -124,16 +163,97 @@ const ServiceModal = ({
   )
 }
 
+const AnimatedServiceButton = ({ 
+  service, 
+  index, 
+  onServiceClick, 
+  isVisible,
+  delay 
+}: { 
+  service: Service
+  index: number
+  onServiceClick: (service: Service) => void
+  isVisible: boolean
+  delay: number
+}) => {
+  const [shouldAnimate, setShouldAnimate] = useState(false)
+
+  useEffect(() => {
+    if (isVisible) {
+      const timer = setTimeout(() => {
+        setShouldAnimate(true)
+      }, delay)
+      return () => clearTimeout(timer)
+    } else {
+      setShouldAnimate(false)
+    }
+  }, [isVisible, delay])
+
+  return (
+    <button
+      onClick={() => onServiceClick(service)}
+      className="relative bg-white rounded-xl px-4 py-3 text-left 
+                 w-full sm:w-auto
+                 hover:bg-gray-50 group cursor-pointer transition-colors duration-200"
+      style={{
+        clipPath: shouldAnimate && isVisible 
+          ? 'inset(0 0 0 0 round 1rem)' 
+          : 'inset(0 0 0 100% round 1rem)',
+        transition: `clip-path 600ms cubic-bezier(0.25, 0.1, 0.25, 1.0) ${isVisible ? delay : 0}ms, background-color 200ms ease`,
+      }}
+      data-tina-field={tinaField(service, "serviceName")}
+    >
+      {/* Texto ocupa todo espaço do botão e quebra se precisar */}
+      <span className="block text-gray-900 font-medium break-words pr-8">
+        {service.serviceName}
+      </span>
+
+      {/* Ícone fixo no canto superior direito */}
+      <svg
+        className="absolute top-3 right-3 w-5 h-5 text-gray-600 group-hover:text-gray-900 transition-colors"
+        viewBox="0 0 20 20"
+        fill="none"
+      >
+        <path
+          d="M7.5 15L12.5 10L7.5 5"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  )
+}
+
 export const SolutionsBlock = ({ data }: { data: any }) => {
   const [activeCompany, setActiveCompany] = useState(0)
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedService, setSelectedService] = useState<Service | null>(null)
+  const [servicesVisible, setServicesVisible] = useState(false)
 
   const currentCompany: SolutionsBlockCompany | undefined = data.companies?.[activeCompany]
+
+  useEffect(() => {
+    setServicesVisible(false)
+    const timer = setTimeout(() => {
+      setServicesVisible(true)
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [activeCompany])
 
   const handleServiceClick = (service: Service) => {
     setSelectedService(service)
     setModalOpen(true)
+  }
+
+  const handleCompanyChange = (index: number) => {
+    if (index !== activeCompany) {
+      setServicesVisible(false)
+      setTimeout(() => {
+        setActiveCompany(index)
+      }, 200)
+    }
   }
 
   return (
@@ -161,39 +281,66 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
               {data.description}
             </p>
           </div>
-          <div className="flex gap-0">
-            {data.images?.slice(0, 3).map((img, index) => (
-              <div
-                key={index}
-                style={{ width: "24.125rem", height: "19.1875rem" }}
-                className="overflow-hidden"
-                data-tina-field={tinaField(data, "images")}
-              >
-                <img
-                  src={img.image || "/api/placeholder/386/307"}
-                  alt={img.alt || `Imagem ${index + 1}`}
-                  className="w-full h-full object-cover"
-                  style={{ borderRadius: index === 0 ? "8px 0 0 8px" : index === 2 ? "0 8px 8px 0" : "0" }}
-                />
+          <div className="w-full">
+            {/* Desktop: 3 images side by side */}
+            <div className="hidden md:flex gap-0">
+              {(data.images as { image?: string, alt?: string }[])?.slice(0, 3).map((img, index) => (
+                <div
+                  key={index}
+                  style={{ width: "24.125rem", height: "19.1875rem" }}
+                  className="overflow-hidden"
+                  data-tina-field={tinaField(data, "images")}
+                >
+                  <img
+                    src={img.image || "/api/placeholder/386/307"}
+                    alt={img.alt || `Imagem ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    style={{ borderRadius: index === 0 ? "8px 0 0 8px" : index === 2 ? "0 8px 8px 0" : "0" }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Mobile: Horizontal scroll with snap */}
+            <div className="md:hidden w-full overflow-x-auto">
+              <div className="flex gap-4 pb-4 snap-x snap-mandatory snap-center scroll-smooth" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {(data.images as { image?: string, alt?: string }[])?.map((img, index) => (
+                  <div
+                    key={index}
+                    className="flex-none w-80 h-64 overflow-hidden rounded-lg snap-center"
+                    data-tina-field={tinaField(data, "images")}
+                  >
+                    <img
+                      src={img.image || "/api/placeholder/320/256"}
+                      alt={img.alt || `Imagem ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
+              <style jsx>{`
+                div::-webkit-scrollbar {
+                  display: none;
+                }
+              `}</style>
+            </div>
           </div>
         </div>
 
-        <div className="flex w-full gap-12">
-          <div className="flex-1 space-y-6 max-w-[30rem]">
+        <div className="flex w-full gap-12 flex-wrap">
+          <div className="prose lg:prose-xl flex-1 space-y-6 max-w-[30rem]">
             <h3
-              className="text-white font-medium text-3xl leading-normal uppercase font-inter"
+              className="text-white font-medium leading-normal uppercase font-inter"
               data-tina-field={tinaField(data, "companiesTitle")}
             >
               {data.companiesTitle}
             </h3>
             <div className="flex flex-row gap-4">
-              {data.companies?.map((company, index) => (
+              {(data.companies as any[])?.map((company: any, index: number) => (
                 <button
                   key={company.id || index}
-                  onClick={() => setActiveCompany(index)}
-                  className="p-4 rounded-lg transition-all duration-300"
+                  onClick={() => handleCompanyChange(index)}
+                  className="cursor-pointer p-4 rounded-lg transition-all duration-300"
                   data-tina-field={tinaField(company, "logo")}
                 >
                   <img
@@ -211,39 +358,33 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
           <div className="flex-1 space-y-4 text-right">
             {currentCompany && (
               <>
+              {
+                currentCompany.servicesTitle ?
+
                 <h4
-                  className="text-white text-lg font-medium"
-                  data-tina-field={tinaField(currentCompany, "servicesTitle")}
+                className="text-white text-lg font-medium"
+                data-tina-field={tinaField(currentCompany, "servicesTitle")}
                 >
-                  {currentCompany.servicesTitle || "Serviços"}
+                  {currentCompany.servicesTitle}
                 </h4>
+                  : null
+                }
 
                 <div className="flex flex-col items-end space-y-3">
-                  {currentCompany.services?.map((service, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleServiceClick(service)}
-                      className="bg-white rounded-full px-4 py-2 flex items-center justify-between hover:bg-gray-50 transition-colors group cursor-pointer w-auto"
-                      data-tina-field={tinaField(service, "serviceName")}
-                    >
-                      <span className="text-gray-900 font-medium text-left pr-6">
-                        {service.serviceName}
-                      </span>
-                      <svg
-                        className="w-5 h-5 text-gray-600 group-hover:text-gray-900 transition-colors"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                      >
-                        <path
-                          d="M7.5 15L12.5 10L7.5 5"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
-                  ))}
+                  {currentCompany.services?.slice().reverse().map((service, index) => {
+                    // Calculate delay based on reversed index (bottom to top)
+                    const delay = index * 100
+                    return (
+                      <AnimatedServiceButton
+                        key={`${activeCompany}-${service.serviceName}-${index}`}
+                        service={service}
+                        index={index}
+                        onServiceClick={handleServiceClick}
+                        isVisible={servicesVisible}
+                        delay={delay}
+                      />
+                    )
+                  })}
                 </div>
               </>
             )}
@@ -352,7 +493,7 @@ export const solutionsBlockSchema: Template = {
         },
         { type: "string", label: "Nome da Empresa", name: "name", required: true },
         { type: "image", label: "Logo da Empresa", name: "logo", required: true },
-        { type: "string", label: "Título da Seção de Serviços", name: "servicesTitle", required: true },
+        { type: "string", label: "Título da Seção de Serviços", name: "servicesTitle", required: false },
         {
           type: "object",
           list: true,
