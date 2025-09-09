@@ -33,8 +33,8 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
 
   return (
     <Section background={data.background!} className="px-[2.75rem]">
-      <div className="flex flex-row justify-between">
-        <h2 className="text-title text-3xl font-semibold" data-tina-field={tinaField(data, "title")}>
+      <div className=" flex flex-row justify-between flex-wrap">
+        <h2 className="prose prose-xl text-title font-semibold " data-tina-field={tinaField(data, "title")}>
           {data.title}
         </h2>
         <div className="flex justify-center">
@@ -156,7 +156,7 @@ const ProjectSidebar = ({
     <>
       <div className="fixed inset-0 z-40" onClick={onClose} />
 
-      <div className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[1920px] min-w-[995px] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 overflow-y-auto rounded-t-2xl backdrop-blur-md shadow-lg [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)]">        {/* Header */}
+      <div className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[1920px] lg:min-w-[995px] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 overflow-y-auto rounded-t-2xl backdrop-blur-md shadow-lg [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)]">        {/* Header */}
         <div className="flex items-center justify-between p-6 pb-0">
           <div className="flex flex-col align-left">
             <h2 className="text-2xl font-semibold leading-none" data-tina-field={tinaField(project, "constructorName")}>

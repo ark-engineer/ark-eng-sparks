@@ -12,6 +12,9 @@ import { Monochrome } from './monochrome';
 import { Projects } from './projects';
 import { TeamSection as Team} from './team';
 import { ClientsCarousel } from './clients';
+import { SolutionsBlock } from './services';
+import { AboutUsBlock } from './about-us';
+import { ContactBlock } from './contact';
 
 export const Blocks = (props: Omit<Page, 'id' | '_sys' | '_values'>) => {
   if (!props.blocks) return null;
@@ -54,6 +57,12 @@ const Block = (block: PageBlocks) => {
        return <Team data={block} />;
     case 'PageBlocksClientsCarousel':
        return <ClientsCarousel data={block} />;
+    case 'PageBlocksSolutions':
+       return <SolutionsBlock data={block} />;
+    case 'PageBlocksAboutUs':
+       return <AboutUsBlock data={block} />;
+    case 'PageBlocksContact':
+       return <ContactBlock data={block as any} />;
        
     default:
       return null;

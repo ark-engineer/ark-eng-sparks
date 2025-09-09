@@ -12,6 +12,9 @@ import { monochromeBlockSchema } from '@/components/blocks/monochrome';
 import { projectsBlockSchema } from '@/components/blocks/projects';
 import { teamSectionSchema } from '@/components/blocks/team';
 import { clientsCarouselSchema } from '@/components/blocks/clients';
+import { solutionsBlockSchema } from '@/components/blocks/services';
+import { aboutUsBlockSchema } from '@/components/blocks/about-us';
+import { contactBlockSchema } from '@/components/blocks/contact';
 
 const Page: Collection = {
   label: 'Pages',
@@ -49,7 +52,10 @@ const Page: Collection = {
         videoBlockSchema,
         projectsBlockSchema,
         teamSectionSchema,
-        clientsCarouselSchema
+        clientsCarouselSchema,
+        solutionsBlockSchema,
+        aboutUsBlockSchema,
+        contactBlockSchema
       ],
     },
   ],

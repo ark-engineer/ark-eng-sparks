@@ -14,14 +14,14 @@ export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
         backgroundImage: `url(${data.backgroundImage})`, 
       }}
     >
-      <div className="flex flex-col md:flex-row items-center gap-8 p-8 min-h-[375px]">
+      <div className="flex flex-col md:flex-row items-center gap-8 p-8 min-h-[90%]">
         
         <div className="w-full md:w-1/2 flex justify-center md:justify-start">
           {data.leftImage && (
             <img 
               src={data.leftImage} 
               alt="logos left" 
-              className="max-w-[300px] w-full h-auto"
+              className="max-w-[26rem] w-full h-auto"
               data-tina-field={tinaField(data, 'leftImage')} 
             />
           )}
