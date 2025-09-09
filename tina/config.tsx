@@ -38,12 +38,11 @@ const config = defineConfig({
       Global
     ],
   },
-    cmsCallback: (cms) => {
+  cmsCallback: (cms) => {
     cms.fields.add({
       name: 'iconPicker',
       Component: IconPicker,
     });
-    
     return cms;
   },
 });

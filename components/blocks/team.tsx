@@ -16,7 +16,7 @@ export const TeamSection = ({ data }: { data: any }) => {
   const getZIndex = (index: number, total: number): number => {
     const middleIndex = Math.floor(total / 2)
     const distanceFromMiddle = Math.abs(index - middleIndex)
-    return 50 - distanceFromMiddle * 10
+    return 40 - distanceFromMiddle * 10
   }
 
   return (

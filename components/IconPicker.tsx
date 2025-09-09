@@ -1,21 +1,20 @@
 import React, { useState, useMemo } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import * as HugeIcons from '@hugeicons/core-free-icons';
-import { Input } from 'tinacms';
 
 interface IconPickerProps {
   value?: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
 }
 
-const inputContentIntl = { placeholder: 'Procure um icone...',  clear: "Limpar seleção", select: "Selecione um Ícone"};
+const inputContentIntl = { placeholder: 'Procure um icone...', clear: "Limpar seleção", select: "Selecione um Ícone" };
+
 export const IconPicker: React.FC<IconPickerProps> = ({ value = '', onChange }) => {
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
   const iconNames = useMemo(() => {
-    // Filter out non-icon exports (if any) and apply search
-    const excludeList = ['default']; // Adjust based on actual exports
+    const excludeList = ['default'];
     return Object.keys(HugeIcons)
       .filter((name) => !excludeList.includes(name))
       .filter((name) => name.toLowerCase().includes(search.toLowerCase()))
@@ -65,7 +64,9 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value = '', onChange }) 
                       value === iconName ? 'bg-blue-100 ring-1 ring-blue-500' : ''
                     }`}
                     onClick={() => {
-                      onChange(iconName);
+                      if (typeof onChange === 'function') {
+                        onChange(iconName);
+                      }
                       setIsOpen(false);
                       setSearch('');
                     }}
@@ -85,7 +86,9 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value = '', onChange }) 
             <div className='border-t p-2'>
               <button
                 onClick={() => {
-                  onChange('');
+                  if (typeof onChange === 'function') {
+                    onChange('');
+                  }
                   setIsOpen(false);
                 }}
                 className='w-full px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded'
@@ -100,6 +103,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value = '', onChange }) 
     </div>
   );
 };
+
 
 export const useIconPicker = () => {
   return {

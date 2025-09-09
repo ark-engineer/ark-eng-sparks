@@ -123,6 +123,38 @@
   }
 }
 
+@keyframes fadeInSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dotFill {
+  0% {
+    stroke-dashoffset: 100%;
+  }
+
+  100% {
+    stroke-dashoffset: 0%;
+  }
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -158,16 +190,6 @@ body {
 
 .carousel-container:hover .carousel-track {
   animation-duration: 200s;
-}
-
-@keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-33.333%);
-  }
 }
 
 .carousel-track>div {
