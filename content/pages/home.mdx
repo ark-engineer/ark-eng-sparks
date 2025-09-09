@@ -43,6 +43,8 @@ blocks:
         images:
           - image: /uploads/projects/1febcfca266fad9bd050832ab4fef558efee0aee.jpg
             setAsMain: true
+        landArea:
+          value: '22'
         services:
           - company: ARKENG
       - constructorName: Nova Construtora
@@ -81,14 +83,14 @@ blocks:
           - image: /uploads/projects/0dff4ae60a4e8c092d9c9128299427fd6d76f50f.jpg
             setAsMain: true
         description: Construtora
-        landArea: '22'
-        height: '111'
-        location: '11122'
-        pavilions: area
-        builtArea: asdasdas
-        residentialUnits: sad
-        commercialUnits: 'Lorem ipsum dolor sit '
-        parkingSpaces: 'Lorem ipsum dolor sit amet, consectetur'
+        landArea: {}
+        height: {}
+        location: {}
+        pavilions: {}
+        builtArea: {}
+        residentialUnits: {}
+        commercialUnits: {}
+        parkingSpaces: {}
         services:
           - company: ebim
             serviceItems:
@@ -118,14 +120,14 @@ blocks:
         images:
           - image: /uploads/projects/e86b8c9a6ac34ba405486aecd815a3d381e13160.png
         description: teste
-        landArea: '1'
-        height: '2'
-        location: '1'
-        pavilions: '22'
-        builtArea: '2'
-        residentialUnits: '2'
-        commercialUnits: '2'
-        parkingSpaces: '1'
+        landArea: {}
+        height: {}
+        location: {}
+        pavilions: {}
+        builtArea: {}
+        residentialUnits: {}
+        commercialUnits: {}
+        parkingSpaces: {}
         services:
           - company: ARKENG
             serviceItems:
@@ -134,17 +136,12 @@ blocks:
     _template: projects
   - mainTitle: Soluções Inovadoras
     description: Oferecemos soluções completas e personalizadas para o mercado imobiliário
-    images:
-      - image: /uploads/projects/efae14e24d488bba2f8d8425ec911a303c34c095.jpg
-        alt: Imagem 1
-      - image: /uploads/projects/1febcfca266fad9bd050832ab4fef558efee0aee.jpg
-        alt: Imagem 2
-      - image: /uploads/authors/lucy.png
-        alt: Imagem 3
     companiesTitle: Soluções personalizadas para suas necessidades imobiliárias
+    enableAutoRotate: true
+    autoRotateDelay: 3000
     companies:
       - id: arkeng
-        name: ARKENG
+        companyName: ark eng
         logo: /uploads/logos/ark-eng.svg
         servicesTitle: Serviços de Engenharia
         services:
@@ -158,24 +155,23 @@ blocks:
               detailedDescription: >-
                 Desenvolvemos projetos estruturais completos com foco na
                 segurança e otimização de recursos.
+              howItWorksUrl: 'https://exemplo.com/projetos-estruturais'
+              howItWorksButtonText: Saiba Mais
               features:
                 - Análise estrutural avançada
                 - Cálculo de fundações
                 - Projetos de concreto armado
-              howItWorksUrl: 'https://exemplo.com/projetos-estruturais'
-              howItWorksButtonText: Saiba Mais
           - serviceName: amet consectetur adipiscing elit.
             modalContent:
               detailedDescription: >-
                 Consultoria especializada para tomada de decisões técnicas em
                 projetos de engenharia.
+              howItWorksUrl: 'https://exemplo.com/consultoria-tecnica'
               features:
                 - Análise de viabilidade técnica
                 - Pareceres especializados
                 - Auditoria de projetos
-              howItWorksUrl: 'https://exemplo.com/consultoria-tecnica'
       - id: ebim
-        name: ebim
         logo: /uploads/logos/ebim.svg
         servicesTitle: ''
         services:
@@ -201,6 +197,13 @@ blocks:
                 - Recurso 1
           - serviceName: Novo Serviço
             modalContent: {}
+    images:
+      - image: /uploads/projects/efae14e24d488bba2f8d8425ec911a303c34c095.jpg
+        alt: Imagem 1
+      - image: /uploads/projects/1febcfca266fad9bd050832ab4fef558efee0aee.jpg
+        alt: Imagem 2
+      - image: /uploads/authors/lucy.png
+        alt: Imagem 3
     _template: solutions
   - titleAbout: Sobre Nós
     description: >-

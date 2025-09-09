@@ -6,6 +6,7 @@ import Global from "./collection/global";
 import Author from "./collection/author";
 import Page from "./collection/page";
 import Tag from "./collection/tag";
+import { IconPicker } from "@/components/IconPicker";
 
 const config = defineConfig({
   clientId: process.env.NEXT_PUBLIC_TINA_CLIENT_ID!,
@@ -36,6 +37,14 @@ const config = defineConfig({
       Post, Author, Tag,
       Global
     ],
+  },
+    cmsCallback: (cms) => {
+    cms.fields.add({
+      name: 'iconPicker',
+      Component: IconPicker,
+    });
+    
+    return cms;
   },
 });
 
