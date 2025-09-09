@@ -96,7 +96,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className='prose prose-xl text-title font-semibold' data-tina-field={tinaField(data, 'title')}>
+          <h2 className=' sm:text-2xl lg:text-4xl text-title font-semibold' data-tina-field={tinaField(data, 'title')}>
             {data.title}
           </h2>
           <div className='flex justify-center'>

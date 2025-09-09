@@ -217,7 +217,7 @@ const AnimatedServiceButton = ({
       <span className='block text-gray-900 font-medium break-words pr-8'>
         {service.serviceName}<sup>0{index + 1}</sup>
       </span>
-      <HugeiconsIcon icon={ArrowUpRight01Icon} className='absolute top-3 right-3 w-5 h-5 text-gray-600 group-hover:text-gray-900 transition-colors' />
+      <HugeiconsIcon icon={ArrowUpRight01Icon} className='absolute top-4 right-4 w-5 h-5 text-gray-600 group-hover:text-gray-900 transition-colors' />
     </button>
   );
 };
