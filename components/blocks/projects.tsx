@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { motion, AnimatePresence, Variants, useScroll } from 'framer-motion';
 import { LazyMotion, domAnimation } from 'motion/react';
 import * as m from 'motion/react-m';
 
@@ -59,87 +59,228 @@ const iconMap = {
   'discount-tag-02': HugeIcons.DiscountTag02Icon,
 } as const;
 
-const containerVariants = {
+const cardVariants: Variants = {
+  hidden: (scrollDirection: "up" | "down") => ({
+    y: scrollDirection === "down" ? 20 : -20,
+    opacity: 0,
+    scale: 0.8,
+  }),
+  visible: (custom: number) => ({
+    y: 0,
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: "spring",
+      bounce: 0.3,
+      duration: 0.6,
+      delay: 0.1,
+    },
+  }),
+  exit: (scrollDirection: "up" | "down") => ({
+    y: scrollDirection === "down" ? 20 : -20,
+    opacity: 0,
+    scale: 0.8,
+    transition: {
+      duration: 0.1,
+    },
+  }),
+}
+
+const scrollContainerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
+      staggerChildren: 0.05,
+      delayChildren: 0.1,
+    },
+    exit: {
+      y: 100,
+      opacity: 0,
+      scale: 0.4,
+      transition: {
+        duration: 0.2,
+      },
     },
   },
-};
+}
 
 export const Projects = ({ data }: { data: PageBlocksProjects }) => {
-  const [activeTab, setActiveTab] = useState<ProjectType>('ARKENG');
-  const [selectedProject, setSelectedProject] = useState<PageBlocksProjectsProjects | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<ProjectType>("ARKENG")
+  const [selectedProject, setSelectedProject] = useState<PageBlocksProjectsProjects | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const filteredProjects = data.projects?.filter((project) => project?.services?.some((service) => service?.company === activeTab)) || [];
+  const containerRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [scrollDirection, setScrollDirection] = useState<"up" | "down">("down")
+  const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set())
+
+  const { scrollY } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  })
+
+  const filteredProjects =
+    data.projects?.filter((project) => project?.services?.some((service) => service?.company === activeTab)) || []
+
+  useEffect(() => {
+    let lastScrollY = 0
+
+    const updateScrollDirection = () => {
+      const currentScrollY = window.scrollY
+      const direction = currentScrollY > lastScrollY ? "down" : "up"
+
+      if (direction !== scrollDirection) {
+        setScrollDirection(direction)
+      }
+
+      lastScrollY = currentScrollY
+    }
+
+    const handleScroll = () => {
+      updateScrollDirection()
+
+      if (scrollContainerRef.current) {
+        const container = scrollContainerRef.current
+        const containerRect = container.getBoundingClientRect()
+        const cards = container.querySelectorAll("[data-card-index]")
+        const newVisibleCards = new Set<number>()
+
+        cards.forEach((card, index) => {
+          const cardRect = card.getBoundingClientRect()
+          const isVisible = cardRect.top < window.innerHeight && cardRect.bottom > 0
+
+          if (isVisible) {
+            newVisibleCards.add(index)
+          }
+        })
+
+        setVisibleCards(newVisibleCards)
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    handleScroll() // Initial call
+
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [scrollDirection])
+
+  useEffect(() => {
+    setVisibleCards(new Set())
+    setTimeout(() => {
+      const cards = scrollContainerRef.current?.querySelectorAll("[data-card-index]")
+      if (cards) {
+        const newVisibleCards = new Set<number>()
+        cards.forEach((card, index) => {
+          const cardRect = card.getBoundingClientRect()
+          const isVisible = cardRect.top < window.innerHeight && cardRect.bottom > 0
+          if (isVisible) {
+            newVisibleCards.add(index)
+          }
+        })
+        setVisibleCards(newVisibleCards)
+      }
+    }, 100)
+  }, [activeTab])
 
   const openProjectSidebar = (project: PageBlocksProjectsProjects) => {
-    setSelectedProject(project);
-    setSidebarOpen(true);
-  };
+    setSelectedProject(project)
+    setSidebarOpen(true)
+  }
 
   const closeSidebar = () => {
-    setSidebarOpen(false);
-    setSelectedProject(null);
-  };
+    setSidebarOpen(false)
+    setSelectedProject(null)
+  }
 
   return (
-    <Section background={data.background!} className='px-[2.75rem]'>
-      <LazyMotion features={domAnimation}>
-        <m.div
-          className='flex flex-row justify-between flex-wrap'
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className=' sm:text-2xl lg:text-4xl text-title font-semibold' data-tina-field={tinaField(data, 'title')}>
-            {data.title}
-          </h2>
-          <div className='flex justify-center'>
-            <div className='flex p-1 gap-2'>
-              {(['ARKENG', 'eBIM', 'ARKANE'] as ProjectType[]).map((tab, index) => (
-                <motion.div key={tab} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 + 0.3 }}>
-                  <Button
-                    variant={activeTab === tab ? 'default' : 'ghost'}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-6 py-2 rounded-4xl transition-colors duration-200 ${activeTab === tab ? 'bg-black' : 'bg-gray-200'}`}
-                  >
-                    {tab}
-                  </Button>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </m.div>
-      </LazyMotion>
-
-      <AnimatePresence mode='wait'>
+    <div ref={containerRef} className="relative">
+      <Section
+        background={data.background!}
+        className="px-[2.75rem] sticky top-0 z-10 bg-white/95 backdrop-blur-sm"
+        id="projects-list"
+      >
         <LazyMotion features={domAnimation}>
           <m.div
-            key={activeTab}
-            variants={containerVariants}
-            initial='hidden'
-            animate='visible'
-            exit='exit'
-            className='mt-12 px-[2.75rem] gap-[0.625rem] sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5'
+            className="flex flex-row justify-between flex-wrap"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            {filteredProjects.map((project, index) => (
-              <ProjectCard key={`${activeTab}-${index}`} project={project!} activeTab={activeTab} onProjectClick={() => openProjectSidebar(project!)} />
-            ))}
+            <h2
+              className=" sm:text-2xl lg:text-4xl text-title font-semibold"
+              data-tina-field={tinaField(data, "title")}
+            >
+              {data.title}
+            </h2>
+            <div className="flex justify-center">
+              <div className="flex p-1 gap-2">
+                {(["ARKENG", "eBIM", "ARKANE"] as ProjectType[]).map((tab, index) => (
+                  <motion.div
+                    key={tab}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 + 0.3 }}
+                  >
+                    <Button
+                      variant={activeTab === tab ? "default" : "ghost"}
+                      onClick={() => setActiveTab(tab)}
+                      className={`px-6 py-2 rounded-4xl transition-colors duration-200 ${activeTab === tab ? "bg-black" : "bg-gray-200"}`}
+                    >
+                      {tab}
+                    </Button>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </m.div>
         </LazyMotion>
-      </AnimatePresence>
+      </Section>
+
+      <div className="relative bg-white">
+      <motion.div
+          ref={scrollContainerRef}
+          key={activeTab}
+          className="px-[2.75rem] py-12 gap-[0.625rem] sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 min-h-screen"
+          variants={scrollContainerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <AnimatePresence mode="wait">
+            {filteredProjects.map((project, index) => (
+              <motion.div
+                key={`${activeTab}-${project}-${index}`}
+                data-card-index={index}
+                custom={scrollDirection}
+                variants={cardVariants}
+                initial="hidden"
+                animate={visibleCards.has(index) ? "visible" : "hidden"}
+                exit="exit"
+                className="break-inside-avoid mb-4"
+                whileHover={{
+                  scale: 1.02,
+                  y: -5,
+                  transition: { duration: 0.2 },
+                }}
+                style={{
+                  transformOrigin: scrollDirection === "down" ? "bottom" : "top",
+                }}
+              >
+                <ProjectCard key={`${activeTab}-${index}`} project={project!} activeTab={activeTab} onProjectClick={() => openProjectSidebar(project!)} />
+                </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      </div>
 
       <AnimatePresence>
-        {sidebarOpen && selectedProject && <ProjectSidebar project={selectedProject} activeTab={activeTab} onClose={closeSidebar} />}
+        {sidebarOpen && selectedProject && (
+          <ProjectSidebar project={selectedProject} activeTab={activeTab} onClose={closeSidebar} />
+        )}
       </AnimatePresence>
-    </Section>
-  );
-};
+    </div>
+  )
+}
 
 const ProjectCard = ({
   project,
@@ -154,7 +295,7 @@ const ProjectCard = ({
   const mainImage = images.find((img) => img?.setAsMain) || images[0];
   return (
     <Card
-      className='overflow-hidden grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer max-w-[24.5rem] mb-[0.625rem] break-inside-avoid relative group'
+      className='overflow-hidden shadow-md grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer max-w-[24.5rem] mb-[0.625rem] break-inside-avoid relative group'
       onClick={onProjectClick}
     >
       {mainImage?.image && (
@@ -211,12 +352,12 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
   const totalPages = Math.max(1, Math.ceil(images.length / imagesPerPage));
   const startIndex = currentPage * imagesPerPage;
   const currentPageImages = useMemo(() => images.slice(startIndex, startIndex + imagesPerPage), [images, startIndex]);
-  // Lógica para determinar o layout baseado no número de imagens
+
   const hasOnlyOneImage = currentPageImages.length === 1;
   const mainImage = currentPageImages[0];
   const thumbnailImages = useMemo(() => currentPageImages.slice(1, 5), [currentPageImages]);
 
-  const projectDetails: ProjectDetail[] = [
+  const projectDetails: any = [
     { key: 'landArea', label: 'área do terreno', value: project.landArea?.value, icon: project.landArea?.icon },
     { key: 'location', label: 'localização', value: project.location?.value, icon: project.location?.icon },
     { key: 'height', label: 'altura', value: project.height?.value, icon: project.height?.icon },
@@ -304,9 +445,8 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
   );
   return (
     <>
-      <div className="fixed inset-0 z-40" onClick={onClose} />
-      <div className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[1920px] lg:min-w-[995px] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 overflow-y-auto rounded-t-2xl backdrop-blur-md shadow-lg [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)]">
-        {/* Header */}
+      <div className="fixed inset-0" onClick={onClose} />
+      <div className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[1920px] lg:min-w-[995px] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 overflow-y-auto rounded-t-2xl backdrop-blur-md shadow-lg project-sidebar-scrollable [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)]">        {/* Header */}
         <div className="flex items-center justify-between p-6 pb-0">
           <div className="flex flex-col align-left">
             <h2 className="text-2xl font-semibold leading-none" data-tina-field={tinaField(project, 'constructorName')}>
@@ -318,7 +458,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
               </p>
             )}
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
+          <Button variant="ghost" size="sm" onClick={onClose} className='cursor-pointer'>
             <HugeiconsIcon icon={HugeIcons.Cancel01Icon} size={20} color="#6B7280" strokeWidth={1.5} className="text-gray-500" />
           </Button>
         </div>
@@ -471,7 +611,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
               {/* Project Details */}
               <div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                  {projectDetails.map((detail) => (
+                  {projectDetails.map((detail: any) => (
                     <div key={detail.key} className="space-y-4">
                       <ProjectDetailItem detail={detail} />
                     </div>
@@ -487,7 +627,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                       const companyServices = project.services?.filter((service) => service?.company === company) || [];
                       if (!company) return null;
 
-                      const logoSrc = corporationsLogos[company] ?? '/uploads/project-logos/default.png';
+                      const logoSrc = corporationsLogos[company] ?? '/uploads/project-logos/AE.svg';
 
                       return (
                         <div key={company} className="space-y-3">

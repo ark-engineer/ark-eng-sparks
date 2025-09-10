@@ -1,37 +1,51 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { Icon } from "../../icon";
 import { useLayout } from "../layout-context";
+import Image from "next/image";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { InstagramIcon, MapsSquare01Icon, WhatsappIcon } from "@hugeicons/core-free-icons";
 
 export const Footer = () => {
   const { globalSettings } = useLayout();
-  const { header, footer } = globalSettings!;
+
+  const footerIcons = {
+    insta: "",
+    wpp: "",
+    location: ""
+  };
 
   return (
-    <footer className="border-b bg-white pt-20 dark:bg-transparent">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="mt-12 flex flex-wrap items-center gap-6 border-t py-6 flex-col md:flex-row md:justify-between">
+    <footer className="flex justify-between rounded-3xl bg-black h-[83px] w-[95%] mx-auto my-3 text-white text-base flex-wrap">
+      <div className="grid place-items-center mx-5">
+        <Image
+          src='/uploads/project-logos/AE.svg'
+          width={38}
+          height={38}
+          alt="icone" />
+      </div>
+      <div className="flex flex-col justify-end p-[20px]">
+        <div className="flex flex-row gap-4">
+          <Link href="/" aria-label="go home">
+            <HugeiconsIcon name="instagram" icon={InstagramIcon} className="cursor-pointer" />
+          </Link>
+          <Link href="/" aria-label="go home">
+            <HugeiconsIcon name="whatsapp" icon={WhatsappIcon} className="cursor-pointer" />
+          </Link>
 
-          <div className="order-last flex justify-center md:order-first md:justify-start">
-            <Link href="/" aria-label="go home">
-              <Icon
-                parentColor={header!.color!}
-                data={header!.icon}
-              />
-            </Link>
-            <span className="self-center text-muted-foreground text-sm ml-2">© {new Date().getFullYear()} {header?.name}, All rights reserved</span>
-          </div>
-
-          <div className="order-first flex justify-center gap-6 text-sm md:order-last md:justify-end">
-            {footer?.social?.map((link, index) => (
-              <Link key={`${link!.icon}${index}`} href={link!.url!} target="_blank" rel="noopener noreferrer" >
-                <Icon data={{ ...link!.icon, size: 'small' }} className="text-muted-foreground hover:text-primary block" />
-              </Link>
-            ))}
-          </div>
+          <Link href="/" aria-label="go home">
+            <HugeiconsIcon name="maps url" icon={MapsSquare01Icon} className="cursor-pointer" />
+          </Link>
 
         </div>
+        <div>
+          <p>
+            Copyright © {new Date().getFullYear()}. Todos os direitos reservados
+          </p>
+        </div>
+        {/* <Link href="/" aria-label="go home">
+          ola mundo
+        </Link> */}
       </div>
     </footer>
   );

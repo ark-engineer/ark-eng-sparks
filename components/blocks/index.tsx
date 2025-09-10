@@ -10,11 +10,12 @@ import { Stats } from './stats';
 import { CallToAction } from './call-to-action';
 import { Monochrome } from './monochrome';
 import { Projects } from './projects';
-import { TeamSection as Team} from './team';
+import { TeamSection as Team } from './team';
 import { ClientsCarousel } from './clients';
 import { SolutionsBlock } from './services';
 import { AboutUsBlock } from './about-us';
 import { ContactBlock } from './contact';
+import { Footer } from './footer';
 
 export const Blocks = (props: Omit<Page, 'id' | '_sys' | '_values'>) => {
   if (!props.blocks) return null;
@@ -54,16 +55,18 @@ const Block = (block: PageBlocks) => {
     case 'PageBlocksProjects':
       return <Projects data={block} />;
     case 'PageBlocksTeamSection':
-       return <Team data={block} />;
+      return <Team data={block} />;
     case 'PageBlocksClientsCarousel':
-       return <ClientsCarousel data={block} />;
+      return <ClientsCarousel data={block} />;
     case 'PageBlocksSolutions':
-       return <SolutionsBlock data={block} />;
+      return <SolutionsBlock data={block} />;
     case 'PageBlocksAboutUs':
-       return <AboutUsBlock data={block} />;
+      return <AboutUsBlock data={block} />;
     case 'PageBlocksContact':
-       return <ContactBlock data={block as any} />;
-       
+      return <ContactBlock data={block as any} />;
+    case 'PageBlocksFooter':
+      return <Footer data={block as any} />;
+
     default:
       return null;
   }

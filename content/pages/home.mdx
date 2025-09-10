@@ -12,14 +12,14 @@ blocks:
   - background: bg-default
     headline: agora damos setup!
     tagline: Build 10x Faster with TinaCMS
-    backgroundImage: uploads/hero/background.png
+    backgroundImage: uploads/hero/Backgournd_hero.png
     image:
       src: ''
       alt: ''
       videoUrl: ''
     _template: hero
   - backgroundImage: /uploads/hero/Monochrome.svg
-    leftImage: /uploads/Flow 1@1x-25fps.gif
+    leftImage: /uploads/animation/monochrome-animation-compressed.gif
     text: >-
       A premissa das nossas empresas é a concepção coletiva. Acreditamos nas
       virtudes do cruzamento de ideias e no entusiasmo do conhecimento
@@ -92,61 +92,79 @@ blocks:
                 text: prevenção
       - constructorName: Primeiro Projeto
         images:
+          - image: /uploads/posts/learning-to-blog.png
+          - image: /uploads/posts/learning-about-mermaid.png
+          - image: /uploads/posts/learning-about-tinacloud.png
+          - image: /uploads/posts/learning-about-markdown.png
+          - image: /uploads/posts/learning-to-blog.png
           - image: /uploads/projects/1febcfca266fad9bd050832ab4fef558efee0aee.jpg
           - image: /uploads/projects/0dff4ae60a4e8c092d9c9128299427fd6d76f50f.jpg
             setAsMain: true
-        description: descrição...
+        description: construtura editável
         landArea:
           value: '2000'
           icon: arrow-expand-02
+        height:
+          value: '40'
+          icon: right-angle
+        location:
+          value: 'Bairro, Rua | numero'
+          icon: maps-square-02
+        commercialUnits:
+          value: '4'
+          icon: store-01
+        parkingSpaces:
+          value: '2'
+          icon: parking-area-square
         services:
+          - company: ARKANE
+            serviceItems:
+              - icon: legal-document-01
+                text: Documentação...
           - company: ARKENG
             serviceItems:
-              - icon: fire
-                text: Prevenção contra incêndios
+              - icon: snow
+                text: teste
+              - icon: brush
+                text: teste de serviço
+          - company: eBIM
+            serviceItems:
+              - icon: brush
+                text: Pintura
     _template: projects
   - mainTitle: Soluções Inovadoras
     description: Oferecemos soluções completas e personalizadas para o mercado imobiliário
     companiesTitle: Soluções personalizadas para suas necessidades imobiliárias
     enableAutoRotate: true
-    autoRotateDelay: 3000
+    autoRotateDelay: 2000
     companies:
       - id: arkeng
-        companyName: ark eng
-        logo: /uploads/logos/ark-eng.svg
-        servicesTitle: Serviços de Engenharia
+        logo: /uploads/project-logos/ARKENG.png
         services:
-          - serviceName: Lorem ipsum dolor sit amet consectetur adipiscing elit.
+          - serviceName: novo item editável
             modalContent:
-              detailedDescription: Descrição detalhada...
+              detailedDescription: descrição
+              howItWorksUrl: url
               features:
-                - Recurso 1
-          - serviceName: Projetos Estruturais
-            modalContent:
-              detailedDescription: >-
-                Desenvolvemos projetos estruturais completos com foco na
-                segurança e otimização de recursos.
-              howItWorksUrl: 'https://exemplo.com/projetos-estruturais'
-              howItWorksButtonText: Saiba Mais
-              features:
-                - Análise estrutural avançada
-                - Cálculo de fundações
-                - Projetos de concreto armado
-          - serviceName: amet consectetur adipiscing elit.
+                - item 3
+                - teste item 2
+                - teste 1
+          - serviceName: 'Sed ut perspiciatis unde omnis iste natus error sit '
             modalContent:
               detailedDescription: >-
-                Consultoria especializada para tomada de decisões técnicas em
-                projetos de engenharia.
-              howItWorksUrl: 'https://exemplo.com/consultoria-tecnica'
+                Sed ut perspiciatis unde omnis iste natus error sit voluptatem
+                accusantium doloremque laudantium
+              howItWorksUrl: 'https://github.com/ark-engineer'
               features:
-                - Análise de viabilidade técnica
-                - Pareceres especializados
-                - Auditoria de projetos
+                - 'sit '
+                - sit voluptatem accusantium doloremque
+                - 'Sed ut perspiciatis unde omnis iste natus error sit '
+                - Sed ut
       - id: ebim
         logo: /uploads/logos/ebim.svg
         servicesTitle: ''
         services:
-          - serviceName: Novo Serviço
+          - serviceName: ''
             modalContent:
               detailedDescription: Descrição detalhada...
               features:
@@ -234,25 +252,13 @@ blocks:
     _template: teamSection
   - carouselTitle: Clientes
     clients:
-      - name: Cliente 1
-        image: /uploads/logoipsum-395.png
-        alt: Logo Cliente 1
-        link: 'https://exemplo1.com'
-      - name: Cliente 2
-        image: /uploads/logoipsum-391.png
-        alt: Logo Cliente 2
-        link: 'https://exemplo2.com'
-      - name: Cliente 3
-        image: /uploads/logoipsum-385.png
-        alt: Logo Cliente 3
+      - name: logoipsum
+        image: /uploads/clientes-logos/logoipsum-372.png
+        alt: alt logo
         link: ''
-      - name: Cliente 4
-        image: /uploads/logoipsum-372.png
-        alt: Logo Cliente 4
-        link: 'https://exemplo4.com'
-      - name: Cliente 5
-        image: /uploads/logoipsum-356.png
-        alt: Logo Cliente 5
+      - name: Novo Cliente
+        image: /uploads/clientes-logos/logoipsum-356.png
+        alt: academy
         link: ''
     _template: clientsCarousel
   - background: bg-black/80
@@ -261,9 +267,9 @@ blocks:
     backgroundImage: uploads/contato/Rectangle 7.png
     contactItems:
       - icon: chat
-        itemTitle: Chat Online
+        itemTitle: Envie Mensagem
         itemDescription: Converse conosco em tempo real
-        itemExtraText: Disponível 24/7
+        itemExtraText: contato@gr-ae.com
       - icon: location
         itemTitle: Endereço
         itemDescription: Nos visite em nosso escritório
@@ -277,5 +283,18 @@ blocks:
         itemDescription: Nossa equipe está pronta para ajudar
         itemExtraText: suporte@empresa.com
     _template: contact
+  - logo: /uploads/project-logos/AE.svg
+    text: Copyright © 2025. Todos os direitos reservados
+    links:
+      - label: Instagram
+        url: /
+        icon: instagram
+      - label: Whatsapp
+        url: /
+        icon: whatsapp
+      - label: Location
+        url: /
+        icon: location
+    _template: footer
 ---
 
