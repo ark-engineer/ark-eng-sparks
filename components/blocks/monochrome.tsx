@@ -6,6 +6,7 @@ import {
   useTransform,
   useReducedMotion,
   useSpring,
+  useInView,
 } from 'framer-motion';
 import type { Template } from 'tinacms';
 import { tinaField } from 'tinacms/dist/react';
@@ -14,27 +15,29 @@ import { PageBlocksMonochrome } from "@/tina/__generated__/types";
 
 const MotionSection = motion.create(Section);
 
-export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
-  const shouldReduceMotion = useReducedMotion();
-  const ref = useRef<HTMLDivElement | null>(null);
+type AnimatedProps = {
+  data: PageBlocksMonochrome;
+  targetRef: React.RefObject<HTMLElement>;
+};
 
+function AnimatedMonochrome({ data, targetRef }: AnimatedProps) {
+  // hook de scroll pode ser usado aqui porque este componente só é montado quando inView === true
   const { scrollYProgress } = useScroll({
-    target: ref,
+    target: targetRef,
     offset: ['start end', 'end start'],
   });
 
+  // Valores numéricos mais performáticos
   const rawScale = useTransform(
     scrollYProgress,
     [0, 0.2, 0.3, 0.7, 0.8, 1],
     [0.8, 0.95, 1, 1, 0.98, 0.95]
   );
-
   const rawY = useTransform(
     scrollYProgress,
     [0, 0.2, 0.3, 0.7, 0.8, 1],
     [50, 25, 0, 0, -15, -30]
   );
-
   const rawOpacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.3, 1, 1, 0.7]);
   const rawLeftImageScale = useTransform(scrollYProgress, [0.2, 0.6], [0.95, 1.05]);
   const rawTextOpacity = useTransform(scrollYProgress, [0.1, 0.4], [0.5, 1]);
@@ -46,44 +49,9 @@ export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
   const leftImageScale = useSpring(rawLeftImageScale, { damping: 18, stiffness: 120 });
   const textOpacity = useSpring(rawTextOpacity, { damping: 18, stiffness: 120 });
 
-  if (shouldReduceMotion) {
-    return (
-      <div ref={ref} id="Monochrome">
-        <Section
-          className="mt-15 w-[90%] md:w-[75%] rounded-3xl bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url(${data.backgroundImage})`,
-          }}
-        >
-          <div className="flex flex-col md:flex-row items-center gap-8 p-8 min-h-[90%]">
-            <div className="w-full md:w-1/2 flex justify-center md:justify-start">
-              {data.leftImage && (
-                <img
-                  src={data.leftImage}
-                  alt="logos left"
-                  className="max-w-[26rem] w-full h-auto"
-                  data-tina-field={tinaField(data, 'leftImage')}
-                  loading="lazy"
-                  decoding="async"
-                />
-              )}
-            </div>
-            <p
-              className="w-full md:w-1/2 text-white text-center md:text-left text-[18.317px] font-extralight leading-normal"
-              data-tina-field={tinaField(data, 'text')}
-            >
-              {data.text}
-            </p>
-          </div>
-        </Section>
-      </div>
-    );
-  }
-
   return (
     <motion.div
-      ref={ref}
-      id="Monochrome"
+      id="Monochrome-animated"
       style={{
         scale,
         y,
@@ -132,6 +100,89 @@ export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
         </div>
       </MotionSection>
     </motion.div>
+  );
+}
+
+export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
+  const shouldReduceMotion = useReducedMotion();
+
+  // wrapperRef é usado para observar entrada na viewport e também como target para useScroll
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  // useInView do framer-motion — ajuste 'amount' se quiser que seja mais cedo/tarde
+  const isInView = useInView(wrapperRef, { amount: 0.15 });
+
+  if (shouldReduceMotion) {
+    return (
+      <div ref={wrapperRef} id="Monochrome">
+        <Section
+          className="mt-15 w-[90%] md:w-[75%] rounded-3xl bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url(${data.backgroundImage})`,
+          }}
+        >
+          <div className="flex flex-col md:flex-row items-center gap-8 p-8 min-h-[90%]">
+            <div className="w-full md:w-1/2 flex justify-center md:justify-start">
+              {data.leftImage && (
+                <img
+                  src={data.leftImage}
+                  alt="logos left"
+                  className="max-w-[26rem] w-full h-auto"
+                  data-tina-field={tinaField(data, 'leftImage')}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+            </div>
+            <p
+              className="w-full md:w-1/2 text-white text-center md:text-left text-[18.317px] font-extralight leading-normal"
+              data-tina-field={tinaField(data, 'text')}
+            >
+              {data.text}
+            </p>
+          </div>
+        </Section>
+      </div>
+    );
+  }
+
+  if (!isInView) {
+    return (
+      <div ref={wrapperRef} id="Monochrome">
+        <Section
+          className="mt-15 w-[90%] md:w-[75%] rounded-3xl bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url(${data.backgroundImage})`,
+          }}
+        >
+          <div className="flex flex-col md:flex-row items-center gap-8 p-8 min-h-[90%]">
+            <div className="w-full md:w-1/2 flex justify-center md:justify-start">
+              {data.leftImage && (
+                <img
+                  src={data.leftImage}
+                  alt="logos left"
+                  className="max-w-[26rem] w-full h-auto"
+                  data-tina-field={tinaField(data, 'leftImage')}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+            </div>
+            <p
+              className="w-full md:w-1/2 text-white text-center md:text-left text-[18.317px] font-extralight leading-normal"
+              data-tina-field={tinaField(data, 'text')}
+            >
+              {data.text}
+            </p>
+          </div>
+        </Section>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={wrapperRef} id="Monochrome">
+      <AnimatedMonochrome data={data} targetRef={wrapperRef} />
+    </div>
   );
 };
 
