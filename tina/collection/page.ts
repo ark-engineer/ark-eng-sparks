@@ -15,6 +15,7 @@ import { clientsCarouselSchema } from '@/components/blocks/clients';
 import { solutionsBlockSchema } from '@/components/blocks/services';
 import { aboutUsBlockSchema } from '@/components/blocks/about-us';
 import { contactBlockSchema } from '@/components/blocks/contact';
+import { footerBlockSchema } from '@/components/blocks/footer';
 
 const Page: Collection = {
   label: 'Pages',
@@ -55,7 +56,8 @@ const Page: Collection = {
         clientsCarouselSchema,
         solutionsBlockSchema,
         aboutUsBlockSchema,
-        contactBlockSchema
+        contactBlockSchema,
+        footerBlockSchema
       ],
     },
   ],

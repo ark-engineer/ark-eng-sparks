@@ -23,7 +23,6 @@ type Service = {
 
 type SolutionsBlockCompany = {
   id: ProjectType;
-  companyName: string;
   logo: string;
   servicesTitle?: string;
   services?: Service[];
@@ -35,6 +34,13 @@ type ModalState = {
   company: SolutionsBlockCompany | null;
 };
 
+// Mapeamento dos IDs para os labels das empresas
+const COMPANY_LABELS: Record<ProjectType, string> = {
+  arkeng: 'Arkeng',
+  ebim: 'Ebim',
+  arkane: 'Arkane'
+};
+
 const useAutoRotation = (totalItems: number, delay: number, enabled: boolean, activeIndex: number, onRotate: (index: number) => void) => {
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -44,7 +50,8 @@ const useAutoRotation = (totalItems: number, delay: number, enabled: boolean, ac
     if (!enabled || totalItems <= 1 || isPaused) return;
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
-      onRotate((prev) => (prev + 1) % totalItems);
+      const nextIndex = (lastRotationRef.current + 1) % totalItems;
+      onRotate(nextIndex);
       lastRotationRef.current = Date.now();
     }, delay);
   }, [enabled, totalItems, delay, isPaused, onRotate]);
@@ -117,18 +124,17 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
 
   if (!shouldRender || !modalState.service?.modalContent) return null;
   const { service, company } = modalState;
+  const companyName = company?.id ? COMPANY_LABELS[company.id] : 'Empresa';
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-all duration-300 ease-out ${
-        isAnimating ? 'bg-black bg-opacity-50' : 'bg-opacity-0'
-      }`}
+      className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-all duration-300 ease-out ${isAnimating ? 'bg-black bg-opacity-50' : 'bg-opacity-0'
+        }`}
       onClick={handleBackdropClick}
     >
       <div
-        className={`bg-white shadow-lg rounded-3xl max-w-md w-full mx-4 relative transition-all duration-300 ease-out ${
-          isAnimating ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'
-        }`}
+        className={`bg-white shadow-lg rounded-3xl max-w-md w-full mx-4 relative transition-all duration-300 ease-out ${isAnimating ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'
+          }`}
         onClick={(e) => e.stopPropagation()}
       >
         <button onClick={onClose} className='absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-light transition-colors duration-200 z-10'>
@@ -139,8 +145,8 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
           <div className='mb-6'>
             <img
               src={company?.logo || '/api/placeholder/120/60'}
-              alt={company?.companyName || company?.id || 'Logo da Empresa'}
-              className='h-16 mx-auto object-contain'
+              alt={`Logo da ${companyName}`}
+              className='h-16 mx-auto object-contain bg-black rounded-full'
             />
           </div>
 
@@ -154,7 +160,7 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
               <div className='space-y-3'>
                 {service.modalContent.features.map((feature, index) => (
                   <div key={index} className='flex items-center gap-3'>
-                   <HugeiconsIcon icon={CheckmarkCircle02Icon} />
+                    <HugeiconsIcon icon={CheckmarkCircle02Icon} />
                     <span className='text-gray-700'>{feature}</span>
                   </div>
                 ))}
@@ -233,21 +239,24 @@ const CompanySelector = ({
 }) => {
   return (
     <div className='flex flex-row gap-4'>
-      {companies.map((company, index) => (
-        <button
-          key={company.id || index}
-          onClick={() => onCompanySelect(index)}
-          className=' cursor-pointer p-4 rounded-lg transition-all duration-300'
-          data-tina-field={tinaField(company, 'logo')}
-          aria-label={`Selecionar ${company.companyName || company.id}`}
-        >
-          <img
-            src={company.logo || '/api/placeholder/120/60'}
-            alt={company.companyName || company.id}
-            className={`w-full h-28 object-contain transition-all duration-300 ${activeIndex === index ? 'grayscale-0 opacity-100' : 'grayscale opacity-50'}`}
-          />
-        </button>
-      ))}
+      {companies.map((company, index) => {
+        const companyName = COMPANY_LABELS[company.id];
+        return (
+          <button
+            key={company.id || index}
+            onClick={() => onCompanySelect(index)}
+            className='cursor-pointer p-4 rounded-lg transition-all duration-300'
+            data-tina-field={tinaField(company, 'logo')}
+            aria-label={`Selecionar ${companyName}`}
+          >
+            <img
+              src={company.logo || '/api/placeholder/120/60'}
+              alt={companyName}
+              className={`w-full h-28 object-contain transition-all duration-300 ${activeIndex === index ? 'grayscale-0 opacity-100' : 'grayscale opacity-50'}`}
+            />
+          </button>
+        );
+      })}
     </div>
   );
 };
@@ -437,9 +446,9 @@ export const solutionsBlockSchema: Template = {
       enableAutoRotate: true,
       autoRotateDelay: 3000,
       companies: [
-        { id: 'arkeng', companyName: 'Arkeng', logo: '', servicesTitle: 'Nossos Serviços', services: [] },
-        { id: 'ebim', companyName: 'Ebim', logo: '', servicesTitle: 'Nossos Serviços', services: [] },
-        { id: 'arkane', companyName: 'Arkane', logo: '', servicesTitle: 'Nossos Serviços', services: [] },
+        { id: 'arkeng', logo: '', servicesTitle: 'Nossos Serviços', services: [] },
+        { id: 'ebim', logo: '', servicesTitle: 'Nossos Serviços', services: [] },
+        { id: 'arkane', logo: '', servicesTitle: 'Nossos Serviços', services: [] },
       ],
     },
   },
@@ -455,19 +464,22 @@ export const solutionsBlockSchema: Template = {
       name: 'companies',
       label: 'Empresas',
       list: true,
-      ui: { itemProps: (item) => ({ label: item?.companyName || item?.id || 'Empresa' }) },
+      ui: {
+        itemProps: (item) => ({
+          label: item?.id ? COMPANY_LABELS[item.id as ProjectType] || item.id : 'Empresa'
+        })
+      },
       fields: [
         {
           type: 'string',
           name: 'id',
-          label: 'Identificador',
+          label: 'Empresa',
           options: [
             { value: 'arkeng', label: 'Arkeng' },
             { value: 'ebim', label: 'Ebim' },
             { value: 'arkane', label: 'Arkane' },
           ],
         },
-        { type: 'string', name: 'companyName', label: 'Nome da Empresa' },
         { type: 'image', name: 'logo', label: 'Logo' },
         { type: 'string', name: 'servicesTitle', label: 'Título dos Serviços' },
         {

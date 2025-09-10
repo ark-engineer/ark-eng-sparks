@@ -69,7 +69,7 @@ export const ContactBlock = ({ data }: { data: ContactBlockData }) => {
   return (
     <div
       id="contact"
-      className="relative py-16 px-6 min-h-[42rem] flex items-center xl:mx-[2.75rem] md:mx-[1rem] sm:mx-[0.75rem] xs:mx-[0.35rem] rounded-xl"
+      className="relative py-16 px-6 min-h-[36rem] flex items-center xl:mx-[2.75rem] md:mx-[1rem] sm:mx-[0.75rem] xs:mx-[0.35rem] rounded-xl"
       style={backgroundStyle}
     >
       {!backgroundImageUrl && (
@@ -152,27 +152,27 @@ export const contactBlockSchema: Template = {
       contactItems: [
         {
           icon: "chat",
-          itemTitle: "Chat Online",
-          itemDescription: "Converse conosco em tempo real",
-          itemExtraText: "Disponível 24/7",
+          itemTitle: "Envie Mensagem",
+          itemDescription: "Nosso time está aqui para ajudar!",
+          itemExtraText: "contato@gr-ae.com",
         },
         {
           icon: "location",
-          itemTitle: "Endereço",
-          itemDescription: "Nos visite em nosso escritório",
-          itemExtraText: "Rua das Flores, 123 - Centro",
+          itemTitle: "Visite-nos",
+          itemDescription: "Venha conhecer nossa empresa.",
+          itemExtraText: "Rua 264, Itapema | SC",
         },
         {
           icon: "phone",
-          itemTitle: "Telefone",
-          itemDescription: "Ligue para nós",
-          itemExtraText: "(11) 99999-9999",
+          itemTitle: "Fale conosco!",
+          itemDescription: "Seg a Sex das 8h ás 18h",
+          itemExtraText: "(47) 99240 - 1990",
         },
         {
           icon: "users",
-          itemTitle: "Suporte",
-          itemDescription: "Nossa equipe está pronta para ajudar",
-          itemExtraText: "suporte@empresa.com",
+          itemTitle: "Talentos",
+          itemDescription: "Faça parte do Grupo",
+          itemExtraText: "talentos@gr-ae.com",
         },
       ],
     },
