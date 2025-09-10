@@ -34,6 +34,7 @@ export const SplashScreen = () => {
                             priority={true}
                             src='/animation/logoanimation.gif'
                             alt="splash logo"
+                            unoptimized
                             width={500}
                             height={500}
                             className="drop-shadow-xl"
