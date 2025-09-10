@@ -294,7 +294,7 @@ const ProjectCard = ({
   const longPressTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressTriggered = useRef(false);
 
-  const LONG_PRESS_MS = 180; // ajuste se quiser mais/menos sensível
+  const LONG_PRESS_MS = 2000; // 2s para abrir sidebar
 
   const clearLongPress = () => {
     if (longPressTimeout.current) {
@@ -305,33 +305,25 @@ const ProjectCard = ({
   };
 
   const handlePointerDown: React.PointerEventHandler = (e) => {
-    // só reagir ao botão esquerdo do mouse (mouse) ou toque (touch/pen)
-    if (e.pointerType === 'mouse' && (e as any).button !== 0) return;
+    if (e.pointerType === "mouse" && (e as any).button !== 0) return;
+    setPressed(true); // mostra overlay imediatamente no touch/mouse down
 
     longPressTriggered.current = false;
     if (longPressTimeout.current) clearLongPress();
 
     longPressTimeout.current = setTimeout(() => {
       longPressTriggered.current = true;
-      setPressed(true);
+      onProjectClick(); // só abre sidebar se realmente ficou 2s pressionado
     }, LONG_PRESS_MS);
   };
 
-  const handlePointerUp: React.PointerEventHandler = (e) => {
-    // se timeout ainda rodando, cancela
-    if (longPressTimeout.current) {
-      clearLongPress();
-    }
+  const handlePointerUp: React.PointerEventHandler = () => {
+    clearLongPress();
+    setPressed(false);
 
-    if (longPressTriggered.current) {
-      // foi long-press -> apenas fechar o estado pressed (não abrir sidebar)
-      setPressed(false);
-      longPressTriggered.current = false;
-      return;
+    if (!longPressTriggered.current) {
+      onProjectClick(); // clique curto → abre sidebar
     }
-
-    // curto tap -> abrir (comportamento de click)
-    onProjectClick();
   };
 
   const handlePointerCancelOrLeave: React.PointerEventHandler = () => {
@@ -340,18 +332,17 @@ const ProjectCard = ({
   };
 
   const handleKeyDown: React.KeyboardEventHandler = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       onProjectClick();
     }
   };
 
-  // combine Tailwind classes: mantém group-hover no desktop, mas também usa `pressed` no mobile
-  const overlayOpacityClass = pressed ? 'opacity-100' : 'opacity-0 group-hover:opacity-100';
+  const overlayOpacityClass =
+    pressed ? "opacity-100" : "opacity-0 group-hover:opacity-100";
 
   return (
     <Card
-      // tornamos o Card focável para acessibilidade e usamos pointer events para controlar tudo
       tabIndex={0}
       role="button"
       onPointerDown={handlePointerDown}
@@ -359,8 +350,7 @@ const ProjectCard = ({
       onPointerCancel={handlePointerCancelOrLeave}
       onPointerLeave={handlePointerCancelOrLeave}
       onKeyDown={handleKeyDown}
-      className={`overflow-hidden shadow-md grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer max-w-[24.5rem] mb-[0.625rem] break-inside-avoid relative group`}
-      // removemos o onClick direto para evitar duplicidade com pointerUp logic
+      className="overflow-hidden shadow-md grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer max-w-[24.5rem] mb-[0.625rem] break-inside-avoid relative group"
     >
       {mainImage?.image && (
         <Image
@@ -368,7 +358,7 @@ const ProjectCard = ({
           height={38}
           src={mainImage.image}
           blurDataURL={mainImage.image}
-          alt={project.constructorName || 'Imagem do Projeto'}
+          alt={project.constructorName || "Imagem do Projeto"}
           className="object-cover w-full h-full"
           loading="lazy"
           sizes="(max-width: 768px) 100vw, 38px"
@@ -397,11 +387,14 @@ const ProjectCard = ({
           ${overlayOpacityClass}
         `}
       >
-        <h3 className="text-white font-normal text-2xl">{project.constructorName ?? ''}</h3>
+        <h3 className="text-white font-normal text-2xl">
+          {project.constructorName ?? ""}
+        </h3>
       </div>
     </Card>
   );
 };
+
 
 const getIcon = (iconKey?: string) =>
   iconKey && iconMap[iconKey as keyof typeof iconMap]
