@@ -140,19 +140,19 @@ export const headerBlockSchema: Template = {
         },
         {
           label: 'Sobre',
-          href: '/sobre',
+          href: '#Monochrome',
         },
         {
           label: 'Serviços',
-          href: '/servicos',
+          href: '#custom-services',
         },
         {
           label: 'Contato',
-          href: '/contato',
+          href: '#contact',
         },
         {
           label: 'Fale Conosco',
-          href: '/fale-conosco',
+          href: '#contact',
         },
       ],
     },
@@ -180,7 +180,7 @@ export const headerBlockSchema: Template = {
           label: 'URL',
           name: 'href',
           required: true,
-          description: 'Ex: /, /sobre, /contato, etc.',
+          description: 'Ex: /, #Monochrome, #contact, www.outro-site.com, etc.',
         },
       ],
     },
