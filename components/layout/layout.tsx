@@ -17,8 +17,8 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const smoothScrollY = useSpring(scrollY, {
     damping: isMobile ? 20 : 30,
-    stiffness: isMobile ? 150 : 100,
-    mass: isMobile ? 0.7 : 1,
+    stiffness: isMobile ? 400 : 100,
+    mass: isMobile ? 0.3 : 1,
     restDelta: 0.5
   });
   const touchStartY = useRef<number>(0);
