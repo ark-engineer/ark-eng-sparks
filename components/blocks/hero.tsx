@@ -14,21 +14,25 @@ export const Hero = ({ data }: { data: PageBlocksHero }) => {
       .slice(1)
       .join('-');
     const opacity = data.background.match(/\/(\d{1,3})$/)?.[1] || '100';
-
     gradientStyle = {
       '--tw-gradient-to': `color-mix(in oklab, var(--color-${colorName}) ${opacity}%, transparent)`,
     } as React.CSSProperties;
   }
+
+  // Fix: Check if backgroundImage exists and has a value, otherwise use fallback
+  const backgroundImageUrl = data.backgroundImage && data.backgroundImage.trim() 
+    ? data.backgroundImage 
+    : '/footer-icons/background.png';
 
   return (
     <Section
       background={data.background!}
       style={{
         padding: 0,
-        backgroundImage: data.backgroundImage ? `url(${data.backgroundImage || '/footer-icons/background.png'})` : 'none',
+        backgroundImage: `url(${backgroundImageUrl})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-
+        ...gradientStyle,
       }}
     >
       <div className="h-dvh hero-gradient"></div>
