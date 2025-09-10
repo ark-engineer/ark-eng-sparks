@@ -148,7 +148,7 @@ export const monochromeBlockSchema: Template = {
     previewSrc: '/blocks/content.png',
     defaultItem: {
       backgroundImage: '/default-background.jpg',
-      leftImage: '/default-left-image.jpg',
+      leftImage: '/uploads/animation/monochrome-animation-compressed.gif',
       text: 'Seu texto aqui à direita.',
     },
   },

@@ -25,7 +25,7 @@ export const Hero = ({ data }: { data: PageBlocksHero }) => {
       background={data.background!}
       style={{
         padding: 0,
-        backgroundImage: data.backgroundImage ? `url(${data.backgroundImage || '/uploads/hero/background.png'})` : 'none',
+        backgroundImage: data.backgroundImage ? `url(${data.backgroundImage || '/footer-icons/background.png'})` : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
 
@@ -65,11 +65,9 @@ export const heroBlockSchema: Template = {
       name: 'backgroundImage',
       ui: {
         format(value) {
-          // Add leading slash to value if it doesn't exist
           return value && !value.startsWith("/") ? `/${value}` : value;
         },
         parse(value) {
-          // Remove leading slash if it exists for storage
           return value && value.startsWith("/") ? value.slice(1) : value;
         },
       },
