@@ -359,7 +359,7 @@ const ProjectCard = ({
           src={mainImage.image}
           blurDataURL={mainImage.image}
           alt={project.constructorName || "Imagem do Projeto"}
-          className="object-cover w-full h-full"
+          className="object-cover w-full h-full pointer-events-none"
           loading="lazy"
           sizes="(max-width: 768px) 100vw, 38px"
         />
