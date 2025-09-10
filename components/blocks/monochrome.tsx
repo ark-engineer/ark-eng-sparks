@@ -1,7 +1,6 @@
 'use client';
-import React from 'react';
-import { motion, Variants, useReducedMotion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import type { Template } from 'tinacms';
 import { tinaField } from 'tinacms/dist/react';
 import { Section } from '../layout/section';
@@ -11,94 +10,84 @@ const MotionSection = motion(Section);
 
 export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
   const shouldReduceMotion = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
 
-  const motionRef = React.useRef<HTMLDivElement | null>(null) as React.MutableRefObject<HTMLDivElement | null>;
-
-  const { ref: inViewRef, inView } = useInView({
-    threshold: 0.5,
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
   });
 
-  const setRefs = React.useCallback(
-    (node: HTMLDivElement | null) => {
-      motionRef.current = node;
-      inViewRef(node);
-    },
-    [inViewRef],
+  const scale = useTransform(
+    scrollYProgress,
+    [0, 0.3, 0.7, 1],
+    [0.8, 1, 1, 0.95]
   );
 
-  const wrapperVariants: Variants = {
-    hidden: { opacity: 0.8 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-      },
-    },
-  };
+  const opacity = useTransform(
+    scrollYProgress,
+    [0, 0.2, 0.8, 1],
+    [0.3, 1, 1, 0.7]
+  );
 
-  const sectionVariants: Variants = {
-    hidden: { scale: 0.95 },
-    visible: {
-      scale: 1,
-      transition: {
-        duration: 1.2,
-        delay: 0.2,
-        ease: [0.25, 1, 0.5, 1] as unknown as any,
-      },
-    },
-  };
+  const y = useTransform(
+    scrollYProgress,
+    [0, 0.3, 0.7, 1],
+    [50, 0, 0, -30]
+  );
 
-  const finalWrapper = shouldReduceMotion ? { hidden: {}, visible: {} } : wrapperVariants;
-  const finalSection = shouldReduceMotion ? { hidden: {}, visible: {} } : sectionVariants;
+  const finalScale = shouldReduceMotion ? 1 : scale;
+  const finalOpacity = shouldReduceMotion ? 1 : opacity;
+  const finalY = shouldReduceMotion ? 0 : y;
 
   return (
     <motion.div
-      ref={setRefs}
-      initial="hidden"
-      animate={inView ? 'visible' : 'hidden'}
-      variants={finalWrapper}
-      style={{ willChange: 'opacity, transform' }}
+      ref={ref}
+      id="Monochrome"
+      style={{
+        scale: finalScale,
+        opacity: finalOpacity,
+        willChange: 'transform, opacity',
+        transform: 'translateZ(0)',
+        WebkitBackfaceVisibility: 'hidden',
+        backfaceVisibility: 'hidden',
+      }}
     >
       <MotionSection
-        variants={finalSection}
-        className="mt-15 w-[90%] md:w-[75%] rounded-3xl bg-cover bg-center bg-no-repeat origin-center"
+        className="mt-15 w-[90%] md:w-[75%] rounded-3xl bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${data.backgroundImage})`,
-          willChange: 'transform',
           transformOrigin: 'center center',
           WebkitBackfaceVisibility: 'hidden',
           backfaceVisibility: 'hidden',
-          transform: 'translateZ(0)',
-        }}
-        onAnimationComplete={() => {
-          if (inView && !shouldReduceMotion) {
-            window.requestAnimationFrame(() =>
-              window.requestAnimationFrame(() =>
-                motionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
-              ),
-            );
-          }
+          y: finalY,
         }}
       >
         <div className="flex flex-col md:flex-row items-center gap-8 p-8 min-h-[90%]">
           <div className="w-full md:w-1/2 flex justify-center md:justify-start">
             {data.leftImage && (
-              <img
+              <motion.img
                 src={data.leftImage}
                 alt="logos left"
                 className="max-w-[26rem] w-full h-auto"
                 data-tina-field={tinaField(data, 'leftImage')}
                 loading="lazy"
-                style={{ willChange: 'transform' }}
+                style={{
+                  willChange: 'transform',
+                  transform: 'translateZ(0)',
+                  scale: shouldReduceMotion ? 1 : useTransform(scrollYProgress, [0.2, 0.6], [0.95, 1.05]),
+                }}
               />
             )}
           </div>
-          <p
+          <motion.p
             className="w-full md:w-1/2 text-white text-center md:text-left text-[18.317px] font-extralight leading-normal"
             data-tina-field={tinaField(data, 'text')}
+            style={{
+              opacity: shouldReduceMotion ? 1 : useTransform(scrollYProgress, [0.1, 0.4], [0.5, 1]),
+            }}
           >
             {data.text}
-          </p>
+          </motion.p>
         </div>
       </MotionSection>
     </motion.div>
