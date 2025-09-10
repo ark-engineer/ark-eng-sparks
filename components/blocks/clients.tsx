@@ -73,9 +73,9 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
       </div>
 
       <div
-        className="carousel-container relative w-full h-32 sm:h-44 lg:h-60"
+        className="carousel-container relative w-full"
       >
-        <div ref={trackRef} className="carousel-track flex items-center">
+        <div ref={trackRef} className="carousel-track flex items-center p-[5dvh]">
           {duplicatedClients.map((client, index) => (
             <div
               key={`${client.name}-${index}`}

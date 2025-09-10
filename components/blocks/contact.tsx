@@ -39,7 +39,7 @@ const ICONS = {
 
 export const ContactBlock = ({ data }: { data: ContactBlockData }) => {
   const getIconSvg = (iconType: string) => {
-    return ICONS[ iconType as keyof typeof ICONS ] || ICONS.chat
+    return ICONS[iconType as keyof typeof ICONS] || ICONS.chat
   }
 
   const getImageUrl = (imagePath: string) => {
@@ -69,7 +69,7 @@ export const ContactBlock = ({ data }: { data: ContactBlockData }) => {
   return (
     <div
       id="contact"
-      className="relative py-16 px-6 min-h-[600px] flex items-center mx-[2.75rem] rounded-xl"
+      className="relative py-16 px-6 min-h-[42rem] flex items-center xl:mx-[2.75rem] md:mx-[1rem] sm:mx-[0.75rem] xs:mx-[0.35rem] rounded-xl"
       style={backgroundStyle}
     >
       {!backgroundImageUrl && (
@@ -97,40 +97,40 @@ export const ContactBlock = ({ data }: { data: ContactBlockData }) => {
           {data.contactItems?.map((item, index) => (
             <div key={index} className="flex flex-row items-start text-left">
               {/* Icon and Title Row */}
-                <div
-                  className="mr-4 flex-shrink-0"
-                  data-tina-field={tinaField(item, "icon")}
-                  dangerouslySetInnerHTML={{
-                    __html: getIconSvg(item.icon),
-                  }}
-                />
-                <div>
+              <div
+                className="mr-4 flex-shrink-0"
+                data-tina-field={tinaField(item, "icon")}
+                dangerouslySetInnerHTML={{
+                  __html: getIconSvg(item.icon),
+                }}
+              />
+              <div>
 
-              <div className="flex items-center mb-3 w-full">
-                <h3
-                  className="text-white font-inter text-lg font-medium leading-normal"
-                  data-tina-field={tinaField(item, "itemTitle")}
+                <div className="flex items-center mb-3 w-full">
+                  <h3
+                    className="text-white font-inter text-lg font-medium leading-normal"
+                    data-tina-field={tinaField(item, "itemTitle")}
+                  >
+                    {item.itemTitle}
+                  </h3>
+                </div>
+
+                {/* Description */}
+                <p
+                  className="text-white font-inter text-base font-medium leading-normal opacity-60 mb-2"
+                  data-tina-field={tinaField(item, "itemDescription")}
                 >
-                  {item.itemTitle}
-                </h3>
+                  {item.itemDescription}
+                </p>
+
+                {/* Extra Text */}
+                <p
+                  className="text-white font-inter text-base font-medium leading-normal"
+                  data-tina-field={tinaField(item, "itemExtraText")}
+                >
+                  {item.itemExtraText}
+                </p>
               </div>
-
-              {/* Description */}
-              <p
-                className="text-white font-inter text-base font-medium leading-normal opacity-60 mb-2"
-                data-tina-field={tinaField(item, "itemDescription")}
-              >
-                {item.itemDescription}
-              </p>
-
-              {/* Extra Text */}
-              <p
-                className="text-white font-inter text-base font-medium leading-normal"
-                data-tina-field={tinaField(item, "itemExtraText")}
-              >
-                {item.itemExtraText}
-              </p>
-                              </div>
 
             </div>
           ))}
