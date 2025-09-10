@@ -25,8 +25,8 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  title: "Tina",
-  description: "Tina Cloud Starter",
+  title: "gr-ae | Home ",
+  description: "A premissa das nossas empresas é a concepção coletiva. Acreditamos nas virtudes do cruzamento de ideias e no entusiasmo do conhecimento compartilhado.",
 };
 
 export default function RootLayout({
