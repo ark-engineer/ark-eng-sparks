@@ -1,6 +1,12 @@
 'use client';
 import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useReducedMotion,
+  useSpring,
+} from 'framer-motion';
 import type { Template } from 'tinacms';
 import { tinaField } from 'tinacms/dist/react';
 import { Section } from '../layout/section';
@@ -10,43 +16,35 @@ const MotionSection = motion.create(Section);
 
 export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
   const shouldReduceMotion = useReducedMotion();
-  const ref = useRef<HTMLDivElement>(null);
-  
+  const ref = useRef<HTMLDivElement | null>(null);
+
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start end", "end start"],
+    offset: ['start end', 'end start'],
   });
 
-  const containerTransform = useTransform(
+  const rawScale = useTransform(
     scrollYProgress,
     [0, 0.2, 0.3, 0.7, 0.8, 1],
-    [
-      "scale(0.8) translateY(50px) translateZ(0)",
-      "scale(0.95) translateY(25px) translateZ(0)", 
-      "scale(1) translateY(0px) translateZ(0)",
-      "scale(1) translateY(0px) translateZ(0)",
-      "scale(0.98) translateY(-15px) translateZ(0)",
-      "scale(0.95) translateY(-30px) translateZ(0)"
-    ]
+    [0.8, 0.95, 1, 1, 0.98, 0.95]
   );
 
-  const opacity = useTransform(
-    scrollYProgress, 
-    [0, 0.2, 0.8, 1], 
-    [0.3, 1, 1, 0.7]
+  const rawY = useTransform(
+    scrollYProgress,
+    [0, 0.2, 0.3, 0.7, 0.8, 1],
+    [50, 25, 0, 0, -15, -30]
   );
 
-  const leftImageScale = useTransform(
-    scrollYProgress, 
-    [0.2, 0.6], 
-    [0.95, 1.05]
-  );
+  const rawOpacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.3, 1, 1, 0.7]);
+  const rawLeftImageScale = useTransform(scrollYProgress, [0.2, 0.6], [0.95, 1.05]);
+  const rawTextOpacity = useTransform(scrollYProgress, [0.1, 0.4], [0.5, 1]);
 
-  const textOpacity = useTransform(
-    scrollYProgress, 
-    [0.1, 0.4], 
-    [0.5, 1]
-  );
+  const springConfig = { damping: 26, stiffness: 140 };
+  const scale = useSpring(rawScale, springConfig);
+  const y = useSpring(rawY, springConfig);
+  const opacity = useSpring(rawOpacity, { damping: 20, stiffness: 120 });
+  const leftImageScale = useSpring(rawLeftImageScale, { damping: 18, stiffness: 120 });
+  const textOpacity = useSpring(rawTextOpacity, { damping: 18, stiffness: 120 });
 
   if (shouldReduceMotion) {
     return (
@@ -66,6 +64,7 @@ export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
                   className="max-w-[26rem] w-full h-auto"
                   data-tina-field={tinaField(data, 'leftImage')}
                   loading="lazy"
+                  decoding="async"
                 />
               )}
             </div>
@@ -86,7 +85,8 @@ export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
       ref={ref}
       id="Monochrome"
       style={{
-        transform: containerTransform,
+        scale,
+        y,
         opacity,
         willChange: 'transform, opacity',
         backfaceVisibility: 'hidden',
@@ -109,15 +109,13 @@ export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
                 className="max-w-[26rem] w-full h-auto"
                 data-tina-field={tinaField(data, 'leftImage')}
                 loading="lazy"
+                decoding="async"
+                draggable={false}
                 style={{
                   scale: leftImageScale,
                   willChange: 'transform',
                   backfaceVisibility: 'hidden',
                   WebkitBackfaceVisibility: 'hidden',
-                }}
-                transition={{
-                  type: "tween",
-                  ease: "easeOut"
                 }}
               />
             )}
@@ -127,10 +125,6 @@ export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
             data-tina-field={tinaField(data, 'text')}
             style={{
               opacity: textOpacity,
-            }}
-            transition={{
-              type: "tween",
-              ease: "easeOut"
             }}
           >
             {data.text}

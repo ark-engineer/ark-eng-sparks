@@ -128,7 +128,8 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-all duration-300 ease-out ${isAnimating ? 'bg-black bg-opacity-50' : 'bg-opacity-0'
+    id='custom-services'
+      className={`fixed inset-0 flex items-center justify-center z-70 p-4 transition-all duration-300 ease-out ${isAnimating ? 'bg-black bg-opacity-50' : 'bg-opacity-0'
         }`}
       onClick={handleBackdropClick}
     >

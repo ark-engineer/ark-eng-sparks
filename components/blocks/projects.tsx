@@ -59,13 +59,30 @@ const iconMap = {
   'discount-tag-02': HugeIcons.DiscountTag02Icon,
 } as const;
 
+const scrollContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1,
+    },
+  },
+  exit: {
+    y: 100,
+    opacity: 0,
+    scale: 0.4,
+    transition: { duration: 0.2 },
+  },
+}
+
 const cardVariants: Variants = {
   hidden: (scrollDirection: "up" | "down") => ({
     y: scrollDirection === "down" ? 20 : -20,
     opacity: 0,
     scale: 0.8,
   }),
-  visible: (custom: number) => ({
+  visible: (scrollDirection: "up" | "down") => ({
     y: 0,
     opacity: 1,
     scale: 1,
@@ -80,30 +97,9 @@ const cardVariants: Variants = {
     y: scrollDirection === "down" ? 20 : -20,
     opacity: 0,
     scale: 0.8,
-    transition: {
-      duration: 0.1,
-    },
+    transition: { duration: 0.1 },
   }),
-}
-
-const scrollContainerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.05,
-      delayChildren: 0.1,
-    },
-    exit: {
-      y: 100,
-      opacity: 0,
-      scale: 0.4,
-      transition: {
-        duration: 0.2,
-      },
-    },
-  },
-}
+};
 
 export const Projects = ({ data }: { data: PageBlocksProjects }) => {
   const [activeTab, setActiveTab] = useState<ProjectType>("ARKENG")
@@ -246,7 +242,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
           initial="hidden"
           animate="visible"
         >
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="sync">
             {filteredProjects.map((project, index) => (
               <motion.div
                 key={`${activeTab}-${project}-${index}`}
@@ -293,10 +289,68 @@ const ProjectCard = ({
 }) => {
   const images = project.images || [];
   const mainImage = images.find((img) => img?.setAsMain) || images[0];
+
+  const [pressed, setPressed] = useState(false);
+  const longPressTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressTriggered = useRef(false);
+
+  const LONG_PRESS_MS = 2000; // 2s para abrir sidebar
+
+  const clearLongPress = () => {
+    if (longPressTimeout.current) {
+      clearTimeout(longPressTimeout.current);
+      longPressTimeout.current = null;
+    }
+    longPressTriggered.current = false;
+  };
+
+  const handlePointerDown: React.PointerEventHandler = (e) => {
+    if (e.pointerType === "mouse" && (e as any).button !== 0) return;
+    setPressed(true); // mostra overlay imediatamente no touch/mouse down
+
+    longPressTriggered.current = false;
+    if (longPressTimeout.current) clearLongPress();
+
+    longPressTimeout.current = setTimeout(() => {
+      longPressTriggered.current = true;
+      onProjectClick(); // só abre sidebar se realmente ficou 2s pressionado
+    }, LONG_PRESS_MS);
+  };
+
+  const handlePointerUp: React.PointerEventHandler = () => {
+    clearLongPress();
+    setPressed(false);
+
+    if (!longPressTriggered.current) {
+      onProjectClick(); // clique curto → abre sidebar
+    }
+  };
+
+  const handlePointerCancelOrLeave: React.PointerEventHandler = () => {
+    clearLongPress();
+    setPressed(false);
+  };
+
+  const handleKeyDown: React.KeyboardEventHandler = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onProjectClick();
+    }
+  };
+
+  const overlayOpacityClass =
+    pressed ? "opacity-100" : "opacity-0 group-hover:opacity-100";
+
   return (
     <Card
-      className='overflow-hidden shadow-md grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer max-w-[24.5rem] mb-[0.625rem] break-inside-avoid relative group'
-      onClick={onProjectClick}
+      tabIndex={0}
+      role="button"
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancelOrLeave}
+      onPointerLeave={handlePointerCancelOrLeave}
+      onKeyDown={handleKeyDown}
+      className="overflow-hidden shadow-md grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer max-w-[24.5rem] mb-[0.625rem] break-inside-avoid relative group"
     >
       {mainImage?.image && (
         <Image
@@ -304,39 +358,43 @@ const ProjectCard = ({
           height={38}
           src={mainImage.image}
           blurDataURL={mainImage.image}
-          alt={project.constructorName || 'Imagem do Projeto'}
-          className='object-cover w-full h-full'
-          loading='lazy'
-          placeholder='blur'
-          sizes='(max-width: 768px) 100vw, 38px'
+          alt={project.constructorName || "Imagem do Projeto"}
+          className="object-cover w-full h-full"
+          loading="lazy"
+          sizes="(max-width: 768px) 100vw, 38px"
         />
       )}
+
       <svg
-        className='absolute right-2 top-2 opacity-0 group-hover:opacity-100 z-5 w-8 xs:W-6'
-        viewBox='0 0 38 38'
-        fill='none'
-        xmlns='http://www.w3.org/2000/svg'
+        className={`absolute right-2 top-2 ${overlayOpacityClass} z-5 w-8 xs:W-6`}
+        viewBox="0 0 38 38"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
       >
         <path
-          d='M19 0C29.4934 0 38 8.50659 38 19C38 29.4934 29.4934 38 19 38C8.50659 38 0 29.4934 0 19C0 8.50659 8.50659 0 19 0ZM17 12C16.4478 12.0001 16.0001 12.4478 16 13C16.0001 13.5519 16.4472 13.9995 16.999 14H23.5859L11.293 26.293C10.9024 26.6835 10.9024 27.3165 11.293 27.707C11.6835 28.0976 12.3165 28.0976 12.707 27.707L25 15.4141V22.001C25.0005 22.5528 25.4481 22.9999 26 23C26.5522 22.9999 26.9999 22.5522 27 22V13C26.9999 12.4478 26.5522 12.0001 26 12H17Z'
-          fill='white'
+          d="M19 0C29.4934 0 38 8.50659 38 19C38 29.4934 29.4934 38 19 38C8.50659 38 0 29.4934 0 19C0 8.50659 8.50659 0 19 0ZM17 12C16.4478 12.0001 16.0001 12.4478 16 13C16.0001 13.5519 16.4472 13.9995 16.999 14H23.5859L11.293 26.293C10.9024 26.6835 10.9024 27.3165 11.293 27.707C11.6835 28.0976 12.3165 28.0976 12.707 27.707L25 15.4141V22.001C25.0005 22.5528 25.4481 22.9999 26 23C26.5522 22.9999 26.9999 22.5522 27 22V13C26.9999 12.4478 26.5522 12.0001 26 12H17Z"
+          fill="white"
         />
       </svg>
+
       <div
-        className='
-        absolute bottom-0 left-0 w-full
-        bg-gradient-to-t from-black/70 to-transparent
-        backdrop-blur-sm
-        flex items-end p-4
-        opacity-0 group-hover:opacity-100
-        transition-opacity duration-300
-      '
+        className={`
+          absolute bottom-0 left-0 w-full
+          bg-gradient-to-t from-black/70 to-transparent
+          backdrop-blur-sm
+          flex items-end p-4
+          transition-opacity duration-300
+          ${overlayOpacityClass}
+        `}
       >
-        <h3 className='text-white font-normal text-2xl'>{project.constructorName ?? ''}</h3>
+        <h3 className="text-white font-normal text-2xl">
+          {project.constructorName ?? ""}
+        </h3>
       </div>
     </Card>
   );
 };
+
 
 const getIcon = (iconKey?: string) =>
   iconKey && iconMap[iconKey as keyof typeof iconMap]
