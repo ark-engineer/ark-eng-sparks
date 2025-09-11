@@ -226,6 +226,92 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
     setSelectedProject(null)
   }
 
+  useEffect(() => {
+    if (!scrollContainerRef.current) return;
+  
+    // Debounce util simples
+    let debounceTimer: number | null = null;
+    const debounce = (fn: () => void, wait = 100) => {
+      if (debounceTimer) window.clearTimeout(debounceTimer);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      debounceTimer = window.setTimeout(fn, wait);
+    }
+  
+    const updateFirstItemsInColumns = () => {
+      const container = scrollContainerRef.current!;
+      const items = Array.from(container.querySelectorAll<HTMLElement>('.masonry-item'));
+  
+      // remove marcações antigas
+      items.forEach(it => it.classList.remove('first-in-target'));
+  
+      if (items.length === 0) return;
+  
+      // Agrupar por posição "left" (coluna). Usamos tolerância porque left pode variar alguns pixels.
+      const columnsMap = new Map<number, HTMLElement[]>();
+      const TOLERANCE = 12; // px
+  
+      items.forEach(item => {
+        const rect = item.getBoundingClientRect();
+        const left = Math.round(rect.left);
+  
+        // tenta encontrar chave existente dentro da tolerância
+        let foundKey: number | undefined;
+        for (const key of columnsMap.keys()) {
+          if (Math.abs(key - left) <= TOLERANCE) {
+            foundKey = key;
+            break;
+          }
+        }
+        const mapKey = foundKey ?? left;
+        const arr = columnsMap.get(mapKey) ?? [];
+        arr.push(item);
+        columnsMap.set(mapKey, arr);
+      });
+  
+      // Ordena colunas da esquerda pra direita pelo key (left)
+      const columns = Array.from(columnsMap.entries())
+        .sort((a, b) => a[0] - b[0])
+        .map(([_, arr]) => arr);
+  
+      // Em cada coluna, escolher o item mais alto (menor top)
+      columns.forEach((colItems, colIndex) => {
+        colItems.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+        const first = colItems[0];
+        // marcar apenas 1ª e 3ª coluna (índices 0 e 2)
+        if (first && (colIndex === 0 || colIndex === 2)) {
+          first.classList.add('first-in-target');
+        }
+      });
+    }
+  
+    // Observador de mutações — atualiza quando itens mudarem (ex.: troca de tab)
+    const observer = new MutationObserver(() => debounce(updateFirstItemsInColumns, 80));
+    observer.observe(scrollContainerRef.current, { childList: true, subtree: true });
+  
+    // Resize
+    const onResize = () => debounce(updateFirstItemsInColumns, 100);
+    window.addEventListener('resize', onResize);
+  
+    // Recalcular quando imagens terminarem de carregar (afeta layout)
+    const attachImageListeners = () => {
+      const imgs = scrollContainerRef.current?.querySelectorAll<HTMLImageElement>('img') ?? [];
+      imgs.forEach(img => img.addEventListener('load', () => debounce(updateFirstItemsInColumns, 60)));
+    };
+    attachImageListeners();
+  
+    // First run (depois de um tick pra garantir layout pronto)
+    setTimeout(updateFirstItemsInColumns, 60);
+  
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', onResize);
+      if (debounceTimer) window.clearTimeout(debounceTimer);
+      // remove listeners de imagens (opcional)
+      const imgs = scrollContainerRef.current?.querySelectorAll<HTMLImageElement>('img') ?? [];
+      imgs.forEach(img => img.removeEventListener('load', () => debounce(updateFirstItemsInColumns, 60)));
+    }
+  }, [activeTab, /* você pode adicionar filteredProjects.length se quiser */]);
   return (
     <div ref={containerRef} className="relative">
       <Section
@@ -274,7 +360,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
         <motion.div
           ref={scrollContainerRef}
           key={activeTab}
-          className="px-[2.75rem] py-12 gap-[0.625rem] sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-4 min-h-screen"
+          className="masonry-container px-[2.75rem] py-12 gap-[0.625rem] sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-4 min-h-screen"
           variants={scrollContainerVariants}
           initial="hidden"
           animate="visible"
@@ -289,7 +375,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
                 initial="hidden"
                 animate={visibleCards.has(index) ? "visible" : "hidden"}
                 exit="exit"
-                className="break-inside-avoid mb-4"
+                className="masonry-item break-inside-avoid mb-4"
                 whileHover={hoverAnimation}
                 style={{
                   transformOrigin: scrollDirection === "down" ? "bottom" : "top",
