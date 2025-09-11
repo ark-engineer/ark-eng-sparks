@@ -249,7 +249,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
   
       // Agrupar por posição "left" (coluna). Usamos tolerância porque left pode variar alguns pixels.
       const columnsMap = new Map<number, HTMLElement[]>();
-      const TOLERANCE = 12; // px
+      const TOLERANCE = 12;
   
       items.forEach(item => {
         const rect = item.getBoundingClientRect();
@@ -285,7 +285,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       });
     }
   
-    // Observador de mutações — atualiza quando itens mudarem (ex.: troca de tab)
     const observer = new MutationObserver(() => debounce(updateFirstItemsInColumns, 80));
     observer.observe(scrollContainerRef.current, { childList: true, subtree: true });
   
@@ -293,21 +292,19 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
     const onResize = () => debounce(updateFirstItemsInColumns, 100);
     window.addEventListener('resize', onResize);
   
-    // Recalcular quando imagens terminarem de carregar (afeta layout)
     const attachImageListeners = () => {
       const imgs = scrollContainerRef.current?.querySelectorAll<HTMLImageElement>('img') ?? [];
       imgs.forEach(img => img.addEventListener('load', () => debounce(updateFirstItemsInColumns, 60)));
     };
     attachImageListeners();
   
-    // First run (depois de um tick pra garantir layout pronto)
     setTimeout(updateFirstItemsInColumns, 60);
   
     return () => {
       observer.disconnect();
       window.removeEventListener('resize', onResize);
       if (debounceTimer) window.clearTimeout(debounceTimer);
-      // remove listeners de imagens (opcional)
+
       const imgs = scrollContainerRef.current?.querySelectorAll<HTMLImageElement>('img') ?? [];
       imgs.forEach(img => img.removeEventListener('load', () => debounce(updateFirstItemsInColumns, 60)));
     }
