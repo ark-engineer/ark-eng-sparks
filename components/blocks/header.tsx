@@ -45,7 +45,7 @@ export const Header = ({ data }: { data?: any }) => {
           </svg>
         </Link>
 
-        <ul className="flex gap-4 text-sm" data-tina-field={tinaField(header, 'nav')}>
+        <ul className="flex gap-4 text-sm font-semibold" data-tina-field={tinaField(header, 'nav')}>
           {header.nav?.map((item: any, index: number) => {
             if (!item || !item.label) return null;
             return (
