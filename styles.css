@@ -122,6 +122,9 @@
     @apply bg-background text-foreground;
   }
 }
+.masonry-item.first-in-target {
+  padding-block-start: 6rem;
+}
 
 @keyframes fadeInSlide {
   0% {
