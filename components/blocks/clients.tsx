@@ -31,7 +31,7 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
           { transform: "translateX(-33.333%)" },
         ],
         {
-          duration: 30000, // 30 segundos
+          duration: 30000,
           iterations: Infinity,
           easing: "linear",
         }
@@ -41,7 +41,7 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
 
   const handleMouseEnter = () => {
     if (animationRef.current) {
-      animationRef.current.playbackRate = 0.25
+      animationRef.current.playbackRate = 0.5
     }
   }
 
@@ -88,7 +88,7 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
                 src={client.image || "/api/placeholder/200/100"}
                 alt={client.alt || client.name || "Cliente"}
                 className="
-                  max-h-16 sm:max-h-28 lg:max-h-44
+                   sm:max-h-28 lg:max-h-44
                   max-w-[8rem] sm:max-w-[12rem]
                   object-contain filter grayscale hover:grayscale-0
                   transition-all duration-300 hover:scale-105

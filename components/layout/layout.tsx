@@ -22,10 +22,10 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
     restDelta: 0.5
   });
   const touchStartY = useRef<number>(0);
-  const touchStartX = useRef<number>(0); // NEW: Track X for horizontal detection
+  const touchStartX = useRef<number>(0); 
   const touchStartTime = useRef<number>(0);
   const lastTouchY = useRef<number>(0);
-  const lastTouchX = useRef<number>(0); // NEW: Track last X
+  const lastTouchX = useRef<number>(0);
   const velocityY = useRef<number>(0);
   const isScrolling = useRef<boolean>(false);
   const rafId = useRef<number>();
@@ -69,8 +69,8 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
   useEffect(() => {
     if (shouldReduceMotion || loading) return;
 
-    const scrollSpeed = isMobile ? 0.6 : 0.3;
-    const touchScrollMultiplier = isMobile ? 1.4 : 1.2;
+    const scrollSpeed = isMobile ? 1.2 : 0.3;
+    const touchScrollMultiplier = isMobile ? 2.2 : 1.2;
 
     const handleWheel = (e: WheelEvent) => {
       if (isInsideProjectSidebar(e.target)) return;
@@ -120,7 +120,6 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
         }
       }
 
-      // NEW: If horizontal, don't preventDefault or handle scroll—let browser do it
       if (scrollDirection.current === 'horizontal') {
         lastTouchY.current = currentY;
         lastTouchX.current = currentX;
@@ -128,7 +127,7 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
         return; // Skip custom handling
       }
 
-      e.preventDefault(); // Only prevent if vertical
+      e.preventDefault();
       const scrollDelta = deltaY * touchScrollMultiplier;
       updateScroll(targetScrollY.current + scrollDelta);
       lastTouchY.current = currentY;
