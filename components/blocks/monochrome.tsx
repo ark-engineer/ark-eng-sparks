@@ -11,10 +11,14 @@ import {
 import type { Template } from 'tinacms';
 import { tinaField } from 'tinacms/dist/react';
 import { Section } from '../layout/section';
-import type { PageBlocksMonochrome } from "@/tina/__generated__/types";
+import type { PageBlocksMonochrome } from '@/tina/__generated__/types';
+import { TinaMarkdown } from 'tinacms/dist/rich-text';
+
+type RichText = any;
+type MonochromeData = Omit<PageBlocksMonochrome, 'text'> & { textRich?: RichText };
 
 type AnimatedProps = {
-  data: PageBlocksMonochrome;
+  data: MonochromeData;
   scrollYProgress: MotionValue<number>;
 };
 
@@ -27,11 +31,11 @@ function AnimatedMonochrome({ data, scrollYProgress }: AnimatedProps) {
     mass: 1,
   });
 
-  // const scale = useTransform(smoothProgress, [0, 0.5, 0.9], [0.85, 0.9, 0.85]);
   const opacity = useTransform(smoothProgress, [0, 0.2, 0.4, 0.8, 0.9], [0, 0.9, 0.9, 1, 0.4]);
-
   const contentY = useTransform(smoothProgress, [0, 0.5, 0.9], [50, 0, -50]);
   const contentOpacity = useTransform(smoothProgress, [0, 0.15, 0.8, 0.9], [0, 1, 1, 0]);
+
+  const content = data.textRich ?? { type: 'root', children: [] };
 
   return (
     <MotionSection
@@ -42,8 +46,7 @@ function AnimatedMonochrome({ data, scrollYProgress }: AnimatedProps) {
         opacity,
       }}
     >
-      <div className="flex flex-col md:flex-row items-center gap-8 p-8 min-h-[90%]">
-        {/* Imagem com efeito Y */}
+      <div className="flex flex-col md:flex-row items-center gap-8 p-8" style={{ minHeight: 'inherit' }}>
         <motion.div
           className="w-full md:w-1/2 flex justify-center md:justify-start"
           style={{ y: contentY, opacity: contentOpacity }}
@@ -52,7 +55,7 @@ function AnimatedMonochrome({ data, scrollYProgress }: AnimatedProps) {
             <img
               src={data.leftImage}
               alt="logos left"
-              className="max-w-[26rem] w-full h-auto gpu"
+              className="max-w-[36rem] w-full h-auto gpu"
               data-tina-field={tinaField(data, 'leftImage')}
               loading="lazy"
               decoding="async"
@@ -61,20 +64,25 @@ function AnimatedMonochrome({ data, scrollYProgress }: AnimatedProps) {
           )}
         </motion.div>
 
-        {/* Texto com efeito Y */}
-        <motion.p
-          className="w-full md:w-1/2 text-white text-center md:text-left text-[18.317px] font-extralight leading-normal gpu"
-          data-tina-field={tinaField(data, 'text')}
+        <motion.div
+          className="w-full md:w-1/2 gpu"
+          data-tina-field={tinaField(data, 'textRich')}
           style={{ y: contentY, opacity: contentOpacity }}
         >
-          {data.text}
-        </motion.p>
+          {typeof content === 'string' ? (
+            <p className="whitespace-pre-wrap">{content}</p>
+          ) : (
+            <div className="text-white text-center md:text-left text-2xl font-extralight leading-normal max-w-none">
+              <TinaMarkdown content={content} />
+            </div>
+          )}
+        </motion.div>
       </div>
     </MotionSection>
   );
 }
 
-export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
+export const Monochrome = ({ data }: { data: MonochromeData }) => {
   const shouldReduceMotion = useReducedMotion();
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -82,6 +90,8 @@ export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
     target: wrapperRef,
     offset: ['start end', 'end start'],
   });
+
+  const content = data.textRich ?? { type: 'root', children: [] };
 
   if (shouldReduceMotion) {
     return (
@@ -105,23 +115,25 @@ export const Monochrome = ({ data }: { data: PageBlocksMonochrome }) => {
               />
             )}
           </div>
-          <p
+          <div
             className="w-full md:w-1/2 text-white text-center md:text-left text-[18.317px] font-extralight leading-normal gpu"
-            data-tina-field={tinaField(data, 'text')}
+            data-tina-field={tinaField(data, 'textRich')}
           >
-            {data.text}
-          </p>
+            {typeof content === 'string' ? (
+              <p className="whitespace-pre-wrap">{content}</p>
+            ) : (
+              <div className="prose prose-white max-w-none">
+                <TinaMarkdown content={content} />
+              </div>
+            )}
+          </div>
         </div>
       </Section>
     );
   }
 
   return (
-    <div
-      ref={wrapperRef}
-      id="Monochrome"
-      className="h-[100%] flex items-center justify-center"
-    >
+    <div ref={wrapperRef} id="Monochrome" className="h-[100%] flex items-center justify-center">
       <div className="sticky top-[10vh]">
         <AnimatedMonochrome data={data} scrollYProgress={scrollYProgress} />
       </div>
@@ -137,7 +149,20 @@ export const monochromeBlockSchema: Template = {
     defaultItem: {
       backgroundImage: '/default-background.jpg',
       leftImage: '/uploads/animation/monochrome-animation-compressed.gif',
-      text: 'Seu texto aqui à direita.',
+      textRich: {
+        type: 'root',
+        children: [
+          {
+            type: 'p',
+            children: [
+              {
+                type: 'text',
+                text: 'Seu texto aqui à direita.',
+              },
+            ],
+          },
+        ],
+      },
     },
   },
   fields: [
@@ -152,12 +177,10 @@ export const monochromeBlockSchema: Template = {
       name: 'leftImage',
     },
     {
-      type: 'string',
+      type: 'rich-text',
       label: 'Text (Right Side)',
-      name: 'text',
-      ui: {
-        component: 'textarea',
-      },
+      name: 'textRich',
+      toolbarOverride: ['heading', 'bold', 'italic', 'link', 'ul', 'ol'],
     },
   ],
 };
