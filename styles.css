@@ -195,3 +195,9 @@ body {
 .carousel-track>div {
   flex-shrink: 0;
 }
+.gpu {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
