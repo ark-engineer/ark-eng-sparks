@@ -28,9 +28,10 @@ function AnimatedMonochrome({ data, scrollYProgress }: AnimatedProps) {
   });
 
   const scale = useTransform(smoothProgress, [0, 0.5, 0.9], [0.85, 0.9, 0.85]);
-  const opacity = useTransform(smoothProgress, [0, 0.2, 0.8, 0.9], [0, 0.9, 0.9, 0]);
+  const opacity = useTransform(smoothProgress, [0, 0.2, 0.4, 0.8, 0.9], [0, 0.9, 0.9, 1, 0.4]);
 
-  const contentScale = useTransform(smoothProgress, [0, 0.5, 0.9], [0.9, 0.95, 0.9]);
+  const contentY = useTransform(smoothProgress, [0, 0.5, 0.9], [50, 0, -50]);
+  const contentOpacity = useTransform(smoothProgress, [0, 0.15, 0.8, 0.9], [0, 1, 1, 0]);
 
   return (
     <MotionSection
@@ -42,10 +43,13 @@ function AnimatedMonochrome({ data, scrollYProgress }: AnimatedProps) {
       }}
     >
       <div className="flex flex-col md:flex-row items-center gap-8 p-8 min-h-[90%]">
-        {/* Imagem com efeito */}
-        <div className="w-full md:w-1/2 flex justify-center md:justify-start">
+        {/* Imagem com efeito Y */}
+        <motion.div
+          className="w-full md:w-1/2 flex justify-center md:justify-start"
+          style={{ y: contentY, opacity: contentOpacity }}
+        >
           {data.leftImage && (
-            <motion.img
+            <img
               src={data.leftImage}
               alt="logos left"
               className="max-w-[26rem] w-full h-auto gpu"
@@ -53,21 +57,15 @@ function AnimatedMonochrome({ data, scrollYProgress }: AnimatedProps) {
               loading="lazy"
               decoding="async"
               draggable={false}
-              style={{
-                scale: contentScale,
-              }}
             />
           )}
-        </div>
+        </motion.div>
 
-        {/* Texto com efeito */}
+        {/* Texto com efeito Y */}
         <motion.p
           className="w-full md:w-1/2 text-white text-center md:text-left text-[18.317px] font-extralight leading-normal gpu"
           data-tina-field={tinaField(data, 'text')}
-          style={{
-            scale: contentScale,
-            transformOrigin: 'center',
-          }}
+          style={{ y: contentY, opacity: contentOpacity }}
         >
           {data.text}
         </motion.p>
