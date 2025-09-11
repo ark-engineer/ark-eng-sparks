@@ -436,10 +436,12 @@ const getIcon = (iconKey?: string) =>
     ? iconMap[iconKey as keyof typeof iconMap]
     : HugeIcons.RulerFreeIcons;
 
+
 const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fullscreenImageIndex, setFullscreenImageIndex] = useState(0);
+  const [currentMobileImageIndex, setCurrentMobileImageIndex] = useState(0);
   const images = project.images || [];
   const imagesPerPage = 5;
   const totalPages = Math.max(1, Math.ceil(images.length / imagesPerPage));
@@ -463,6 +465,16 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
 
   const nextPage = () => setCurrentPage((prev) => (prev + 1) % totalPages);
   const prevPage = () => setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+
+  // Mobile image navigation
+  const nextMobileImage = () => setCurrentMobileImageIndex((prev) => (prev + 1) % currentPageImages.length);
+  const prevMobileImage = () => setCurrentMobileImageIndex((prev) => (prev - 1 + currentPageImages.length) % currentPageImages.length);
+
+  // Reset mobile image index when page changes
+  useEffect(() => {
+    setCurrentMobileImageIndex(0);
+  }, [currentPage]);
+
   const hasThumbnails = thumbnailImages.length > 0;
   const openFullscreen = (imageIndex: number) => {
     setFullscreenImageIndex(imageIndex);
@@ -536,10 +548,12 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
       </div>
     </div>
   );
+
   return (
     <>
       <div className="fixed inset-0" onClick={onClose} />
-      <div className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[90vw] lg:min-w-[90vw] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 overflow-y-auto rounded-t-2xl backdrop-blur-md shadow-lg project-sidebar-scrollable [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)]">        {/* Header */}
+      <div className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[90vw] lg:min-w-[90vw] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 overflow-y-auto rounded-t-2xl backdrop-blur-md shadow-lg project-sidebar-scrollable [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)] z-70">
+        {/* Header */}
         <div className="flex items-center justify-between p-6 pb-0">
           <div className="flex flex-col align-left">
             <h2 className="text-2xl font-semibold leading-none" data-tina-field={tinaField(project, 'constructorName')}>
@@ -555,96 +569,206 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
             <HugeiconsIcon icon={HugeIcons.Cancel01Icon} size={20} color="#6B7280" strokeWidth={1.5} className="text-gray-500" />
           </Button>
         </div>
+
         {/* Content */}
         <div className="p-6 space-y-6">
           {images.length > 0 && (
             <div className="space-y-4">
               {!isFullscreen ? (
                 <>
-                  {/* Gallery View com Layout Responsivo */}
-                  <div className="flex gap-[0.625rem] h-[290px] overflow-hidden">
-                    {/* Imagem Principal - 100% se for única, 75% se houver outras */}
-                    <div
-                      onClick={() => openFullscreen(startIndex)}
-                      className={`cursor-pointer relative overflow-hidden rounded-lg group transition-all duration-300 ${hasOnlyOneImage ? 'w-full' : 'w-3/4'
-                        }`}
-                    >
-                      <img
-                        key={`main-${currentPage}`}
-                        src={mainImage?.image || ''}
-                        alt={project.constructorName || 'Projeto'}
-                        className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
-                        style={{ animation: 'fadeInSlide 0.5s ease-in-out' }}
-                        data-tina-field={tinaField(project, 'images')}
-                      />
-                      <button
-                        onClick={() => openFullscreen(startIndex)}
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
+                  {/* Mobile View - Single Image */}
+                  <div className="block md:hidden">
+                    <div className="relative h-[290px] overflow-hidden rounded-lg">
+                      <div
+                        onClick={() => openFullscreen(startIndex + currentMobileImageIndex)}
+                        className="cursor-pointer relative w-full h-full group"
                       >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path
-                            d="M18.5016 19.1218L21 21.6218M20 15.1218C20 12.0843 17.5376 9.62183 14.5 9.62183C11.4624 9.62183 9 12.0843 9 15.1218C9 18.1594 11.4624 20.6218 14.5 20.6218C17.5376 20.6218 20 18.1594 20 15.1218Z"
-                            stroke="white"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path d="M14.5 13.1216V17.1216M16.5 15.1216H12.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          <path
-                            d="M10 3.62183H14M3 10.6218V14.6218M6.5 21.6218C4.567 21.6218 3 20.0548 3 18.1218M17.5 3.62183C19.433 3.62183 21 5.18883 21 7.12183M3 7.12183C3 5.18883 4.567 3.62183 6.5 3.62183"
-                            stroke="white"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                    {/* Grid de Thumbnails - só aparece se houver thumbnails */}
-                    {hasThumbnails && (
-                      <div className="w-1/4 grid grid-cols-2 gap-[0.625rem] relative max-h-[290px]">
-                        {thumbnailImages.map((img, index) => (
-                          <div
-                            onClick={() => openFullscreen(startIndex + index + 1)}
-                            key={`thumb-${currentPage}-${index}`}
-                            className="cursor-pointer w-full h-[140px] relative overflow-hidden rounded-lg group"
-                          >
-                            <img
-                              src={img?.image || ''}
-                              alt={`${project.constructorName} - ${index + 2}`}
-                              className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
-                              style={{ animation: `fadeInSlide 0.5s ease-in-out ${index * 0.1}s both` }}
+                        <img
+                          key={`mobile-${currentPage}-${currentMobileImageIndex}`}
+                          src={currentPageImages[currentMobileImageIndex]?.image || ''}
+                          alt={`${project.constructorName} - ${currentMobileImageIndex + 1}`}
+                          className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
+                          style={{ animation: 'fadeInSlide 0.5s ease-in-out' }}
+                          data-tina-field={tinaField(project, 'images')}
+                        />
+
+                        {/* Zoom button */}
+                        <button
+                          onClick={() => openFullscreen(startIndex + currentMobileImageIndex)}
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
+                        >
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                              d="M18.5016 19.1218L21 21.6218M20 15.1218C20 12.0843 17.5376 9.62183 14.5 9.62183C11.4624 9.62183 9 12.0843 9 15.1218C9 18.1594 11.4624 20.6218 14.5 20.6218C17.5376 20.6218 20 18.1594 20 15.1218Z"
+                              stroke="white"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
                             />
+                            <path d="M14.5 13.1216V17.1216M16.5 15.1216H12.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            <path
+                              d="M10 3.62183H14M3 10.6218V14.6218M6.5 21.6218C4.567 21.6218 3 20.0548 3 18.1218M17.5 3.62183C19.433 3.62183 21 5.18883 21 7.12183M3 7.12183C3 5.18883 4.567 3.62183 6.5 3.62183"
+                              stroke="white"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+
+                        {/* Navigation arrows - only show if there are multiple images */}
+                        {currentPageImages.length > 1 && (
+                          <>
                             <button
-                              onClick={() => openFullscreen(startIndex + index + 1)}
-                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                prevMobileImage();
+                              }}
+                              className="absolute left-2 top-1/2 transform -translate-y-1/2 transition-all duration-200 hover:scale-110 rounded-full p-2 bg-white/30 backdrop-blur-sm"
                             >
-                              <HugeiconsIcon icon={HugeIcons.ZoomInAreaIcon} color="white" />
-                            </button>
-                          </div>
-                        ))}
-                        {/* Controles de navegação de página */}
-                        {totalPages > 1 && thumbnailImages.length > 0 && (
-                          <div className="absolute bottom-2 right-2 flex gap-1">
-                            <button
-                              onClick={prevPage}
-                              className="transition-all duration-200 hover:scale-110 rounded-full p-1 bg-white/30 backdrop-blur-sm w-[35px] h-[35px] flex-shrink-0 flex items-center justify-center"
-                            >
-                              <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} color="white" />
+                              <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} size={20} color="white" />
                             </button>
                             <button
-                              onClick={nextPage}
-                              className="transition-all duration-200 hover:scale-110 rounded-full p-1 bg-white/30 backdrop-blur-sm w-[35px] h-[35px] flex-shrink-0 flex items-center justify-center"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                nextMobileImage();
+                              }}
+                              className="absolute right-2 top-1/2 transform -translate-y-1/2 transition-all duration-200 hover:scale-110 rounded-full p-2 bg-white/30 backdrop-blur-sm"
                             >
-                              <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} color="white" />
+                              <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} size={20} color="white" />
                             </button>
-                          </div>
+                          </>
                         )}
+
+                        {/* Image counter */}
+                        <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1">
+                          <span className="text-white text-sm font-medium">
+                            {currentMobileImageIndex + 1} / {currentPageImages.length}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mobile dot navigation for current page images */}
+                    {currentPageImages.length > 1 && (
+                      <DotNavigation
+                        total={currentPageImages.length}
+                        activeIndex={currentMobileImageIndex}
+                        onClick={setCurrentMobileImageIndex}
+                        maxWidth={400}
+                      />
+                    )}
+
+                    {/* Page navigation for mobile */}
+                    {totalPages > 1 && (
+                      <div className="flex justify-center items-center gap-4 mt-4">
+                        <button
+                          onClick={prevPage}
+                          className="transition-all duration-200 hover:scale-110 rounded-full p-2 bg-gray-100 hover:bg-gray-200"
+                        >
+                          <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} size={20} color="#374151" />
+                        </button>
+                        <span className="text-sm text-gray-600">
+                          Página {currentPage + 1} de {totalPages}
+                        </span>
+                        <button
+                          onClick={nextPage}
+                          className="transition-all duration-200 hover:scale-110 rounded-full p-2 bg-gray-100 hover:bg-gray-200"
+                        >
+                          <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} size={20} color="#374151" />
+                        </button>
                       </div>
                     )}
                   </div>
-                  {/* Dot Navigation para páginas */}
-                  {totalPages > 1 && <DotNavigation total={totalPages} activeIndex={currentPage} onClick={setCurrentPage} />}
+
+                  {/* Desktop View - Original Layout */}
+                  <div className="hidden md:block">
+                    <div className="flex gap-[0.625rem] h-[290px] overflow-hidden">
+                      {/* Main Image */}
+                      <div
+                        onClick={() => openFullscreen(startIndex)}
+                        className={`cursor-pointer relative overflow-hidden rounded-lg group transition-all duration-300 ${hasOnlyOneImage ? 'w-full' : 'w-3/4'}`}
+                      >
+                        <img
+                          key={`main-${currentPage}`}
+                          src={mainImage?.image || ''}
+                          alt={project.constructorName || 'Projeto'}
+                          className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
+                          style={{ animation: 'fadeInSlide 0.5s ease-in-out' }}
+                          data-tina-field={tinaField(project, 'images')}
+                        />
+                        <button
+                          onClick={() => openFullscreen(startIndex)}
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
+                        >
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                              d="M18.5016 19.1218L21 21.6218M20 15.1218C20 12.0843 17.5376 9.62183 14.5 9.62183C11.4624 9.62183 9 12.0843 9 15.1218C9 18.1594 11.4624 20.6218 14.5 20.6218C17.5376 20.6218 20 18.1594 20 15.1218Z"
+                              stroke="white"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path d="M14.5 13.1216V17.1216M16.5 15.1216H12.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            <path
+                              d="M10 3.62183H14M3 10.6218V14.6218M6.5 21.6218C4.567 21.6218 3 20.0548 3 18.1218M17.5 3.62183C19.433 3.62183 21 5.18883 21 7.12183M3 7.12183C3 5.18883 4.567 3.62183 6.5 3.62183"
+                              stroke="white"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+
+                      {/* Thumbnails Grid */}
+                      {hasThumbnails && (
+                        <div className="w-1/4 grid grid-cols-2 gap-[0.625rem] relative max-h-[290px]">
+                          {thumbnailImages.map((img, index) => (
+                            <div
+                              onClick={() => openFullscreen(startIndex + index + 1)}
+                              key={`thumb-${currentPage}-${index}`}
+                              className="cursor-pointer w-full h-[140px] relative overflow-hidden rounded-lg group"
+                            >
+                              <img
+                                src={img?.image || ''}
+                                alt={`${project.constructorName} - ${index + 2}`}
+                                className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
+                                style={{ animation: `fadeInSlide 0.5s ease-in-out ${index * 0.1}s both` }}
+                              />
+                              <button
+                                onClick={() => openFullscreen(startIndex + index + 1)}
+                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
+                              >
+                                <HugeiconsIcon icon={HugeIcons.ZoomInAreaIcon} color="white" />
+                              </button>
+                            </div>
+                          ))}
+
+                          {/* Page Navigation Controls */}
+                          {totalPages > 1 && thumbnailImages.length > 0 && (
+                            <div className="absolute bottom-2 right-2 flex gap-1">
+                              <button
+                                onClick={prevPage}
+                                className="transition-all duration-200 hover:scale-110 rounded-full p-1 bg-white/30 backdrop-blur-sm w-[35px] h-[35px] flex-shrink-0 flex items-center justify-center"
+                              >
+                                <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} color="white" />
+                              </button>
+                              <button
+                                onClick={nextPage}
+                                className="transition-all duration-200 hover:scale-110 rounded-full p-1 bg-white/30 backdrop-blur-sm w-[35px] h-[35px] flex-shrink-0 flex items-center justify-center"
+                              >
+                                <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} color="white" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Desktop Dot Navigation */}
+                    {totalPages > 1 && <DotNavigation total={totalPages} activeIndex={currentPage} onClick={setCurrentPage} />}
+                  </div>
                 </>
               ) : (
                 // Fullscreen View
@@ -699,6 +823,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
               )}
             </div>
           )}
+
           {!isFullscreen && (
             <>
               {/* Project Details */}
@@ -711,6 +836,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                   ))}
                 </div>
               </div>
+
               {/* Services */}
               {project.services && project.services.length > 0 && (
                 <div>
