@@ -110,7 +110,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("down")
   const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set())
-  
+
   const [isScrolling, setIsScrolling] = useState(false)
   const [scrollTimeout, setScrollTimeout] = useState<NodeJS.Timeout | null>(null)
   const [isHoverDevice, setIsHoverDevice] = useState(false)
@@ -145,17 +145,17 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
 
     const handleScroll = () => {
       updateScrollDirection()
-      
+
       setIsScrolling(true)
-      
+
       if (scrollTimeout) {
         clearTimeout(scrollTimeout)
       }
-      
+
       const newTimeout = setTimeout(() => {
         setIsScrolling(false)
       }, 150)
-      
+
       setScrollTimeout(newTimeout)
 
       if (scrollContainerRef.current) {
@@ -295,11 +295,11 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
                   transformOrigin: scrollDirection === "down" ? "bottom" : "top",
                 }}
               >
-                <ProjectCard 
-                  key={`${activeTab}-${index}`} 
-                  project={project!} 
-                  activeTab={activeTab} 
-                  onProjectClick={() => openProjectSidebar(project!)} 
+                <ProjectCard
+                  key={`${activeTab}-${index}`}
+                  project={project!}
+                  activeTab={activeTab}
+                  onProjectClick={() => openProjectSidebar(project!)}
                   isScrolling={isScrolling}
                 />
               </motion.div>
@@ -319,120 +319,67 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
 
 const ProjectCard = ({
   project,
-  activeTab,
   onProjectClick,
-  isScrolling = false,
 }: {
-  project: PageBlocksProjectsProjects;
-  activeTab: ProjectType;
-  onProjectClick: () => void;
-  isScrolling?: boolean;
+  project: PageBlocksProjectsProjects
+  activeTab: ProjectType
+  onProjectClick: () => void
 }) => {
-  const images = project.images || [];
-  const mainImage = images.find((img) => img?.setAsMain) || images[0];
-  const [pressed, setPressed] = useState(false);
-  const longPressTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const longPressTriggered = useRef(false);
-  const startPosition = useRef<{ x: number; y: number } | null>(null);
-  const LONG_PRESS_MS = 2000; // 2s para abrir sidebar
-  const MOVE_THRESHOLD = 10; // pixels de movimento permitido
+  const images = project.images || []
+  const mainImage = images.find((img) => img?.setAsMain) || images[0]
 
-  const clearLongPress = () => {
-    if (longPressTimeout.current) {
-      clearTimeout(longPressTimeout.current);
-      longPressTimeout.current = null;
-    }
-    longPressTriggered.current = false;
-  };
+  const [pressed, setPressed] = useState(false)
+
+  const startPosition = useRef<{ x: number; y: number } | null>(null)
+  const isDragging = useRef(false)
+  const MOVE_THRESHOLD = 10 // Limiar de movimento em pixels para considerar um arraste
 
   const handlePointerDown: React.PointerEventHandler = (e) => {
-    // Ignorar se estiver scrollando
-    if (isScrolling) return;
-    
-    if (e.pointerType === "mouse" && (e as any).button !== 0) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return
 
-    // Capturar posição inicial para detectar movimento (scroll)
-    startPosition.current = { x: e.clientX, y: e.clientY };
-    
-    setPressed(true);
-    longPressTriggered.current = false;
-
-    if (longPressTimeout.current) clearLongPress();
-
-    longPressTimeout.current = setTimeout(() => {
-      // Só executar se não estiver scrollando
-      if (!isScrolling) {
-        longPressTriggered.current = true;
-        onProjectClick();
-      }
-    }, LONG_PRESS_MS);
-  };
+    startPosition.current = { x: e.clientX, y: e.clientY }
+    isDragging.current = false
+    setPressed(true)
+  }
 
   const handlePointerMove: React.PointerEventHandler = (e) => {
-    // Se moveu muito desde o início, provavelmente é scroll - cancelar
-    if (startPosition.current) {
-      const deltaX = Math.abs(e.clientX - startPosition.current.x);
-      const deltaY = Math.abs(e.clientY - startPosition.current.y);
-      
-      if (deltaX > MOVE_THRESHOLD || deltaY > MOVE_THRESHOLD) {
-        clearLongPress();
-        setPressed(false);
-      }
+    if (!startPosition.current) return
+
+    const deltaX = Math.abs(e.clientX - startPosition.current.x)
+    const deltaY = Math.abs(e.clientY - startPosition.current.y)
+
+    if (deltaX > MOVE_THRESHOLD || deltaY > MOVE_THRESHOLD) {
+      isDragging.current = true
+      setPressed(false)
     }
-  };
+  }
 
-  const handlePointerUp: React.PointerEventHandler = (e) => {
-    // Ignorar se estiver scrollando
-    if (isScrolling) {
-      clearLongPress();
-      setPressed(false);
-      return;
+  const handlePointerUp: React.PointerEventHandler = () => {
+    if (!isDragging.current) {
+      onProjectClick()
     }
+    setPressed(false)
+    startPosition.current = null
+  }
 
-    // Verificar se não houve muito movimento (não foi scroll)
-    if (startPosition.current) {
-      const deltaX = Math.abs(e.clientX - startPosition.current.x);
-      const deltaY = Math.abs(e.clientY - startPosition.current.y);
-      
-      if (deltaX > MOVE_THRESHOLD || deltaY > MOVE_THRESHOLD) {
-        clearLongPress();
-        setPressed(false);
-        return;
-      }
-    }
-
-    clearLongPress();
-    setPressed(false);
-
-    if (!longPressTriggered.current && !isScrolling) {
-      onProjectClick(); // clique curto → abre sidebar
-    }
-
-    startPosition.current = null;
-  };
-
-  const handlePointerCancelOrLeave: React.PointerEventHandler = () => {
-    clearLongPress();
-    setPressed(false);
-    startPosition.current = null;
-  };
+  const handlePointerLeave: React.PointerEventHandler = () => {
+    // Cancela a interação se o cursor sair do componente
+    setPressed(false)
+    startPosition.current = null
+  }
 
   const handleKeyDown: React.KeyboardEventHandler = (e) => {
+    // Acessibilidade: permite acionar com Enter ou Espaço
     if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      if (!isScrolling) {
-        onProjectClick();
-      }
+      e.preventDefault()
+      onProjectClick()
     }
-  };
+  }
 
-  // Ajustar opacity baseado no estado de scroll também
-  const overlayOpacityClass = pressed && !isScrolling 
-    ? "opacity-100" 
-    : "opacity-0 group-hover:opacity-100";
-
-  // Adicionar classe condicional para cursor
-  const cursorClass = isScrolling ? "cursor-default" : "cursor-pointer";
+  // Lógica para a opacidade do overlay
+  const overlayOpacityClass = pressed
+    ? "opacity-100"
+    : "opacity-0 group-hover:opacity-100"
 
   return (
     <Card
@@ -441,32 +388,28 @@ const ProjectCard = ({
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerCancelOrLeave}
-      onPointerLeave={handlePointerCancelOrLeave}
+      onPointerLeave={handlePointerLeave}
       onKeyDown={handleKeyDown}
-      className={`overflow-hidden shadow-md grayscale hover:grayscale-0 transition-all duration-300 ${cursorClass} max-w-[24.5rem] mb-[0.625rem] break-inside-avoid relative group`}
+      className="overflow-hidden shadow-md grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer max-w-[24.5rem] mb-[0.625rem] break-inside-avoid relative group"
       style={{
-        // Prevenir text selection durante scroll
-        userSelect: isScrolling ? 'none' : 'auto',
-        // Desabilitar touch-action quando não estiver scrollando para melhor controle
-        touchAction: isScrolling ? 'auto' : 'none'
+        // Garante que o scroll vertical funcione corretamente em dispositivos de toque
+        touchAction: "pan-y",
       }}
     >
       {mainImage?.image && (
         <Image
-          width={38}
-          height={38}
+          width={400} // Forneça uma largura base razoável
+          height={400} // Forneça uma altura base razoável
           src={mainImage.image}
-          blurDataURL={mainImage.image}
           alt={project.constructorName || "Imagem do Projeto"}
-          className="object-cover w-full h-full pointer-events-none"
+          className="object-cover w-full h-auto pointer-events-none" // h-auto é importante para manter a proporção
           loading="lazy"
-          sizes="(max-width: 768px) 100vw, 38px"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
       )}
-      
+
       <svg
-        className={`absolute right-2 top-2 ${overlayOpacityClass} z-5 w-8 xs:W-6 transition-opacity duration-300`}
+        className={`absolute right-2 top-2 ${overlayOpacityClass} z-10 w-8 h-8 transition-opacity duration-300`}
         viewBox="0 0 38 38"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -476,24 +419,17 @@ const ProjectCard = ({
           fill="white"
         />
       </svg>
-      
+
       <div
-        className={`
-          absolute bottom-0 left-0 w-full
-          bg-gradient-to-t from-black/70 to-transparent
-          backdrop-blur-sm
-          flex items-end p-4
-          transition-opacity duration-300
-          ${overlayOpacityClass}
-        `}
+        className={`absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4 transition-opacity duration-300 ${overlayOpacityClass}`}
       >
         <h3 className="text-white font-normal text-2xl">
           {project.constructorName ?? ""}
         </h3>
       </div>
     </Card>
-  );
-};
+  )
+}
 
 const getIcon = (iconKey?: string) =>
   iconKey && iconMap[iconKey as keyof typeof iconMap]
@@ -603,7 +539,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
   return (
     <>
       <div className="fixed inset-0" onClick={onClose} />
-      <div className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[1920px] lg:min-w-[995px] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 overflow-y-auto rounded-t-2xl backdrop-blur-md shadow-lg project-sidebar-scrollable [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)]">        {/* Header */}
+      <div className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[90vw] lg:min-w-[90vw] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 overflow-y-auto rounded-t-2xl backdrop-blur-md shadow-lg project-sidebar-scrollable [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)]">        {/* Header */}
         <div className="flex items-center justify-between p-6 pb-0">
           <div className="flex flex-col align-left">
             <h2 className="text-2xl font-semibold leading-none" data-tina-field={tinaField(project, 'constructorName')}>
