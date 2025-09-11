@@ -19,7 +19,7 @@ type AnimatedProps = {
 };
 
 function AnimatedMonochrome({ data, scrollYProgress }: AnimatedProps) {
-  const MotionSection = motion(Section);
+  const MotionSection = motion.create(Section);
 
   const smoothProgress = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -27,7 +27,7 @@ function AnimatedMonochrome({ data, scrollYProgress }: AnimatedProps) {
     mass: 1,
   });
 
-  const scale = useTransform(smoothProgress, [0, 0.5, 0.9], [0.85, 0.9, 0.85]);
+  // const scale = useTransform(smoothProgress, [0, 0.5, 0.9], [0.85, 0.9, 0.85]);
   const opacity = useTransform(smoothProgress, [0, 0.2, 0.4, 0.8, 0.9], [0, 0.9, 0.9, 1, 0.4]);
 
   const contentY = useTransform(smoothProgress, [0, 0.5, 0.9], [50, 0, -50]);
@@ -35,10 +35,10 @@ function AnimatedMonochrome({ data, scrollYProgress }: AnimatedProps) {
 
   return (
     <MotionSection
-      className="mt-15 w-[90%] md:w-[75%] rounded-3xl bg-cover bg-center bg-no-repeat gpu"
+      className="mt-15 mb-5 w-[90%] md:w-[75%] rounded-3xl bg-cover bg-center bg-no-repeat gpu"
       style={{
         backgroundImage: `url(${data.backgroundImage})`,
-        scale,
+        y: contentY,
         opacity,
       }}
     >
