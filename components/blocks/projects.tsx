@@ -300,7 +300,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
                   project={project!}
                   activeTab={activeTab}
                   onProjectClick={() => openProjectSidebar(project!)}
-                  isScrolling={isScrolling}
                 />
               </motion.div>
             ))}
@@ -332,7 +331,7 @@ const ProjectCard = ({
 
   const startPosition = useRef<{ x: number; y: number } | null>(null)
   const isDragging = useRef(false)
-  const MOVE_THRESHOLD = 10 // Limiar de movimento em pixels para considerar um arraste
+  const MOVE_THRESHOLD = 10
 
   const handlePointerDown: React.PointerEventHandler = (e) => {
     if (e.pointerType === "mouse" && e.button !== 0) return
@@ -363,20 +362,17 @@ const ProjectCard = ({
   }
 
   const handlePointerLeave: React.PointerEventHandler = () => {
-    // Cancela a interação se o cursor sair do componente
     setPressed(false)
     startPosition.current = null
   }
 
   const handleKeyDown: React.KeyboardEventHandler = (e) => {
-    // Acessibilidade: permite acionar com Enter ou Espaço
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault()
       onProjectClick()
     }
   }
 
-  // Lógica para a opacidade do overlay
   const overlayOpacityClass = pressed
     ? "opacity-100"
     : "opacity-0 group-hover:opacity-100"
@@ -392,17 +388,16 @@ const ProjectCard = ({
       onKeyDown={handleKeyDown}
       className="overflow-hidden shadow-md grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer max-w-[24.5rem] mb-[0.625rem] break-inside-avoid relative group"
       style={{
-        // Garante que o scroll vertical funcione corretamente em dispositivos de toque
         touchAction: "pan-y",
       }}
     >
       {mainImage?.image && (
         <Image
-          width={400} // Forneça uma largura base razoável
-          height={400} // Forneça uma altura base razoável
+          width={400}
+          height={400}
           src={mainImage.image}
           alt={project.constructorName || "Imagem do Projeto"}
-          className="object-cover w-full h-auto pointer-events-none" // h-auto é importante para manter a proporção
+          className="object-cover w-full h-auto pointer-events-none"
           loading="lazy"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
@@ -421,7 +416,12 @@ const ProjectCard = ({
       </svg>
 
       <div
-        className={`absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4 transition-opacity duration-300 ${overlayOpacityClass}`}
+        className={`absolute bottom-0 left-0 w-full
+          bg-gradient-to-t from-black/60 to-transparent
+          backdrop-blur-xs
+          flex items-end p-3
+          transition-opacity duration-300
+          ${overlayOpacityClass}`}
       >
         <h3 className="text-white font-normal text-2xl">
           {project.constructorName ?? ""}
