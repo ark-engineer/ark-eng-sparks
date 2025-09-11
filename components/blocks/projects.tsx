@@ -274,7 +274,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
         <motion.div
           ref={scrollContainerRef}
           key={activeTab}
-          className="px-[2.75rem] py-12 gap-[0.625rem] sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 min-h-screen"
+          className="px-[2.75rem] py-12 gap-[0.625rem] sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-4 min-h-screen"
           variants={scrollContainerVariants}
           initial="hidden"
           animate="visible"
@@ -386,7 +386,7 @@ const ProjectCard = ({
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerLeave}
       onKeyDown={handleKeyDown}
-      className="overflow-hidden shadow-md grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer max-w-[24.5rem] mb-[0.625rem] break-inside-avoid relative group"
+      className="overflow-hidden shadow-md grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer  mb-[0.625rem] break-inside-avoid relative group"
       style={{
         touchAction: "pan-y",
       }}
