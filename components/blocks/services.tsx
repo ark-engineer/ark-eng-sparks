@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, SetStateAction, Dispatch } from 'react';
 import type { Template } from 'tinacms';
 import { tinaField } from 'tinacms/dist/react';
 import { sectionBlockSchemaField } from '../layout/section';
@@ -34,31 +34,37 @@ type ModalState = {
   company: SolutionsBlockCompany | null;
 };
 
-// Mapeamento dos IDs para os labels das empresas
 const COMPANY_LABELS: Record<ProjectType, string> = {
   arkeng: 'Arkeng',
   ebim: 'Ebim',
   arkane: 'Arkane'
 };
 
-const useAutoRotation = (totalItems: number, delay: number, enabled: boolean, activeIndex: number, onRotate: (index: number) => void) => {
+const useAutoRotation = (
+  totalItems: number,
+  delay: number,
+  enabled: boolean,
+  activeIndex: number,
+  onRotate: Dispatch<SetStateAction<number>>
+) => {
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [isPaused, setIsPaused] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const lastRotationRef = useRef<number>(Date.now());
 
   const startRotation = useCallback(() => {
-    if (!enabled || totalItems <= 1 || isPaused) return;
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (!enabled || totalItems <= 1) return;
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current as ReturnType<typeof setInterval>);
+    }
+
     intervalRef.current = setInterval(() => {
-      const nextIndex = (lastRotationRef.current + 1) % totalItems;
-      onRotate(nextIndex);
-      lastRotationRef.current = Date.now();
+      onRotate((prev) => (prev + 1) % totalItems);
     }, delay);
-  }, [enabled, totalItems, delay, isPaused, onRotate]);
+  }, [enabled, totalItems, delay, onRotate]);
 
   const stopRotation = useCallback(() => {
     if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+      clearInterval(intervalRef.current as ReturnType<typeof setInterval>);
       intervalRef.current = null;
     }
   }, []);
@@ -70,26 +76,16 @@ const useAutoRotation = (totalItems: number, delay: number, enabled: boolean, ac
 
   const resumeRotation = useCallback(() => {
     setIsPaused(false);
-    lastRotationRef.current = Date.now();
   }, []);
 
   useEffect(() => {
-    if (enabled && totalItems > 1 && !isPaused) startRotation();
-    else stopRotation();
+    if (enabled && totalItems > 1 && !isPaused) {
+      startRotation();
+    } else {
+      stopRotation();
+    }
     return () => stopRotation();
   }, [enabled, totalItems, isPaused, startRotation, stopRotation]);
-
-  useEffect(() => {
-    if (enabled && totalItems > 1 && !isPaused) {
-      const timeSinceLastRotation = Date.now() - lastRotationRef.current;
-      const remainingTime = Math.max(delay - timeSinceLastRotation, 0);
-      stopRotation();
-      const timeoutId = setTimeout(() => {
-        startRotation();
-      }, remainingTime);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [activeIndex, enabled, totalItems, isPaused, delay, startRotation, stopRotation]);
 
   return { pauseRotation, resumeRotation, isPaused };
 };
@@ -128,7 +124,7 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
 
   return (
     <div
-    id='custom-services'
+      id='custom-services'
       className={`fixed inset-0 flex items-center justify-center z-70 p-4 transition-all duration-300 ease-out ${isAnimating ? 'bg-black bg-opacity-50' : 'bg-opacity-0'
         }`}
       onClick={handleBackdropClick}
@@ -309,17 +305,16 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
     service: null,
     company: null,
   });
-  const [userInteracted, setUserInteracted] = useState(false);
 
   const companies = data.companies || [];
   const currentCompany: SolutionsBlockCompany | undefined = companies[activeCompany];
-  const autoRotateDelay = data.autoRotateDelay || 3000;
+  const autoRotateDelay = data.autoRotateDelay ?? 4000;
   const enableAutoRotate = data.enableAutoRotate !== false;
 
   const { pauseRotation, resumeRotation } = useAutoRotation(
     companies.length,
     autoRotateDelay,
-    enableAutoRotate && !userInteracted,
+    enableAutoRotate,
     activeCompany,
     setActiveCompany
   );
@@ -332,7 +327,6 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
 
   const handleServiceClick = useCallback(
     (service: Service) => {
-      setUserInteracted(true);
       setModalState({
         isOpen: true,
         service,
@@ -349,7 +343,6 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
   const handleCompanySelect = useCallback(
     (index: number) => {
       if (index !== activeCompany) {
-        setUserInteracted(true);
         setServicesVisible(false);
         setTimeout(() => {
           setActiveCompany(index);
@@ -360,12 +353,24 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
   );
 
   const handleMouseEnter = useCallback(() => {
-    pauseRotation();
-  }, [pauseRotation]);
+    if (modalState.isOpen) {
+      pauseRotation();
+    }
+  }, [pauseRotation, modalState.isOpen]);
 
   const handleMouseLeave = useCallback(() => {
-    if (!modalState.isOpen && !userInteracted) resumeRotation();
-  }, [resumeRotation, modalState.isOpen, userInteracted]);
+    if (!modalState.isOpen) {
+      resumeRotation();
+    }
+  }, [resumeRotation, modalState.isOpen]);
+
+  useEffect(() => {
+    if (!modalState.isOpen) {
+      resumeRotation();
+    } else {
+      pauseRotation();
+    }
+  }, [modalState.isOpen, resumeRotation, pauseRotation]);
 
   return (
     <>
@@ -445,7 +450,7 @@ export const solutionsBlockSchema: Template = {
       description: 'Oferecemos soluções completas e personalizadas para o mercado imobiliário',
       companiesTitle: 'Soluções personalizadas para suas necessidades imobiliárias',
       enableAutoRotate: true,
-      autoRotateDelay: 3000,
+      autoRotateDelay: 4000,
       companies: [
         { id: 'arkeng', logo: '', servicesTitle: 'Nossos Serviços', services: [] },
         { id: 'ebim', logo: '', servicesTitle: 'Nossos Serviços', services: [] },
