@@ -109,7 +109,7 @@ export const Header = ({ data }: { data?: any }) => {
           </Link>
           <div className='flex ml-auto w-[100%] gap-6 justify-end'>
             {header.nav
-              ?.filter((item: any) => item?.label === 'Sobre' || item?.label === 'Serviços')
+              ?.filter((item: any) => item?.label !== 'Fale Conosco')
               .map((item: any, index: number) => (
                 <Link
                   key={index}
