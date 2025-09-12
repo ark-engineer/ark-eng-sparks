@@ -3,6 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { TinaMarkdown } from 'tinacms/dist/rich-text';
 import { PostConnectionQuery, PostConnectionQueryVariables } from '@/tina/__generated__/types';
 import ErrorBoundary from '@/components/error-boundary';
@@ -10,6 +11,7 @@ import { ArrowRight, UserRound } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Section } from '@/components/layout/section';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { motion } from 'framer-motion';
 
 interface ClientPostProps {
   data: PostConnectionQuery;
@@ -23,7 +25,7 @@ export default function PostsClientPage(props: ClientPostProps) {
     const date = new Date(post.date!);
     let formattedDate = '';
     if (!isNaN(date.getTime())) {
-      formattedDate = format(date, 'MMM dd, yyyy');
+      formattedDate = format(date, 'dd \'de\' MMM \'de\' yyyy', { locale: ptBR });
     }
 
     return {
@@ -35,7 +37,7 @@ export default function PostsClientPage(props: ClientPostProps) {
       excerpt: post.excerpt,
       heroImg: post.heroImg,
       author: {
-        name: post.author?.name || 'Anonymous',
+        name: post.author?.name || 'Anônimo',
         avatar: post.author?.avatar,
       }
     }
@@ -47,10 +49,10 @@ export default function PostsClientPage(props: ClientPostProps) {
         <div className="container flex flex-col items-center gap-16">
           <div className="text-center">
             <h2 className="mx-auto mb-6 text-pretty text-3xl font-semibold md:text-4xl lg:max-w-3xl">
-              Blog Posts
+              Artigos do Blog
             </h2>
             <p className="mx-auto max-w-2xl text-muted-foreground md:text-lg">
-              Discover the latest insights and tutorials about modern web development, UI design, and component-driven architecture.
+              Descubra os últimos insights
             </p>
           </div>
 
@@ -102,7 +104,7 @@ export default function PostsClientPage(props: ClientPostProps) {
                         href={post.url}
                         className="inline-flex items-center font-semibold hover:underline md:text-base"
                       >
-                        <span>Read more</span>
+                        <span>Ler mais</span>
                         <ArrowRight className="ml-2 size-4 transition-transform" />
                       </Link>
                     </div>
@@ -110,15 +112,32 @@ export default function PostsClientPage(props: ClientPostProps) {
                   {post.heroImg && (
                     <div className="order-first sm:order-last sm:col-span-5">
                       <Link href={post.url} className="block">
-                        <div className="aspect-[16/9] overflow-clip rounded-lg border border-border">
+                        <motion.div 
+                          className="aspect-[16/9] overflow-clip rounded-lg border border-border"
+                          whileHover={{
+                            rotateX: 2,
+                            rotateY: 5,
+                            scale: 1.02,
+                          }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 20,
+                            duration: 0.3
+                          }}
+                          style={{
+                            transformStyle: "preserve-3d",
+                            transformOrigin: "center center"
+                          }}
+                        >
                           <Image
                             width={533}
                             height={300}
                             src={post.heroImg}
                             alt={post.title}
-                            className="h-full w-full object-cover transition-opacity duration-200 fade-in hover:opacity-70"
+                            className="h-full w-full object-cover transition-opacity duration-200 fade-in hover:opacity-90"
                           />
-                        </div>
+                        </motion.div>
                       </Link>
                     </div>
                   )}
