@@ -58,8 +58,6 @@ const useAutoRotation = (
     }
 
     intervalRef.current = setInterval(() => {
-      // como onRotate é um Dispatch<SetStateAction<number>>,
-      // podemos passar uma função atualizadora
       onRotate((prev) => (prev + 1) % totalItems);
     }, delay);
   }, [enabled, totalItems, delay, onRotate]);
@@ -78,7 +76,6 @@ const useAutoRotation = (
 
   const resumeRotation = useCallback(() => {
     setIsPaused(false);
-    // o efeito abaixo (useEffect) irá iniciar a rotação novamente quando isPaused for false
   }, []);
 
   useEffect(() => {
@@ -311,7 +308,7 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
 
   const companies = data.companies || [];
   const currentCompany: SolutionsBlockCompany | undefined = companies[activeCompany];
-  const autoRotateDelay = data.autoRotateDelay || 3000;
+  const autoRotateDelay = data.autoRotateDelay ?? 4000;
   const enableAutoRotate = data.enableAutoRotate !== false;
 
   const { pauseRotation, resumeRotation } = useAutoRotation(
@@ -355,7 +352,6 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
     [activeCompany]
   );
 
-  // Pausa temporariamente apenas quando o modal está aberto
   const handleMouseEnter = useCallback(() => {
     if (modalState.isOpen) {
       pauseRotation();
@@ -368,7 +364,6 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
     }
   }, [resumeRotation, modalState.isOpen]);
 
-  // Resume a rotação quando o modal fecha
   useEffect(() => {
     if (!modalState.isOpen) {
       resumeRotation();
@@ -455,7 +450,7 @@ export const solutionsBlockSchema: Template = {
       description: 'Oferecemos soluções completas e personalizadas para o mercado imobiliário',
       companiesTitle: 'Soluções personalizadas para suas necessidades imobiliárias',
       enableAutoRotate: true,
-      autoRotateDelay: 3000,
+      autoRotateDelay: 4000,
       companies: [
         { id: 'arkeng', logo: '', servicesTitle: 'Nossos Serviços', services: [] },
         { id: 'ebim', logo: '', servicesTitle: 'Nossos Serviços', services: [] },

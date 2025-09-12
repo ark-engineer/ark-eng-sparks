@@ -15,12 +15,15 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
   const shouldReduceMotion = useReducedMotion();
   const scrollY = useMotionValue(0);
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  
+  // Configurações otimizadas para mobile e desktop
   const smoothScrollY = useSpring(scrollY, {
-    damping: isMobile ? 20 : 30,
-    stiffness: isMobile ? 400 : 100,
-    mass: isMobile ? 0.3 : 1,
-    restDelta: 0.5
+    damping: isMobile ? 35 : 200,     // Aumentado para mobile (era 20)
+    stiffness: isMobile ? 800 : 320,  // Aumentado significativamente para mobile (era 360)
+    mass: isMobile ? 0.3 : 0.4,       // Reduzido para mobile (era 0.6)
+    restDelta: 0.1                    // Reduzido para maior precisão (era 0.5)
   });
+
   const touchStartY = useRef<number>(0);
   const touchStartX = useRef<number>(0); 
   const touchStartTime = useRef<number>(0);
@@ -30,7 +33,7 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
   const isScrolling = useRef<boolean>(false);
   const rafId = useRef<number>();
   const targetScrollY = useRef<number>(0);
-  const scrollDirection = useRef<'vertical' | 'horizontal' | null>(null); // NEW: Track gesture direction
+  const scrollDirection = useRef<'vertical' | 'horizontal' | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -69,8 +72,9 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
   useEffect(() => {
     if (shouldReduceMotion || loading) return;
 
-    const scrollSpeed = isMobile ? 1.2 : 0.3;
-    const touchScrollMultiplier = isMobile ? 2.2 : 1.2;
+    // Configurações mais agressivas para melhor responsividade
+    const scrollSpeed = isMobile ? 2.5 : 0.3;           // Aumentado significativamente (era 1.2)
+    const touchScrollMultiplier = isMobile ? 3.5 : 1.2; // Aumentado (era 2.2)
 
     const handleWheel = (e: WheelEvent) => {
       if (isInsideProjectSidebar(e.target)) return;
@@ -83,13 +87,13 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
       if (isInsideProjectSidebar(e.target)) return;
       const touch = e.touches[0];
       touchStartY.current = touch.clientY;
-      touchStartX.current = touch.clientX; // NEW
+      touchStartX.current = touch.clientX;
       lastTouchY.current = touch.clientY;
-      lastTouchX.current = touch.clientX; // NEW
+      lastTouchX.current = touch.clientX;
       touchStartTime.current = Date.now();
       velocityY.current = 0;
       isScrolling.current = true;
-      scrollDirection.current = null; // NEW: Reset direction
+      scrollDirection.current = null;
       if (rafId.current) {
         cancelAnimationFrame(rafId.current);
         rafId.current = undefined;
@@ -105,17 +109,17 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
       const currentTime = Date.now();
 
       const deltaY = lastTouchY.current - currentY;
-      const deltaX = lastTouchX.current - currentX; // NEW
+      const deltaX = lastTouchX.current - currentX;
       const deltaTime = Math.max(currentTime - touchStartTime.current, 1);
       velocityY.current = deltaY / deltaTime;
 
-      // NEW: Detect direction if not already set (based on initial movement)
+      // Detecção de direção mais sensível
       if (scrollDirection.current === null) {
         const absDeltaX = Math.abs(deltaX);
         const absDeltaY = Math.abs(deltaY);
-        if (absDeltaX > absDeltaY && absDeltaX > 5) { // Threshold to avoid noise
+        if (absDeltaX > absDeltaY && absDeltaX > 3) { // Threshold reduzido (era 5)
           scrollDirection.current = 'horizontal';
-        } else if (absDeltaY > absDeltaX && absDeltaY > 5) {
+        } else if (absDeltaY > absDeltaX && absDeltaY > 3) {
           scrollDirection.current = 'vertical';
         }
       }
@@ -124,38 +128,40 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
         lastTouchY.current = currentY;
         lastTouchX.current = currentX;
         touchStartTime.current = currentTime;
-        return; // Skip custom handling
+        return;
       }
 
       e.preventDefault();
       const scrollDelta = deltaY * touchScrollMultiplier;
       updateScroll(targetScrollY.current + scrollDelta);
       lastTouchY.current = currentY;
-      lastTouchX.current = currentX; // NEW
+      lastTouchX.current = currentX;
       touchStartTime.current = currentTime;
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
       if (!isScrolling.current || isInsideProjectSidebar(e.target)) return;
       isScrolling.current = false;
-      // NEW: Skip inertia if horizontal
+      
       if (scrollDirection.current !== 'vertical') {
         scrollDirection.current = null;
         return;
       }
-      if (isMobile && Math.abs(velocityY.current) > 0.5) {
-        const inertiaVelocity = velocityY.current * 450;
-        const friction = 0.94;
+
+      // Inércia mais responsiva para mobile
+      if (isMobile && Math.abs(velocityY.current) > 0.3) { // Threshold reduzido (era 0.5)
+        const inertiaVelocity = velocityY.current * 600;    // Aumentado (era 450)
+        const friction = 0.92;                              // Reduzido ligeiramente (era 0.94)
         const animateInertia = () => {
-          if (Math.abs(velocityY.current) < 0.1) return;
+          if (Math.abs(velocityY.current) < 0.05) return;   // Threshold reduzido (era 0.1)
           velocityY.current *= friction;
-          updateScroll(targetScrollY.current + velocityY.current * 16);
+          updateScroll(targetScrollY.current + velocityY.current * 20); // Aumentado (era 16)
           rafId.current = requestAnimationFrame(animateInertia);
         };
-        velocityY.current = Math.max(-15, Math.min(15, inertiaVelocity / 300));
+        velocityY.current = Math.max(-20, Math.min(20, inertiaVelocity / 300)); // Aumentado (era -15/15)
         rafId.current = requestAnimationFrame(animateInertia);
       }
-      scrollDirection.current = null; // NEW: Reset
+      scrollDirection.current = null;
     };
 
     const handleKeyScroll = (e: KeyboardEvent) => {
@@ -165,8 +171,8 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
       let scrollAmount = 0;
       const viewportHeight = window.innerHeight;
       switch (e.key) {
-        case 'ArrowUp': scrollAmount = isMobile ? -80 : -50; break;
-        case 'ArrowDown': scrollAmount = isMobile ? 80 : 50; break;
+        case 'ArrowUp': scrollAmount = isMobile ? -100 : -50; break;    // Aumentado (era -80)
+        case 'ArrowDown': scrollAmount = isMobile ? 100 : 50; break;    // Aumentado (era 80)
         case 'PageUp': scrollAmount = -viewportHeight * 0.8; break;
         case 'PageDown':
         case 'Space': scrollAmount = viewportHeight * 0.8; break;

@@ -134,7 +134,7 @@ export const Monochrome = ({ data }: { data: MonochromeData }) => {
 
   return (
     <div ref={wrapperRef} id="Monochrome" className="h-[100%] flex items-center justify-center">
-      <div className="sticky top-[10vh]">
+      <div className="">
         <AnimatedMonochrome data={data} scrollYProgress={scrollYProgress} />
       </div>
     </div>

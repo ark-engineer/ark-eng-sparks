@@ -59,7 +59,7 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
 
   return (
     <div
-      className="w-full lg:py-10 bg-white overflow-hidden"
+      className="w-full  bg-white overflow-hidden"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -88,8 +88,11 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
                 src={client.image || "/api/placeholder/200/100"}
                 alt={client.alt || client.name || "Cliente"}
                 className="
-                   sm:max-h-28 lg:max-h-44
-                  max-w-[8rem] sm:max-w-[12rem]
+                   sm:max-h-28
+                   lg:max-h-44
+                   max-w-[8rem] 
+                   xl:max-w-[20rem]
+                   sm:max-w-[12rem]
                   object-contain filter grayscale hover:grayscale-0
                   transition-all duration-300 hover:scale-105
                 "
