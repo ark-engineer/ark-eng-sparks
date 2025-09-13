@@ -22,25 +22,29 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(Date.now());
-  const [speed, setSpeed] = useState(1.0);
+  
+  // Aumentar significativamente a velocidade no mobile
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [speed, setSpeed] = useState(isMobile ? 3.5 : 1.0); // Velocidade muito mais rápida para mobile (3.5) e padrão para desktop (1.0)
+  
   const [translateX, setTranslateX] = useState(0);
-
-  const duration = 30000; 
+  const duration = 30000;
   const cycleDistance = 33.333;
 
-  const animate = useCallback((currentTime: number) => {
-    const elapsed = (currentTime - startTimeRef.current) * speed;
-    const progress = (elapsed % duration) / duration;
-    const newTranslateX = -cycleDistance * progress;
-    setTranslateX(newTranslateX);
-
-    rafRef.current = requestAnimationFrame(animate);
-  }, [speed, duration, cycleDistance]);
+  const animate = useCallback(
+    (currentTime: number) => {
+      const elapsed = (currentTime - startTimeRef.current) * speed;
+      const progress = (elapsed % duration) / duration;
+      const newTranslateX = -cycleDistance * progress;
+      setTranslateX(newTranslateX);
+      rafRef.current = requestAnimationFrame(animate);
+    },
+    [speed, duration, cycleDistance]
+  );
 
   useEffect(() => {
     rafRef.current = requestAnimationFrame(animate);
     startTimeRef.current = Date.now();
-
     return () => {
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
@@ -49,12 +53,12 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
   }, [animate]);
 
   const handleMouseEnter = useCallback(() => {
-    setSpeed(0.5);
-  }, []);
+    setSpeed(isMobile ? 2.0 : 0.5); // Reduzir velocidade no hover, mas ainda rápida no mobile
+  }, [isMobile]);
 
   const handleMouseLeave = useCallback(() => {
-    setSpeed(1.0);
-  }, []);
+    setSpeed(isMobile ? 3.5 : 1.0); // Restaurar velocidade alta no mobile
+  }, [isMobile]);
 
   const handleClientClick = (client: ClientLogo) => {
     if (client.link) {
@@ -63,7 +67,11 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
   };
 
   return (
-    <div className="w-full bg-white overflow-hidden mb-18" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    <div
+      className="w-full bg-white overflow-hidden mb-18"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div className="text-center mb-12">
         <h2
           className="text-[28px] sm:text-[36px] font-medium text-black text-center capitalize font-inter leading-normal not-italic"
@@ -75,15 +83,15 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
       <div className="relative w-full">
         <div
           ref={trackRef}
-          className="carousel-track flex items-center p-[5dvh] will-change-transform transition-transform duration-0" // duration-0 to prevent any CSS transition interference
+          className="carousel-track flex items-center p-[5dvh] will-change-transform transition-transform duration-0"
           style={{
-            transform: `translateX(${translateX}%) translateZ(0)`, // Inline for precise control, GPU layer
+            transform: `translateX(${translateX}%) translateZ(0)`,
           }}
         >
           {duplicatedClients.map((client, index) => (
             <div
               key={`${client.name}-${index}`}
-              className={`carousel-item flex-shrink-0 flex items-center justify-center mx-4 sm:mx-8 w-[8rem] sm:w-[12rem] xl:w-[20rem] h-20 sm:h-28 lg:h-44 ${
+              className={`flex items-center justify-center mx-4 sm:mx-8 w-75 ${
                 client.link ? 'cursor-pointer' : ''
               }`}
               onClick={() => handleClientClick(client)}
@@ -112,6 +120,7 @@ export const ClientsCarousel = ({ data }: { data: any }) => {
   );
 };
 
+// O schema permanece inalterado
 export const clientsCarouselSchema: Template = {
   name: 'clientsCarousel',
   label: 'Carousel de Clientes',

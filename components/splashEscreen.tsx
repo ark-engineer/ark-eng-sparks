@@ -3,13 +3,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
-type SplashScreenProps = {
-    progress?: number;
-    showProgress?: boolean;
-};
+type SplashScreenProps = {};
 
-export const SplashScreen: React.FC<SplashScreenProps> = ({ progress = 0, showProgress = true }) => {
-    const safeProgress = Math.max(0, Math.min(100, Math.round(progress)));
+export const SplashScreen: React.FC<SplashScreenProps> = () => {
 
     return (
         <motion.div
@@ -41,7 +37,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ progress = 0, showPr
                 >
                     <div className="relative">
                         <Image
-                            priority={true}
+                            priority
                             src="/animation/logoanimation.gif"
                             alt="splash logo"
                             unoptimized
