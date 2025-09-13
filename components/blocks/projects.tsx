@@ -308,7 +308,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       const imgs = scrollContainerRef.current?.querySelectorAll<HTMLImageElement>('img') ?? [];
       imgs.forEach(img => img.removeEventListener('load', () => debounce(updateFirstItemsInColumns, 60)));
     }
-  }, [activeTab, /* você pode adicionar filteredProjects.length se quiser */]);
+  }, [activeTab, /* filteredProjects.length */]);
   return (
     <div ref={containerRef} className="relative">
       <Section
@@ -324,7 +324,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
             transition={{ duration: 0.6 }}
           >
             <h2
-              className="xs:text-xl sm:text-2xl lg:text-4xl text-title font-semibold"
+              className="text-2xl sm:text-3xl lg:text-4xl text-title font-semibold"
               data-tina-field={tinaField(data, "title")}
             >
               {data.title}
@@ -560,11 +560,26 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
 
   const hasThumbnails = thumbnailImages.length > 0;
   const openFullscreen = (imageIndex: number) => {
+    const forgivemefather = document.getElementById("sidebar-content") as HTMLDivElement;
+
+    if (forgivemefather) {
+      forgivemefather.style.height = "98dvh";
+    }
+
     setFullscreenImageIndex(imageIndex);
     setIsFullscreen(true);
   };
 
-  const closeFullscreen = () => setIsFullscreen(false);
+
+  const closeFullscreen = () => {
+    const forgivemefather = document.getElementById("sidebar-content") as HTMLDivElement;
+
+    if (forgivemefather) {
+      forgivemefather.style.height = "75dvh";
+    }
+
+    setIsFullscreen(false)
+  };
   const nextFullscreenImage = () => setFullscreenImageIndex((prev) => (prev + 1) % images.length);
   const prevFullscreenImage = () => setFullscreenImageIndex((prev) => (prev - 1 + images.length) % images.length);
   const goToFullscreenImage = (index: number) => setFullscreenImageIndex(index);
@@ -664,8 +679,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                     <div className="block md:hidden">
                       <div className="relative h-[290px] overflow-hidden rounded-lg">
                         <div
-                          onClick={() => openFullscreen(startIndex + currentMobileImageIndex)}
-                          className="cursor-pointer relative w-full h-full group"
+                          className="relative w-full h-full group"
                         >
                           <img
                             key={`mobile-${currentPage}-${currentMobileImageIndex}`}
@@ -679,7 +693,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                           {/* Zoom button */}
                           <button
                             onClick={() => openFullscreen(startIndex + currentMobileImageIndex)}
-                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
+                            className="cursor-pointer absolute top-2 right-2 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
                           >
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path
@@ -765,13 +779,11 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                       )}
                     </div>
 
-                    {/* Desktop View - Original Layout */}
+                    {/* Desktop View - Modified Layout (50/50) */}
                     <div className="hidden md:block">
                       <div className="flex gap-[0.625rem] h-[290px] overflow-hidden">
-                        {/* Main Image */}
                         <div
-                          onClick={() => openFullscreen(startIndex)}
-                          className={`cursor-pointer relative overflow-hidden rounded-lg group transition-all duration-300 ${hasOnlyOneImage ? 'w-full' : 'w-3/4'}`}
+                          className={`relative overflow-hidden rounded-lg group transition-all duration-300 ${hasOnlyOneImage ? 'w-full' : 'w-1/2'}`}
                         >
                           <img
                             key={`main-${currentPage}`}
@@ -783,7 +795,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                           />
                           <button
                             onClick={() => openFullscreen(startIndex)}
-                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
+                            className="cursor-pointer absolute top-2 right-2 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
                           >
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path
@@ -805,14 +817,13 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                           </button>
                         </div>
 
-                        {/* Thumbnails Grid */}
+                        {/* Thumbnails Grid - Now 50% */}
                         {hasThumbnails && (
-                          <div className="w-1/4 grid grid-cols-2 gap-[0.625rem] relative max-h-[290px]">
+                          <div className="w-1/2 grid grid-cols-2 gap-[0.625rem] relative max-h-[290px]">
                             {thumbnailImages.map((img, index) => (
                               <div
-                                onClick={() => openFullscreen(startIndex + index + 1)}
                                 key={`thumb-${currentPage}-${index}`}
-                                className="cursor-pointer w-full h-[140px] relative overflow-hidden rounded-lg group"
+                                className="w-full h-[140px] relative overflow-hidden rounded-lg group"
                               >
                                 <img
                                   src={img?.image || ''}
@@ -822,7 +833,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                                 />
                                 <button
                                   onClick={() => openFullscreen(startIndex + index + 1)}
-                                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
+                                  className="absolute top-2 right-2 cursor-pointer transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
                                 >
                                   <HugeiconsIcon icon={HugeIcons.ZoomInAreaIcon} color="white" />
                                 </button>
@@ -857,60 +868,61 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                 ) : (
                   // Fullscreen View
                   <div className="relative h-[calc(75vh-200px)] flex flex-col">
+                    {/* Botão anterior */}
                     <button
                       onClick={prevFullscreenImage}
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 transition-all duration-200 hover:scale-110 rounded-full bg-white/30 backdrop-blur-sm"
+                      className="absolute top-1/2 left-0 -translate-y-1/2 z-10 p-2 rounded-full bg-white/30 backdrop-blur-sm 
+               transition-all duration-200 hover:scale-110"
                     >
                       <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} size={34} />
                     </button>
+
+                    {/* Botão próximo */}
                     <button
                       onClick={nextFullscreenImage}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 rotate-180 z-10 transition-all duration-200 hover:scale-110 rounded-full bg-white/30 backdrop-blur-sm"
+                      className="absolute top-1/2 right-0 -translate-y-1/2 z-10 p-2 rounded-full bg-white/30 backdrop-blur-sm 
+               transition-all duration-200 hover:scale-110"
                     >
-                      <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} size={34} />
+                      <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} size={34} />
                     </button>
-                    <div onClick={closeFullscreen} className="cursor-pointer flex-1 flex items-center justify-center p-4 pb-6">
+
+                    {/* Imagem em fullscreen */}
+                    <div
+                      onClick={closeFullscreen}
+                      className="flex-1 flex items-center justify-center p-4 pb-6"
+                    >
                       <div className="relative inline-block">
                         <img
                           key={`fullscreen-${fullscreenImageIndex}`}
-                          src={images[fullscreenImageIndex]?.image || ''}
+                          src={images[fullscreenImageIndex]?.image || ""}
                           alt={`${project.constructorName} - ${fullscreenImageIndex + 1}`}
                           className="max-w-full max-h-full object-contain transition-all duration-500 ease-in-out rounded-lg"
-                          style={{ animation: 'fadeInSlide 0.5s ease-in-out' }}
+                          style={{ animation: "fadeInSlide 0.5s ease-in-out" }}
                         />
+                        {/* Botão fechar */}
                         <button
                           onClick={closeFullscreen}
-                          className="absolute top-2 right-2 z-10 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
+                          className="cursor-pointer absolute top-2 right-2 z-10 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
                         >
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                              d="M18.5016 18.5L21 21M20 14.5C20 11.4624 17.5376 9 14.5 9C11.4624 9 9 11.4624 9 14.5C9 17.5376 11.4624 20 14.5 20C17.5376 20 20 17.5376 20 14.5Z"
-                              stroke="white"
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                            <path d="M16.5 14.5H12.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                            <path
-                              d="M10 3H14M3 10V14M6.5 21C4.567 21 3 19.433 3 17.5M17.5 3C19.433 3 21 4.567 21 6.5M3 6.5C3 4.567 4.567 3 6.5 3"
-                              stroke="white"
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
+                          {/* svg aqui */}
                         </button>
                       </div>
                     </div>
-                    <DotNavigation total={images.length} activeIndex={fullscreenImageIndex} onClick={goToFullscreenImage} />
+
+                    {/* Dots do carousel */}
+                    <DotNavigation
+                      total={images.length}
+                      activeIndex={fullscreenImageIndex}
+                      onClick={goToFullscreenImage}
+                    />
                   </div>
+
                 )}
               </div>
             )}
 
             {!isFullscreen && (
               <>
-                {/* Project Details */}
                 <div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {projectDetails.map((detail: any) => (
@@ -921,7 +933,6 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                   </div>
                 </div>
 
-                {/* Services */}
                 {project.services && project.services.length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold mb-4 border-t-2 border-gray-200 py-[0.75rem]">Serviços</h3>

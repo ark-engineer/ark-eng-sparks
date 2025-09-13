@@ -11,30 +11,77 @@ type LayoutProps = PropsWithChildren & {
 
 export default function Layout({ children, rawPageData }: LayoutProps) {
   const [globalData, setGlobalData] = useState<any>(null);
+
   const [loading, setLoading] = useState(true);
-  const [showContent, setShowContent] = useState(false);
+
+  const [overlayVisible, setOverlayVisible] = useState(true);
+
+  const [progress, setProgress] = useState<number>(0);
+
+  const [contentReadyToRender, setContentReadyToRender] = useState(true);
 
   const isScrolling = useRef<boolean>(false);
   const rafId = useRef<number | null>(null);
+  const progressTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
+    setContentReadyToRender(true);
+
+    let progressInterval: number | null = null;
+
     async function fetchData() {
       try {
+        setProgress(6);
+        progressInterval = window.setInterval(() => {
+          setProgress((p) => {
+            if (p < 90) {
+              return Math.min(90, p + 4 + Math.floor(Math.random() * 6));
+            }
+            return p;
+          });
+          return (p: any) => p; // noop (não usado)
+        }, 250) as unknown as number;
+
         const fetchGlobal = client.queries.global(
           { relativePath: "index.json" },
           { fetchOptions: { next: { revalidate: 60 } } }
         );
-        const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+        const delay = new Promise((resolve) => setTimeout(resolve, 400)); // garante um pequeno tempo mínimo UX
         const [{ data }] = await Promise.all([fetchGlobal, delay]);
-        setGlobalData(data.global);
+
+        setGlobalData(data?.global ?? { theme: {} });
+
+        setProgress(100);
+
+        if (progressInterval) {
+          clearInterval(progressInterval);
+          progressInterval = null;
+        }
+
+        progressTimerRef.current = window.setTimeout(() => {
+          setOverlayVisible(false);
+          window.setTimeout(() => setLoading(false), 450);
+        }, 350) as unknown as number;
       } catch (error) {
         setGlobalData({ theme: {} });
-      } finally {
-        setLoading(false);
-        setTimeout(() => setShowContent(true), 100);
+        setProgress(100);
+        if (progressInterval) {
+          clearInterval(progressInterval);
+          progressInterval = null;
+        }
+        setTimeout(() => {
+          setOverlayVisible(false);
+          setTimeout(() => setLoading(false), 350);
+        }, 300);
       }
     }
+
     fetchData();
+
+    return () => {
+      if (progressInterval) clearInterval(progressInterval);
+      if (progressTimerRef.current) clearTimeout(progressTimerRef.current);
+    };
   }, []);
 
   const smoothScrollTo = useCallback((targetY: number) => {
@@ -71,9 +118,9 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
   }, []);
 
   useEffect(() => {
-    if (loading || !showContent) return;
+    if (!contentReadyToRender) return;
 
-    document.documentElement.style.scrollBehavior = 'smooth';
+    document.documentElement.style.scrollBehavior = 'auto';
 
     const handleKeyScroll = (e: KeyboardEvent) => {
       if (isScrolling.current) return;
@@ -107,51 +154,48 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
       window.removeEventListener('keydown', handleKeyScroll);
       window.removeEventListener('scrollToTop', handleScrollToTop);
     };
-  }, [loading, showContent, smoothScrollTo]);
+  }, [contentReadyToRender, smoothScrollTo]);
 
   const safeGlobalData = globalData || { theme: {} };
 
   return (
     <>
+      <LayoutProvider globalSettings={safeGlobalData} pageData={rawPageData}>
+        <main
+          className={`relative z-0 min-h-screen transition-filter duration-300 ${overlayVisible ? 'pointer-events-none select-none blur-sm' : 'pointer-events-auto select-auto blur-0'
+            }`}
+          aria-hidden={overlayVisible ? "true" : "false"}
+        >
+          {children}
+        </main>
+      </LayoutProvider>
+
+      {/* Overlay / Splash */}
       <AnimatePresence mode="wait">
-        {loading && (
+        {overlayVisible && (
           <motion.div
             key="splash"
-            className="fixed inset-0 z-50 bg-white"
+            className="fixed inset-0 z-[9999] flex items-center justify-center"
             initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
             exit={{
               opacity: 0,
-              scale: 0.95,
-              transition: {
-                duration: 0.6,
-                ease: "easeInOut"
-              }
+              scale: 0.98,
+              transition: { duration: 0.45, ease: "easeInOut" }
+            }}
+            style={{
+              WebkitBackdropFilter: 'blur(42px)',
+              backdropFilter: 'blur(42px)'
             }}
           >
-            <SplashScreen />
+            <div className="w-full max-w-3xl px-6">
+              <div className="mx-auto max-w-2xl">
+                <SplashScreen />
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      <LayoutProvider globalSettings={safeGlobalData} pageData={rawPageData}>
-        <AnimatePresence>
-          {showContent && (
-            <motion.main
-              key="content"
-              className="relative z-0 min-h-screen"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.8,
-                delay: 0.2,
-                ease: "easeOut"
-              }}
-            >
-              {children}
-            </motion.main>
-          )}
-        </AnimatePresence>
-      </LayoutProvider>
     </>
   );
 }

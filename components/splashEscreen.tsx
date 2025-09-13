@@ -1,47 +1,65 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 
-export const SplashScreen = () => {
-    const [isVisible, setIsVisible] = useState(true);
+type SplashScreenProps = {};
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsVisible(false);
-        }, 3000);
-
-        return () => clearTimeout(timer);
-    }, []);
+export const SplashScreen: React.FC<SplashScreenProps> = () => {
 
     return (
-        <AnimatePresence>
-            {isVisible && (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{
+                opacity: 0,
+                transition: { duration: 0.8, ease: 'easeInOut' },
+            }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-center justify-center pointer-events-none"
+        >
+            <div className="flex flex-col items-center pointer-events-auto">
                 <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="fixed inset-0 z-70 flex items-center justify-center"
-                    style={{
-                        background: 'rgba(0, 0, 0, 0.20)',
-                        backdropFilter: 'blur(30.75px)',
-                        WebkitBackdropFilter: 'blur(30.75px)',
+                    initial={{ scale: 0.8, opacity: 0, y: 20 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{
+                        scale: 0.9,
+                        opacity: 0,
+                        y: -10,
+                        transition: { duration: 0.6 },
                     }}
+                    transition={{
+                        duration: 0.7,
+                        delay: 0.2,
+                        ease: 'easeOut',
+                    }}
+                    className="relative"
                 >
-                    <div className="flex flex-col items-center">
+                    <div className="relative">
                         <Image
-                            priority={true}
-                            src='/animation/logoanimation.gif'
+                            priority
+                            src="/animation/logoanimation.gif"
                             alt="splash logo"
                             unoptimized
-                            width={500}
-                            height={500}
-                            className="drop-shadow-xl"
+                            width={340}
+                            height={340}
+                            className="drop-shadow-2xl"
+                            style={{
+                                filter: 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15))',
+                                display: 'block',
+                            }}
+                        />
+
+                        <div
+                            className="absolute inset-0 rounded-full opacity-20 blur-xl pointer-events-none"
+                            style={{
+                                background: 'radial-gradient(circle, rgba(59, 130, 246, 0.28) 0%, transparent 70%)',
+                                transform: 'scale(1.12)',
+                            }}
                         />
                     </div>
                 </motion.div>
-            )}
-        </AnimatePresence>
+            </div>
+        </motion.div>
     );
 };

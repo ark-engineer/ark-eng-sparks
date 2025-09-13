@@ -21,11 +21,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Preload de imagens que serão usadas na seção Monochrome */}
         <link
           rel="preload"
           as="image"
-          href="/default-background.jpg"
+          href="/uploads/animation/hub.png"
         />
         <link
           rel="preload"
