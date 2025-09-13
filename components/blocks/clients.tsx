@@ -12,21 +12,15 @@ type ClientLogo = {
   name: string;
 };
 
-type ClientsCarouselData = {
-  carouselTitle: string;
-  clients: ClientLogo[];
-};
-
 export const ClientsCarousel = ({ data }: { data: any }) => {
   const duplicatedClients = data.clients ? [...data.clients, ...data.clients, ...data.clients] : [];
   const trackRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(Date.now());
   
-  // Aumentar significativamente a velocidade no mobile
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const [speed, setSpeed] = useState(isMobile ? 3.5 : 1.0); // Velocidade muito mais rápida para mobile (3.5) e padrão para desktop (1.0)
-  
+  const [speed, setSpeed] = useState(isMobile ? 3.5 : 1.0);
+
   const [translateX, setTranslateX] = useState(0);
   const duration = 30000;
   const cycleDistance = 33.333;
