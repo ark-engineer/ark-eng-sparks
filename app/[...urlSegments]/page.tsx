@@ -19,7 +19,14 @@ export default async function Page({
   try {
     data = await client.queries.page({
       relativePath: `${filepath}.mdx`,
-    });
+    },
+  {
+    fetchOptions: {
+      next: {
+        revalidate: 300,
+      }
+    }
+  });
   } catch (error) {
     notFound();
   }

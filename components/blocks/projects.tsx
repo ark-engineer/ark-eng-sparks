@@ -572,428 +572,397 @@ const getIcon = (iconKey?: string) =>
       );
     });
 
-const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) => {
-  const [currentPage, setCurrentPage] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [fullscreenImageIndex, setFullscreenImageIndex] = useState(0);
-  const [currentMobileImageIndex, setCurrentMobileImageIndex] = useState(0);
-  const images = project.images || [];
-  const imagesPerPage = 5;
-  const totalPages = Math.max(1, Math.ceil(images.length / imagesPerPage));
-  const startIndex = currentPage * imagesPerPage;
-  const currentPageImages = useMemo(() => images.slice(startIndex, startIndex + imagesPerPage), [images, startIndex]);
-
-  const hasOnlyOneImage = currentPageImages.length === 1;
-  const mainImage = currentPageImages[0];
-  const thumbnailImages = useMemo(() => currentPageImages.slice(1, 5), [currentPageImages]);
-
-  const projectDetails: any = [
-    { key: 'landArea', label: 'área do terreno', value: project.landArea?.value, icon: project.landArea?.icon },
-    { key: 'location', label: 'localização', value: project.location?.value, icon: project.location?.icon },
-    { key: 'height', label: 'altura', value: project.height?.value, icon: project.height?.icon },
-    { key: 'pavilions', label: 'pavimentos', value: project.pavilions?.value, icon: project.pavilions?.icon },
-    { key: 'builtArea', label: 'área construída', value: project.builtArea?.value, icon: project.builtArea?.icon },
-    { key: 'residentialUnits', label: 'unid. residenciais', value: project.residentialUnits?.value, icon: project.residentialUnits?.icon },
-    { key: 'commercialUnits', label: 'unid. comerciais', value: project.commercialUnits?.value, icon: project.commercialUnits?.icon },
-    { key: 'parkingSpaces', label: 'vagas de garagem', value: project.parkingSpaces?.value, icon: project.parkingSpaces?.icon },
-  ].filter((detail) => detail.value);
-
-  const nextPage = () => setCurrentPage((prev) => (prev + 1) % totalPages);
-  const prevPage = () => setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
-
-  // Mobile image navigation
-  const nextMobileImage = () => setCurrentMobileImageIndex((prev) => (prev + 1) % currentPageImages.length);
-  const prevMobileImage = () => setCurrentMobileImageIndex((prev) => (prev - 1 + currentPageImages.length) % currentPageImages.length);
-
-  // Reset mobile image index when page changes
-  useEffect(() => {
-    setCurrentMobileImageIndex(0);
-  }, [currentPage]);
-
-  const hasThumbnails = thumbnailImages.length > 0;
-  const openFullscreen = (imageIndex: number) => {
-    const forgivemefather = document.getElementById("sidebar-content") as HTMLDivElement;
-
-    if (forgivemefather) {
-      forgivemefather.style.height = "98dvh";
-    }
-
-    setFullscreenImageIndex(imageIndex);
-    setIsFullscreen(true);
-  };
-
-
-  const closeFullscreen = () => {
-    const forgivemefather = document.getElementById("sidebar-content") as HTMLDivElement;
-
-    if (forgivemefather) {
-      forgivemefather.style.height = "75dvh";
-    }
-
-    setIsFullscreen(false)
-  };
-  const nextFullscreenImage = () => setFullscreenImageIndex((prev) => (prev + 1) % images.length);
-  const prevFullscreenImage = () => setFullscreenImageIndex((prev) => (prev - 1 + images.length) % images.length);
-  const goToFullscreenImage = (index: number) => setFullscreenImageIndex(index);
-
-  const uniqueCompanies = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          (project.services || [])
-            .map((s) => s?.company)
-            .filter(Boolean) as ProjectType[]
-        )
-      ),
-    [project.services]
-  );
-
-  const ProjectDetailItem = ({ detail }: { detail: ProjectDetail }) => (
-    <div className="flex items-center space-x-3" data-tina-field={tinaField(project, detail.key as any)}>
-      <HugeiconsIcon icon={getIcon(detail.icon)} size={20} color="#6B7280" strokeWidth={1.5} className="text-gray-500" />
-      <div className="flex flex-col">
-        <span className="text-xs text-black font-normal capitalize text-gray-400">{detail.label}:</span>
-        <span className="text-base text-black font-bold capitalize">
-          {detail.value} {detail.key.includes('Area') ? 'M²' : ''}
-        </span>
-      </div>
-    </div>
-  );
-
-  return (
-    <>
-      <div id='sidebar-content' className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[90vw] lg:min-w-[90vw] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 rounded-t-2xl backdrop-blur-md shadow-lg [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)] z-70 flex flex-col">
-        <div className="flex-shrink-0 flex items-center justify-between p-6 pb-4 bg-white/95 backdrop-blur-md rounded-t-2xl">
-          <div className="flex flex-col align-left">
-            <h2 className="text-2xl font-semibold leading-none" data-tina-field={tinaField(project, 'constructorName')}>
-              {project.constructorName}
-            </h2>
-            {project.description && (
-              <p className="text-lg leading-tight" data-tina-field={tinaField(project, 'description')}>
-                {project.description}
-              </p>
-            )}
+    const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) => {
+      const [currentPage, setCurrentPage] = useState(0);
+      const [isFullscreen, setIsFullscreen] = useState(false);
+      const [fullscreenImageIndex, setFullscreenImageIndex] = useState(0);
+      const [currentMobileImageIndex, setCurrentMobileImageIndex] = useState(0);
+      const images = project.images || [];
+      const imagesPerPage = 5;
+      const totalPages = Math.max(1, Math.ceil(images.length / imagesPerPage));
+      const startIndex = currentPage * imagesPerPage;
+      const currentPageImages = useMemo(() => images.slice(startIndex, startIndex + imagesPerPage), [images, startIndex]);
+      const hasOnlyOneImage = currentPageImages.length === 1;
+      const mainImage = currentPageImages[0];
+      const thumbnailImages = useMemo(() => currentPageImages.slice(1, 5), [currentPageImages]);
+      const projectDetails: any = [
+        { key: 'landArea', label: 'área do terreno', value: project.landArea?.value, icon: project.landArea?.icon },
+        { key: 'location', label: 'localização', value: project.location?.value, icon: project.location?.icon },
+        { key: 'height', label: 'altura', value: project.height?.value, icon: project.height?.icon },
+        { key: 'pavilions', label: 'pavimentos', value: project.pavilions?.value, icon: project.pavilions?.icon },
+        { key: 'builtArea', label: 'área construída', value: project.builtArea?.value, icon: project.builtArea?.icon },
+        { key: 'residentialUnits', label: 'unid. residenciais', value: project.residentialUnits?.value, icon: project.residentialUnits?.icon },
+        { key: 'commercialUnits', label: 'unid. comerciais', value: project.commercialUnits?.value, icon: project.commercialUnits?.icon },
+        { key: 'parkingSpaces', label: 'vagas de garagem', value: project.parkingSpaces?.value, icon: project.parkingSpaces?.icon },
+      ].filter((detail) => detail.value);
+      const nextPage = () => setCurrentPage((prev) => (prev + 1) % totalPages);
+      const prevPage = () => setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+      // Mobile image navigation
+      const nextMobileImage = () => setCurrentMobileImageIndex((prev) => (prev + 1) % currentPageImages.length);
+      const prevMobileImage = () => setCurrentMobileImageIndex((prev) => (prev - 1 + currentPageImages.length) % currentPageImages.length);
+      // Reset mobile image index when page changes
+      useEffect(() => {
+        setCurrentMobileImageIndex(0);
+      }, [currentPage]);
+      const hasThumbnails = thumbnailImages.length > 0;
+      const openFullscreen = (imageIndex: number) => {
+        const forgivemefather = document.getElementById("sidebar-content") as HTMLDivElement;
+        if (forgivemefather) {
+          forgivemefather.style.height = "98dvh";
+        }
+        setFullscreenImageIndex(imageIndex);
+        setIsFullscreen(true);
+      };
+      const closeFullscreen = () => {
+        const forgivemefather = document.getElementById("sidebar-content") as HTMLDivElement;
+        if (forgivemefather) {
+          forgivemefather.style.height = "75dvh";
+        }
+        setIsFullscreen(false)
+      };
+      const nextFullscreenImage = () => setFullscreenImageIndex((prev) => (prev + 1) % images.length);
+      const prevFullscreenImage = () => setFullscreenImageIndex((prev) => (prev - 1 + images.length) % images.length);
+      const goToFullscreenImage = (index: number) => setFullscreenImageIndex(index);
+      const uniqueCompanies = useMemo(
+        () =>
+          Array.from(
+            new Set(
+              (project.services || [])
+                .map((s) => s?.company)
+                .filter(Boolean) as ProjectType[]
+            )
+          ),
+        [project.services]
+      );
+      const ProjectDetailItem = ({ detail }: { detail: ProjectDetail }) => (
+        <div className="flex items-center space-x-3" data-tina-field={tinaField(project, detail.key as any)}>
+          <HugeiconsIcon icon={getIcon(detail.icon)} size={20} color="#6B7280" strokeWidth={1.5} className="text-gray-500" />
+          <div className="flex flex-col">
+            <span className="text-xs text-black font-normal capitalize text-gray-400">{detail.label}:</span>
+            <span className="text-base text-black font-bold capitalize">
+              {detail.value} {detail.key.includes('Area') ? 'M²' : ''}
+            </span>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose} className='cursor-pointer flex-shrink-0'>
-            <HugeiconsIcon icon={HugeIcons.Cancel01Icon} size={20} color="#6B7280" strokeWidth={1.5} className="text-gray-500" />
-          </Button>
         </div>
-
-        {/* Content Scrollable */}
-        <div className="flex-1 overflow-y-auto project-sidebar-scrollable">
-          <div className="p-6 space-y-6">
-            {images.length > 0 && (
-              <div className="space-y-4">
-                {!isFullscreen ? (
-                  <>
-                    {/* Mobile View - Single Image */}
-                    <div className="block md:hidden">
-                      <div className="relative h-[290px] overflow-hidden rounded-lg">
-                        <div
-                          className="relative w-full h-full group"
-                        >
-                          <img
-                            key={`mobile-${currentPage}-${currentMobileImageIndex}`}
-                            src={currentPageImages[currentMobileImageIndex]?.image || ''}
-                            alt={`${project.constructorName} - ${currentMobileImageIndex + 1}`}
-                            className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
-                            style={{ animation: 'fadeInSlide 0.5s ease-in-out' }}
-                            data-tina-field={tinaField(project, 'images')}
-                          />
-
-                          {/* Zoom button */}
-                          <button
-                            onClick={() => openFullscreen(startIndex + currentMobileImageIndex)}
-                            className="cursor-pointer absolute top-2 right-2 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
-                          >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M18.5016 19.1218L21 21.6218M20 15.1218C20 12.0843 17.5376 9.62183 14.5 9.62183C11.4624 9.62183 9 12.0843 9 15.1218C9 18.1594 11.4624 20.6218 14.5 20.6218C17.5376 20.6218 20 18.1594 20 15.1218Z"
-                                stroke="white"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
+      );
+      return (
+        <>
+          <div id='sidebar-content' className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[90vw] lg:min-w-[90vw] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 rounded-t-2xl backdrop-blur-md shadow-lg [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)] z-70 flex flex-col">
+            <div className="flex-shrink-0 flex items-center justify-between p-6 pb-4 bg-white/95 backdrop-blur-md rounded-t-2xl">
+              <div className="flex flex-col align-left">
+                <h2 className="text-2xl font-semibold leading-none" data-tina-field={tinaField(project, 'constructorName')}>
+                  {project.constructorName}
+                </h2>
+                {project.description && (
+                  <p className="text-lg leading-tight" data-tina-field={tinaField(project, 'description')}>
+                    {project.description}
+                  </p>
+                )}
+              </div>
+              <Button variant="ghost" size="sm" onClick={onClose} className='cursor-pointer flex-shrink-0'>
+                <HugeiconsIcon icon={HugeIcons.Cancel01Icon} size={20} color="#6B7280" strokeWidth={1.5} className="text-gray-500" />
+              </Button>
+            </div>
+            {/* Content Scrollable */}
+            <div className={`flex-1 overflow-y-auto project-sidebar-scrollable ${isFullscreen ? 'p-0 overflow-hidden' : ''}`}>
+              <div className={`space-y-6 ${isFullscreen ? 'h-full flex flex-col' : 'p-6'}`}>
+                {images.length > 0 && (
+                  <div className="space-y-4 flex-1 flex flex-col">
+                    {!isFullscreen ? (
+                      <>
+                        {/* Mobile View - Single Image */}
+                        <div className="block md:hidden">
+                          <div className="relative h-[290px] overflow-hidden rounded-lg">
+                            <div
+                              className="relative w-full h-full group"
+                            >
+                              <img
+                                key={`mobile-${currentPage}-${currentMobileImageIndex}`}
+                                src={currentPageImages[currentMobileImageIndex]?.image || ''}
+                                alt={`${project.constructorName} - ${currentMobileImageIndex + 1}`}
+                                className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
+                                style={{ animation: 'fadeInSlide 0.5s ease-in-out' }}
+                                data-tina-field={tinaField(project, 'images')}
                               />
-                              <path d="M14.5 13.1216V17.1216M16.5 15.1216H12.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                              <path
-                                d="M10 3.62183H14M3 10.6218V14.6218M6.5 21.6218C4.567 21.6218 3 20.0548 3 18.1218M17.5 3.62183C19.433 3.62183 21 5.18883 21 7.12183M3 7.12183C3 5.18883 4.567 3.62183 6.5 3.62183"
-                                stroke="white"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </button>
-
-                          {/* Navigation arrows - only show if there are multiple images */}
-                          {currentPageImages.length > 1 && (
-                            <>
+                              {/* Zoom button */}
                               <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  prevMobileImage();
-                                }}
-                                className="absolute left-2 top-1/2 transform -translate-y-1/2 transition-all duration-200 hover:scale-110 rounded-full p-2 bg-white/30 backdrop-blur-sm"
+                                onClick={() => openFullscreen(startIndex + currentMobileImageIndex)}
+                                className="cursor-pointer absolute top-2 right-2 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
                               >
-                                <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} size={20} color="white" />
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M18.5016 19.1218L21 21.6218M20 15.1218C20 12.0843 17.5376 9.62183 14.5 9.62183C11.4624 9.62183 9 12.0843 9 15.1218C9 18.1594 11.4624 20.6218 14.5 20.6218C17.5376 20.6218 20 18.1594 20 15.1218Z"
+                                    stroke="white"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path d="M14.5 13.1216V17.1216M16.5 15.1216H12.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                  <path
+                                    d="M10 3.62183H14M3 10.6218V14.6218M6.5 21.6218C4.567 21.6218 3 20.0548 3 18.1218M17.5 3.62183C19.433 3.62183 21 5.18883 21 7.12183M3 7.12183C3 5.18883 4.567 3.62183 6.5 3.62183"
+                                    stroke="white"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
                               </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  nextMobileImage();
-                                }}
-                                className="absolute right-2 top-1/2 transform -translate-y-1/2 transition-all duration-200 hover:scale-110 rounded-full p-2 bg-white/30 backdrop-blur-sm"
-                              >
-                                <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} size={20} color="white" />
-                              </button>
-                            </>
-                          )}
-
-                          {/* Image counter */}
-                          <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1">
-                            <span className="text-white text-sm font-medium">
-                              {currentMobileImageIndex + 1} / {currentPageImages.length}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Mobile dot navigation for current page images */}
-                      {currentPageImages.length > 1 && (
-                        <DotNavigation
-                          total={currentPageImages.length}
-                          activeIndex={currentMobileImageIndex}
-                          onClick={setCurrentMobileImageIndex}
-                          maxWidth={400}
-                        />
-                      )}
-
-                      {/* Page navigation for mobile */}
-                      {totalPages > 1 && (
-                        <div className="flex justify-center items-center gap-4 mt-4">
-                          <button
-                            onClick={prevPage}
-                            className="transition-all duration-200 hover:scale-110 rounded-full p-2 bg-gray-100 hover:bg-gray-200"
-                          >
-                            <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} size={20} color="#374151" />
-                          </button>
-                          <span className="text-sm text-gray-600">
-                            Página {currentPage + 1} de {totalPages}
-                          </span>
-                          <button
-                            onClick={nextPage}
-                            className="transition-all duration-200 hover:scale-110 rounded-full p-2 bg-gray-100 hover:bg-gray-200"
-                          >
-                            <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} size={20} color="#374151" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Desktop View - Modified Layout (50/50) */}
-                    <div className="hidden md:block">
-                      <div className="flex gap-[0.625rem] h-[290px] overflow-hidden">
-                        <div
-                          className={`relative overflow-hidden rounded-lg group transition-all duration-300 ${hasOnlyOneImage ? 'w-full' : 'w-1/2'}`}
-                        >
-                          <img
-                            key={`main-${currentPage}`}
-                            src={mainImage?.image || ''}
-                            alt={project.constructorName || 'Projeto'}
-                            className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
-                            style={{ animation: 'fadeInSlide 0.5s ease-in-out' }}
-                            data-tina-field={tinaField(project, 'images')}
-                          />
-                          <button
-                            onClick={() => openFullscreen(startIndex)}
-                            className="cursor-pointer absolute top-2 right-2 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
-                          >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M18.5016 19.1218L21 21.6218M20 15.1218C20 12.0843 17.5376 9.62183 14.5 9.62183C11.4624 9.62183 9 12.0843 9 15.1218C9 18.1594 11.4624 20.6218 14.5 20.6218C17.5376 20.6218 20 18.1594 20 15.1218Z"
-                                stroke="white"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path d="M14.5 13.1216V17.1216M16.5 15.1216H12.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                              <path
-                                d="M10 3.62183H14M3 10.6218V14.6218M6.5 21.6218C4.567 21.6218 3 20.0548 3 18.1218M17.5 3.62183C19.433 3.62183 21 5.18883 21 7.12183M3 7.12183C3 5.18883 4.567 3.62183 6.5 3.62183"
-                                stroke="white"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-
-                        {/* Thumbnails Grid - Now 50% */}
-                        {hasThumbnails && (
-                          <div className="w-1/2 grid grid-cols-2 gap-[0.625rem] relative max-h-[290px]">
-                            {thumbnailImages.map((img, index) => (
-                              <div
-                                key={`thumb-${currentPage}-${index}`}
-                                className="w-full h-[140px] relative overflow-hidden rounded-lg group"
-                              >
-                                <img
-                                  src={img?.image || ''}
-                                  alt={`${project.constructorName} - ${index + 2}`}
-                                  className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
-                                  style={{ animation: `fadeInSlide 0.5s ease-in-out ${index * 0.1}s both` }}
-                                />
-                                <button
-                                  onClick={() => openFullscreen(startIndex + index + 1)}
-                                  className="absolute top-2 right-2 cursor-pointer transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
-                                >
-                                  <HugeiconsIcon icon={HugeIcons.ZoomInAreaIcon} color="white" />
-                                </button>
+                              {/* Navigation arrows - only show if there are multiple images */}
+                              {currentPageImages.length > 1 && (
+                                <>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      prevMobileImage();
+                                    }}
+                                    className="absolute left-2 top-1/2 transform -translate-y-1/2 transition-all duration-200 hover:scale-110 rounded-full p-2 bg-white/30 backdrop-blur-sm"
+                                  >
+                                    <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} size={20} color="white" />
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      nextMobileImage();
+                                    }}
+                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 transition-all duration-200 hover:scale-110 rounded-full p-2 bg-white/30 backdrop-blur-sm"
+                                  >
+                                    <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} size={20} color="white" />
+                                  </button>
+                                </>
+                              )}
+                              {/* Image counter */}
+                              <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1">
+                                <span className="text-white text-sm font-medium">
+                                  {currentMobileImageIndex + 1} / {currentPageImages.length}
+                                </span>
                               </div>
-                            ))}
-
-                            {/* Page Navigation Controls */}
-                            {totalPages > 1 && thumbnailImages.length > 0 && (
-                              <div className="absolute bottom-2 right-2 flex gap-1">
-                                <button
-                                  onClick={prevPage}
-                                  className="transition-all duration-200 hover:scale-110 rounded-full p-1 bg-white/30 backdrop-blur-sm w-[35px] h-[35px] flex-shrink-0 flex items-center justify-center"
-                                >
-                                  <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} color="white" />
-                                </button>
-                                <button
-                                  onClick={nextPage}
-                                  className="transition-all duration-200 hover:scale-110 rounded-full p-1 bg-white/30 backdrop-blur-sm w-[35px] h-[35px] flex-shrink-0 flex items-center justify-center"
-                                >
-                                  <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} color="white" />
-                                </button>
+                            </div>
+                          </div>
+                          {/* Mobile dot navigation for current page images */}
+                          {currentPageImages.length > 1 && (
+                            <DotNavigation
+                              total={currentPageImages.length}
+                              activeIndex={currentMobileImageIndex}
+                              onClick={setCurrentMobileImageIndex}
+                              maxWidth={400}
+                            />
+                          )}
+                          {/* Page navigation for mobile */}
+                          {totalPages > 1 && (
+                            <div className="flex justify-center items-center gap-4 mt-4">
+                              <button
+                                onClick={prevPage}
+                                className="transition-all duration-200 hover:scale-110 rounded-full p-2 bg-gray-100 hover:bg-gray-200"
+                              >
+                                <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} size={20} color="#374151" />
+                              </button>
+                              <span className="text-sm text-gray-600">
+                                Página {currentPage + 1} de {totalPages}
+                              </span>
+                              <button
+                                onClick={nextPage}
+                                className="transition-all duration-200 hover:scale-110 rounded-full p-2 bg-gray-100 hover:bg-gray-200"
+                              >
+                                <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} size={20} color="#374151" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        {/* Desktop View - Modified Layout (50/50) */}
+                        <div className="hidden md:block">
+                          <div className="flex gap-[0.625rem] h-[290px] overflow-hidden">
+                            <div
+                              className={`relative overflow-hidden rounded-lg group transition-all duration-300 ${hasOnlyOneImage ? 'w-full' : 'w-1/2'}`}
+                            >
+                              <img
+                                key={`main-${currentPage}`}
+                                src={mainImage?.image || ''}
+                                alt={project.constructorName || 'Projeto'}
+                                className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
+                                style={{ animation: 'fadeInSlide 0.5s ease-in-out' }}
+                                data-tina-field={tinaField(project, 'images')}
+                              />
+                              <button
+                                onClick={() => openFullscreen(startIndex)}
+                                className="cursor-pointer absolute top-2 right-2 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
+                              >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M18.5016 19.1218L21 21.6218M20 15.1218C20 12.0843 17.5376 9.62183 14.5 9.62183C11.4624 9.62183 9 12.0843 9 15.1218C9 18.1594 11.4624 20.6218 14.5 20.6218C17.5376 20.6218 20 18.1594 20 15.1218Z"
+                                    stroke="white"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path d="M14.5 13.1216V17.1216M16.5 15.1216H12.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                  <path
+                                    d="M10 3.62183H14M3 10.6218V14.6218M6.5 21.6218C4.567 21.6218 3 20.0548 3 18.1218M17.5 3.62183C19.433 3.62183 21 5.18883 21 7.12183M3 7.12183C3 5.18883 4.567 3.62183 6.5 3.62183"
+                                    stroke="white"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                            {/* Thumbnails Grid - Now 50% */}
+                            {hasThumbnails && (
+                              <div className="w-1/2 grid grid-cols-2 gap-[0.625rem] relative max-h-[290px]">
+                                {thumbnailImages.map((img, index) => (
+                                  <div
+                                    key={`thumb-${currentPage}-${index}`}
+                                    className="w-full h-[140px] relative overflow-hidden rounded-lg group"
+                                  >
+                                    <img
+                                      src={img?.image || ''}
+                                      alt={`${project.constructorName} - ${index + 2}`}
+                                      className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
+                                      style={{ animation: `fadeInSlide 0.5s ease-in-out ${index * 0.1}s both` }}
+                                    />
+                                    <button
+                                      onClick={() => openFullscreen(startIndex + index + 1)}
+                                      className="absolute top-2 right-2 cursor-pointer transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
+                                    >
+                                      <HugeiconsIcon icon={HugeIcons.ZoomInAreaIcon} color="white" />
+                                    </button>
+                                  </div>
+                                ))}
+                                {/* Page Navigation Controls */}
+                                {totalPages > 1 && thumbnailImages.length > 0 && (
+                                  <div className="absolute bottom-2 right-2 flex gap-1">
+                                    <button
+                                      onClick={prevPage}
+                                      className="transition-all duration-200 hover:scale-110 rounded-full p-1 bg-white/30 backdrop-blur-sm w-[35px] h-[35px] flex-shrink-0 flex items-center justify-center"
+                                    >
+                                      <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} color="white" />
+                                    </button>
+                                    <button
+                                      onClick={nextPage}
+                                      className="transition-all duration-200 hover:scale-110 rounded-full p-1 bg-white/30 backdrop-blur-sm w-[35px] h-[35px] flex-shrink-0 flex items-center justify-center"
+                                    >
+                                      <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} color="white" />
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
-                        )}
-                      </div>
-
-                      {/* Desktop Dot Navigation */}
-                      {totalPages > 1 && <DotNavigation total={totalPages} activeIndex={currentPage} onClick={setCurrentPage} />}
-                    </div>
-                  </>
-                ) : (
-                  // Fullscreen View
-                  <div className="relative h-[calc(75vh-200px)] flex flex-col">
-                    {/* Botão anterior */}
-                    <button
-                      onClick={prevFullscreenImage}
-                      className="absolute top-1/2 left-0 -translate-y-1/2 z-10 p-2 rounded-full bg-white/30 backdrop-blur-sm 
-               transition-all duration-200 hover:scale-110"
-                    >
-                      <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} size={34} />
-                    </button>
-
-                    {/* Botão próximo */}
-                    <button
-                      onClick={nextFullscreenImage}
-                      className="absolute top-1/2 right-0 -translate-y-1/2 z-10 p-2 rounded-full bg-white/30 backdrop-blur-sm 
-               transition-all duration-200 hover:scale-110"
-                    >
-                      <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} size={34} />
-                    </button>
-
-                    {/* Imagem em fullscreen */}
-                    <div
-                      onClick={closeFullscreen}
-                      className="flex-1 flex items-center justify-center p-4 pb-6"
-                    >
-                      <div className="relative inline-block">
-                        <img
-                          key={`fullscreen-${fullscreenImageIndex}`}
-                          src={images[fullscreenImageIndex]?.image || ""}
-                          alt={`${project.constructorName} - ${fullscreenImageIndex + 1}`}
-                          className="max-w-full max-h-full object-contain transition-all duration-500 ease-in-out rounded-lg"
-                          style={{ animation: "fadeInSlide 0.5s ease-in-out" }}
-                        />
-                        {/* Botão fechar */}
+                          {/* Desktop Dot Navigation */}
+                          {totalPages > 1 && <DotNavigation total={totalPages} activeIndex={currentPage} onClick={setCurrentPage} />}
+                        </div>
+                      </>
+                    ) : (
+                      // Fullscreen View
+                      <div className="relative flex-1 flex flex-col">
+                        {/* Botão anterior */}
                         <button
-                          onClick={closeFullscreen}
-                          className="cursor-pointer absolute top-2 right-2 z-10 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
+                          onClick={prevFullscreenImage}
+                          className="absolute top-1/2 left-2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/30 backdrop-blur-sm
+                                     transition-all duration-200 hover:scale-110"
+                          style={{ transform: 'translateY(-50%)' }}
                         >
-                          {/* svg aqui */}
+                          <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} size={34} />
                         </button>
+                        {/* Botão próximo */}
+                        <button
+                          onClick={nextFullscreenImage}
+                          className="absolute top-1/2 right-2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/30 backdrop-blur-sm
+                                     transition-all duration-200 hover:scale-110"
+                          style={{ transform: 'translateY(-50%)' }}
+                        >
+                          <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} size={34} />
+                        </button>
+                        {/* Imagem em fullscreen */}
+                        <div
+                          onClick={closeFullscreen}
+                          className="flex-1 flex items-center justify-center p-4 pb-6"
+                        >
+                          <div className="relative inline-block">
+                            <img
+                              key={`fullscreen-${fullscreenImageIndex}`}
+                              src={images[fullscreenImageIndex]?.image || ""}
+                              alt={`${project.constructorName} - ${fullscreenImageIndex + 1}`}
+                              className="max-w-full max-h-full object-contain transition-all duration-500 ease-in-out rounded-lg"
+                              style={{ animation: "fadeInSlide 0.5s ease-in-out" }}
+                            />
+                            {/* Botão fechar */}
+                            <button
+                              onClick={closeFullscreen}
+                              className="cursor-pointer absolute top-2 right-2 z-10 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
+                            >
+                              {/* svg aqui */}
+                            </button>
+                          </div>
+                        </div>
+                        {/* Dots do carousel */}
+                        <DotNavigation
+                          total={images.length}
+                          activeIndex={fullscreenImageIndex}
+                          onClick={goToFullscreenImage}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+                {!isFullscreen && (
+                  <>
+                    <div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {projectDetails.map((detail: any) => (
+                          <div key={detail.key} className="space-y-4">
+                            <ProjectDetailItem detail={detail} />
+                          </div>
+                        ))}
                       </div>
                     </div>
-
-                    {/* Dots do carousel */}
-                    <DotNavigation
-                      total={images.length}
-                      activeIndex={fullscreenImageIndex}
-                      onClick={goToFullscreenImage}
-                    />
-                  </div>
-
-                )}
-              </div>
-            )}
-
-            {!isFullscreen && (
-              <>
-                <div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {projectDetails.map((detail: any) => (
-                      <div key={detail.key} className="space-y-4">
-                        <ProjectDetailItem detail={detail} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {project.services && project.services.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4 border-t-2 border-gray-200 py-[0.75rem]">Serviços</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {uniqueCompanies.map((company) => {
-                        const companyServices = project.services?.filter((service) => service?.company === company) || [];
-                        if (!company) return null;
-
-                        const logoSrc = corporationsLogos[company] ?? '/uploads/project-logos/AE.svg';
-
-                        return (
-                          <div key={company} className="space-y-3">
-                            <h4 className="font-medium text-base flex items-center gap-3 mb-4">
-                              <Image
-                                src={logoSrc}
-                                width={38}
-                                height={38}
-                                alt={`${company} logo`}
-                                className="bg-[black] rounded-full object-contain "
-                              />
-                              <span>{company}</span>
-                            </h4>
-                            <div className="space-y-2 ml-2">
-                              {companyServices.map((service, serviceIndex) => (
-                                <div key={serviceIndex}>
-                                  {service?.serviceItems?.map((item, itemIndex) => (
-                                    <div key={itemIndex} className="flex items-start space-x-2 text-sm text-gray-400">
-                                      {item?.icon && <HugeiconsIcon icon={getIcon(item.icon)} size={18} color="#374151" />}
-                                      <span className="flex-1" data-tina-field={tinaField(item, 'text')}>
-                                        {item?.text}
-                                      </span>
+                    {project.services && project.services.length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4 border-t-2 border-gray-200 py-[0.75rem]">Serviços</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {uniqueCompanies.map((company) => {
+                            const companyServices = project.services?.filter((service) => service?.company === company) || [];
+                            if (!company) return null;
+                            const logoSrc = corporationsLogos[company] ?? '/uploads/project-logos/AE.svg';
+                            return (
+                              <div key={company} className="space-y-3">
+                                <h4 className="font-medium text-base flex items-center gap-3 mb-4">
+                                  <Image
+                                    src={logoSrc}
+                                    width={38}
+                                    height={38}
+                                    alt={`${company} logo`}
+                                    className="bg-[black] rounded-full object-contain "
+                                  />
+                                  <span>{company}</span>
+                                </h4>
+                                <div className="space-y-2 ml-2">
+                                  {companyServices.map((service, serviceIndex) => (
+                                    <div key={serviceIndex}>
+                                      {service?.serviceItems?.map((item, itemIndex) => (
+                                        <div key={itemIndex} className="flex items-start space-x-2 text-sm text-gray-400">
+                                          {item?.icon && <HugeiconsIcon icon={getIcon(item.icon)} size={18} color="#374151" />}
+                                          <span className="flex-1" data-tina-field={tinaField(item, 'text')}>
+                                            {item?.text}
+                                          </span>
+                                        </div>
+                                      ))}
                                     </div>
                                   ))}
                                 </div>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
-              </>
-            )}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </>
-  );
-};
+        </>
+      );
+    };
 
 export const projectsBlockSchema: Template = {
   name: 'projects',
