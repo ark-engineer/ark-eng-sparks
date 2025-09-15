@@ -125,7 +125,7 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
   return (
     <div
       id='custom-services'
-      className={`fixed inset-0 flex items-center justify-center z-70 p-4 transition-all duration-300 ease-out ${isAnimating ? 'bg-black bg-opacity-50' : 'bg-opacity-0'
+      className={`fixed inset-0 flex items-center justify-center z-70 p-4 transition-all duration-300 ease-out ${isAnimating ? 'bg-transparent' : 'bg-opacity-0'
         }`}
       onClick={handleBackdropClick}
     >
@@ -151,20 +151,21 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
 
           <p className='text-gray-600 mb-8 leading-relaxed'>{service?.modalContent?.detailedDescription || 'Descrição detalhada do serviço não disponível.'}</p>
 
-          {service?.modalContent?.features && service.modalContent.features.length > 0 && (
+       {service?.modalContent?.features && service.modalContent.features.length > 0 && (
             <div className='text-left mb-8'>
               <h3 className='font-semibold text-gray-900 mb-4'>Principais Características:</h3>
-              <div className='space-y-3'>
+              <div className='space-y-3 flex flex-col'>  
                 {service.modalContent.features.map((feature, index) => (
-                  <div key={index} className='flex items-center gap-3'>
-                    <HugeiconsIcon icon={CheckmarkCircle02Icon} />
-                    <span className='text-gray-700'>{feature}</span>
+                  <div key={index} className='flex items-start gap-3 min-w-0'>
+                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={24} className="aspect-square flex-shrink-0 mt-1" /> 
+                    <span className='text-gray-700 flex-1 break-words'>  
+                      {feature}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
-          )}
-
+      )}
           {service?.modalContent?.howItWorksUrl && (
             <button
               onClick={handleHowItWorksClick}
