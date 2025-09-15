@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect, useRef, useCallback, SetStateAction, Dispatch } from 'react';
 import type { Template } from 'tinacms';
 import { tinaField } from 'tinacms/dist/react';
@@ -52,11 +51,9 @@ const useAutoRotation = (
 
   const startRotation = useCallback(() => {
     if (!enabled || totalItems <= 1) return;
-
     if (intervalRef.current) {
       clearInterval(intervalRef.current as ReturnType<typeof setInterval>);
     }
-
     intervalRef.current = setInterval(() => {
       onRotate((prev) => (prev + 1) % totalItems);
     }, delay);
@@ -119,6 +116,7 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
   }, [modalState.service?.modalContent?.howItWorksUrl]);
 
   if (!shouldRender || !modalState.service?.modalContent) return null;
+
   const { service, company } = modalState;
   const companyName = company?.id ? COMPANY_LABELS[company.id] : 'Empresa';
 
@@ -137,7 +135,6 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
         <button onClick={onClose} className='absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-light transition-colors duration-200 z-10'>
           ×
         </button>
-
         <div className='p-8 text-center'>
           <div className='mb-6'>
             <img
@@ -146,26 +143,23 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
               className='h-16 mx-auto object-contain bg-black rounded-full'
             />
           </div>
-
           <h2 className='text-2xl font-semibold text-gray-900 mb-4'>{service?.serviceName}</h2>
-
-          <p className='text-gray-600 mb-8 leading-relaxed'>{service?.modalContent?.detailedDescription || 'Descrição detalhada do serviço não disponível.'}</p>
-
-       {service?.modalContent?.features && service.modalContent.features.length > 0 && (
+          <p className='text-gray-600 mb-8 leading-relaxed'>
+            {service?.modalContent?.detailedDescription || 'Descrição detalhada do serviço não disponível.'}
+          </p>
+          {service?.modalContent?.features && service.modalContent.features.length > 0 && (
             <div className='text-left mb-8'>
               <h3 className='font-semibold text-gray-900 mb-4'>Principais Características:</h3>
-              <div className='space-y-3 flex flex-col'>  
+              <div className='space-y-3 flex flex-col'>
                 {service.modalContent.features.map((feature, index) => (
                   <div key={index} className='flex items-start gap-3 min-w-0'>
-                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={24} className="aspect-square flex-shrink-0 mt-1" /> 
-                    <span className='text-gray-700 flex-1 break-words'>  
-                      {feature}
-                    </span>
+                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={24} className="aspect-square flex-shrink-0 mt-1" />
+                    <span className='text-gray-700 flex-1 break-words'>{feature}</span>
                   </div>
                 ))}
               </div>
             </div>
-      )}
+          )}
           {service?.modalContent?.howItWorksUrl && (
             <button
               onClick={handleHowItWorksClick}
@@ -208,7 +202,7 @@ const AnimatedServiceButton = ({
   return (
     <button
       onClick={() => onServiceClick(service)}
-      className='cursor-pointer relative bg-white rounded-full px-6 py-3 text-left 
+      className='cursor-pointer relative bg-white rounded-full px-6 py-3 text-left
                  w-full sm:w-auto min-w-0
                  hover:bg-gray-50 group transition-colors duration-200
                  overflow-hidden'
@@ -250,7 +244,8 @@ const CompanySelector = ({
             <img
               src={company.logo || '/api/placeholder/120/60'}
               alt={companyName}
-              className={`w-full h-28 object-contain transition-all duration-300 ${activeIndex === index ? 'grayscale-0 opacity-100' : 'grayscale opacity-50'}`}
+              className={`w-full h-28 object-contain transition-all duration-300 ${activeIndex === index ? 'grayscale-0 opacity-100' : 'grayscale opacity-50'
+                }`}
             />
           </button>
         );
@@ -301,6 +296,7 @@ const ServicesSection = ({
 export const SolutionsBlock = ({ data }: { data: any }) => {
   const [activeCompany, setActiveCompany] = useState(0);
   const [servicesVisible, setServicesVisible] = useState(true);
+  const [currentDelay, setCurrentDelay] = useState(data.autoRotateDelay ?? 4000);
   const [modalState, setModalState] = useState<ModalState>({
     isOpen: false,
     service: null,
@@ -309,12 +305,10 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
 
   const companies = data.companies || [];
   const currentCompany: SolutionsBlockCompany | undefined = companies[activeCompany];
-  const autoRotateDelay = data.autoRotateDelay ?? 4000;
   const enableAutoRotate = data.enableAutoRotate !== false;
-
   const { pauseRotation, resumeRotation } = useAutoRotation(
     companies.length,
-    autoRotateDelay,
+    currentDelay,
     enableAutoRotate,
     activeCompany,
     setActiveCompany
@@ -344,13 +338,16 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
   const handleCompanySelect = useCallback(
     (index: number) => {
       if (index !== activeCompany) {
+        pauseRotation();
+        setCurrentDelay(5000);
         setServicesVisible(false);
         setTimeout(() => {
           setActiveCompany(index);
+          resumeRotation();
         }, 200);
       }
     },
-    [activeCompany]
+    [activeCompany, pauseRotation, resumeRotation]
   );
 
   const handleMouseEnter = useCallback(() => {
