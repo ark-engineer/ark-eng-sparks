@@ -377,13 +377,14 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
                 style={{
                   transformOrigin: scrollDirection === "down" ? "bottom" : "top",
                 }}
+                data-tina-field={tinaField(data, `projects.${index}` as any)}
               >
                 <ProjectCard
                   key={`${activeTab}-${index}`}
                   project={project!}
                   activeTab={activeTab}
                   onProjectClick={() => openProjectSidebar(project!)}
-                />
+                                  />
               </motion.div>
             ))}
           </AnimatePresence>
@@ -520,6 +521,57 @@ const getIcon = (iconKey?: string) =>
     : HugeIcons.RulerFreeIcons;
 
 
+    const DotNavigation = React.memo(({ total, activeIndex, onClick, maxWidth = 800 }: {
+      total: number;
+      activeIndex: number;
+      onClick: (index: number) => void;
+      maxWidth?: number
+    }) => {
+      const dotWidth = useMemo(
+        () => Math.min(187, Math.max(50, (maxWidth - (total - 1) * 10) / total)),
+        [maxWidth, total]
+      );
+    
+      return (
+        <div 
+          className="flex justify-center gap-[10px] mx-auto" 
+          style={{ 
+            width: `min(calc(100% - 4rem), ${maxWidth}px)`, 
+            marginBlock: '1rem' 
+          }}
+        >
+          {Array.from({ length: total }).map((_, index) => (
+            <svg
+              key={index}
+              style={{
+                width: `${dotWidth}px`,
+                height: '6px',
+                flex: '0 0 auto'
+              }}
+              viewBox={`0 0 ${dotWidth} 6`}
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="cursor-pointer transition-all duration-300 ease-in-out hover:scale-105"
+              onClick={() => onClick(index)}
+            >
+              <path
+                d={`M3 3H${dotWidth - 3}`}
+                stroke={index === activeIndex ? '#000' : 'rgba(0, 0, 0, 0.3)'}
+                strokeWidth="5"
+                strokeLinecap="round"
+                strokeDasharray={index === activeIndex ? `${dotWidth - 6}` : 'none'}
+                strokeDashoffset={index === activeIndex ? '0' : 'none'}
+                style={{
+                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                  animation: index === activeIndex ? 'dotFill 0.6s ease-out' : 'none'
+                }}
+              />
+            </svg>
+          ))}
+        </div>
+      );
+    });
+
 const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -596,45 +648,6 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
     [project.services]
   );
 
-  const DotNavigation = ({ total, activeIndex, onClick, maxWidth = 800 }: {
-    total: number;
-    activeIndex: number;
-    onClick: (index: number) => void;
-    maxWidth?: number
-  }) => {
-    const dotWidth = Math.min(187, Math.max(50, (maxWidth - (total - 1) * 10) / total));
-    return (
-      <div className="flex justify-center gap-[10px] mx-auto" style={{ width: `calc(100% - 4rem)`, maxWidth: `${maxWidth}px`, marginBlock: '1rem' }}>
-        {Array.from({ length: total }).map((_, index) => (
-          <svg
-            key={index}
-            width={dotWidth}
-            height="6"
-            viewBox={`0 0 ${dotWidth} 6`}
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="cursor-pointer transition-all duration-300 ease-in-out hover:scale-105"
-            onClick={() => onClick(index)}
-            style={{ flex: '1 1 0', maxWidth: '187px', minWidth: '50px' }}
-          >
-            <path
-              d={`M3 3H${dotWidth - 3}`}
-              stroke={index === activeIndex ? '#000' : 'rgba(0, 0, 0, 0.3)'}
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeDasharray={index === activeIndex ? `${dotWidth - 6}` : 'none'}
-              strokeDashoffset={index === activeIndex ? '0' : 'none'}
-              style={{
-                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                animation: index === activeIndex ? 'dotFill 0.6s ease-out' : 'none'
-              }}
-            />
-          </svg>
-        ))}
-      </div>
-    );
-  };
-
   const ProjectDetailItem = ({ detail }: { detail: ProjectDetail }) => (
     <div className="flex items-center space-x-3" data-tina-field={tinaField(project, detail.key as any)}>
       <HugeiconsIcon icon={getIcon(detail.icon)} size={20} color="#6B7280" strokeWidth={1.5} className="text-gray-500" />
@@ -649,9 +662,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
 
   return (
     <>
-      <div className="fixed inset-0" onClick={onClose} />
       <div id='sidebar-content' className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[90vw] lg:min-w-[90vw] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 rounded-t-2xl backdrop-blur-md shadow-lg [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)] z-70 flex flex-col">
-
         <div className="flex-shrink-0 flex items-center justify-between p-6 pb-4 bg-white/95 backdrop-blur-md rounded-t-2xl">
           <div className="flex flex-col align-left">
             <h2 className="text-2xl font-semibold leading-none" data-tina-field={tinaField(project, 'constructorName')}>
@@ -992,10 +1003,10 @@ export const projectsBlockSchema: Template = {
     defaultItem: {
       title: 'Nossos Projetos',
       description: 'Conheça alguns dos projetos desenvolvidos pelas nossas empresas',
-      projects: [
+      project: [
         {
           constructorName: 'Exemplo Construtora',
-          description: 'Projeto residencial moderno',
+          description: 'Projeto moderno',
           services: [
             {
               company: 'ARKENG',
