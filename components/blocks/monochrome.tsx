@@ -122,7 +122,7 @@ export const Monochrome = ({ data }: { data: MonochromeData }) => {
             {typeof content === 'string' ? (
               <p className="whitespace-pre-wrap">{content}</p>
             ) : (
-              <div className="prose prose-white max-w-none">
+              <div className="text-white text-center md:text-left text-2xl font-extralight leading-normal max-w-none">
                 <TinaMarkdown content={content} />
               </div>
             )}
