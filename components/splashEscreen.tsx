@@ -37,12 +37,13 @@ export const SplashScreen: React.FC<SplashScreenProps> = () => {
                 >
                     <div className="relative">
                         <Image
-                            priority
                             src="/animation/logoanimation.gif"
                             alt="splash logo"
                             unoptimized
                             width={340}
                             height={340}
+                            priority
+                            fetchPriority="high"
                             className="drop-shadow-2xl"
                             style={{
                                 filter: 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15))',
