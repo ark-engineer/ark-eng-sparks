@@ -13,6 +13,7 @@ import { tinaField } from 'tinacms/dist/react';
 import { Section } from '../layout/section';
 import type { PageBlocksMonochrome } from '@/tina/__generated__/types';
 import { TinaMarkdown } from 'tinacms/dist/rich-text';
+import Image from 'next/image';
 
 type RichText = any;
 type MonochromeData = Omit<PageBlocksMonochrome, 'text'> & { textRich?: RichText };
@@ -52,14 +53,15 @@ function AnimatedMonochrome({ data, scrollYProgress }: AnimatedProps) {
           style={{ y: contentY, opacity: contentOpacity }}
         >
           {data.leftImage && (
-            <img
+            <Image
               src={data.leftImage}
               alt="logos left"
               className="max-w-[36rem] w-full h-auto gpu"
               data-tina-field={tinaField(data, 'leftImage')}
+              width={414}
+              height={226}
               loading="lazy"
               decoding="async"
-              draggable={false}
             />
           )}
         </motion.div>
@@ -69,13 +71,9 @@ function AnimatedMonochrome({ data, scrollYProgress }: AnimatedProps) {
           data-tina-field={tinaField(data, 'textRich')}
           style={{ y: contentY, opacity: contentOpacity }}
         >
-          {typeof content === 'string' ? (
-            <p className="whitespace-pre-wrap">{content}</p>
-          ) : (
             <div className="text-white text-center md:text-left text-2xl font-extralight leading-normal max-w-none">
               <TinaMarkdown content={content} />
             </div>
-          )}
         </motion.div>
       </div>
     </MotionSection>
@@ -105,13 +103,15 @@ export const Monochrome = ({ data }: { data: MonochromeData }) => {
         <div className="flex flex-col md:flex-row items-center gap-8 p-8 min-h-[90%]">
           <div className="w-full md:w-1/2 flex justify-center md:justify-start">
             {data.leftImage && (
-              <img
+              <Image
                 src={data.leftImage}
                 alt="logos left"
                 className="max-w-[26rem] w-full h-auto gpu"
                 data-tina-field={tinaField(data, 'leftImage')}
                 loading="lazy"
                 decoding="async"
+                width={414}
+                height={226}
               />
             )}
           </div>

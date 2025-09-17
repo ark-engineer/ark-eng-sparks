@@ -21,7 +21,6 @@ type AboutUsBlockData = {
 export const AboutUsBlock = ({ data }: { data: any }) => {
   return (
     <div className="max-w-7xl mx-auto px-6 py-16">
-      {/* Título Principal e Descrição */}
       <div className="text-center mb-16">
         <h2 
           className="text-4xl font-bold text-gray-900 mb-6"
@@ -33,17 +32,16 @@ export const AboutUsBlock = ({ data }: { data: any }) => {
           className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
           data-tina-field={tinaField(data, "description")}
         >
-          {data.description}
+          <TinaMarkdown content={data.description} />
         </p>
       </div>
 
-      {/* Seção Propósito */}
       <div className="mb-16">
         <h3 
           className="text-2xl font-semibold text-gray-900 mb-6 text-center"
           data-tina-field={tinaField(data, "purposeTitle")}
         >
-          {data.purposeTitle}
+          <TinaMarkdown content={data.purposeTitle} />
         </h3>
         <div 
           className="prose prose-lg max-w-4xl mx-auto text-gray-700 leading-relaxed text-center"

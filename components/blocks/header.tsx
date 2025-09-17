@@ -5,6 +5,23 @@ import type { Template } from 'tinacms';
 import { tinaField } from 'tinacms/dist/react';
 import { useLayout } from '../layout/layout-context';
 
+// Função para scroll suave para âncoras
+const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  // Verifica se é um link interno (âncora)
+  if (href.startsWith('#')) {
+    e.preventDefault();
+    const targetId = href.substring(1);
+    const targetElement = document.getElementById(targetId);
+    
+    if (targetElement) {
+      targetElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  }
+};
+
 export const Header = ({ data }: { data?: any }) => {
   const { globalSettings } = useLayout();
   const header = data || globalSettings?.header;
@@ -12,6 +29,12 @@ export const Header = ({ data }: { data?: any }) => {
   if (!header || !header.nav) return null;
 
   const logoAlt = header.name || 'home';
+
+  // Encontrar o item que deve flutuar (apenas um pode ter isFloat = true)
+  const floatingItem = header.nav?.find((item: any) => item?.isFloat === true);
+  
+  // Filtrar itens que não são flutuantes para o menu principal
+  const mainNavItems = header.nav?.filter((item: any) => !item?.isFloat);
 
   return (
     <header>
@@ -54,6 +77,7 @@ export const Header = ({ data }: { data?: any }) => {
                   href={item.href || '/'}
                   className="flex items-center gap-2.5 rounded-lg cursor-pointer transition-colors"
                   data-tina-field={tinaField(item, 'href')}
+                  onClick={(e) => handleSmoothScroll(e, item.href || '/')}
                 >
                   <span className="px-2 py-4" data-tina-field={tinaField(item, 'label')}>
                     {item.label}
@@ -67,18 +91,22 @@ export const Header = ({ data }: { data?: any }) => {
 
       {/* MOBILE */}
       <div className="lg:hidden">
-        {/* Fale Conosco topo direito */}
-        <div className="fixed top-2 right-2 bg-black text-white rounded-sm px-3 py-2 text-sm z-50">
-          {header.nav
-            ?.filter((item: any) => item?.label === 'Fale Conosco')
-            .map((item: any, index: number) => (
-              <Link key={index} href={item.href || '/'} data-tina-field={tinaField(item, 'href')}>
-                {item.label}
-              </Link>
-            ))}
-        </div>
+        {/* Botão flutuante no topo direito - apenas se houver um item com isFloat = true */}
+        {floatingItem && (
+          <div className="fixed top-2 right-2 bg-black text-white rounded-sm px-3 py-2 text-sm z-50">
+            <Link 
+              href={floatingItem.href || '/'} 
+              data-tina-field={tinaField(floatingItem, 'href')}
+              onClick={(e) => handleSmoothScroll(e, floatingItem.href || '/')}
+            >
+              <span data-tina-field={tinaField(floatingItem, 'label')}>
+                {floatingItem.label}
+              </span>
+            </Link>
+          </div>
+        )}
 
-        {/* Logo, Sobre, Serviços no rodapé */}
+        {/* Logo e outros itens de navegação no rodapé */}
         <div className="fixed bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-6 bg-black text-white rounded-sm px-4 py-3 z-51 min-w-[65%] opacity-[0.9.4]">
           {/* Logo */}
           <Link
@@ -107,21 +135,27 @@ export const Header = ({ data }: { data?: any }) => {
               />
             </svg>
           </Link>
+          
+          {/* Itens de navegação principais (exceto os flutuantes) */}
           <div className='flex ml-auto w-[100%] gap-6 justify-end'>
-            {header.nav
-              ?.filter((item: any) => item?.label !== 'Fale Conosco')
-              .map((item: any, index: number) => (
+            {mainNavItems?.map((item: any, index: number) => {
+              if (!item || !item.label) return null;
+              return (
                 <Link
                   key={index}
                   href={item.href || '/'}
                   className="text-sm"
                   data-tina-field={tinaField(item, 'href')}
+                  onClick={(e) => handleSmoothScroll(e, item.href || '/')}
                 >
-                  {item.label}
+                  <span data-tina-field={tinaField(item, 'label')}>
+                    {item.label}
+                  </span>
                 </Link>
-              ))}
-
-          </div></div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </header>
   );
@@ -137,22 +171,27 @@ export const headerBlockSchema: Template = {
         {
           label: 'Home',
           href: '/',
+          isFloat: false,
         },
         {
           label: 'Sobre',
           href: '#Monochrome',
+          isFloat: false,
         },
         {
           label: 'Serviços',
           href: '#custom-services',
+          isFloat: false,
         },
         {
           label: 'Contato',
           href: '#contact',
+          isFloat: false,
         },
         {
           label: 'Fale Conosco',
           href: '#contact',
+          isFloat: true,
         },
       ],
     },
@@ -165,7 +204,8 @@ export const headerBlockSchema: Template = {
       list: true,
       ui: {
         itemProps: (item: any) => {
-          return { label: item?.label || 'Item do Menu' };
+          const floatLabel = item?.isFloat ? ' (Flutuante)' : '';
+          return { label: (item?.label || 'Item do Menu') + floatLabel };
         },
       },
       fields: [
@@ -180,7 +220,28 @@ export const headerBlockSchema: Template = {
           label: 'URL',
           name: 'href',
           required: true,
-          description: 'Ex: /, #Monochrome, #contact, www.outro-site.com, etc.',
+          description: 'Ex: /, #Monochrome, #contact, #projects-list, https://www.outro-site.com, etc.',
+        },
+        {
+          type: 'boolean',
+          label: 'É flutuante no mobile',
+          name: 'isFloat',
+          description: 'Se ativado, este item aparecerá como botão flutuante no topo direito da tela mobile. ATENÇÃO: Apenas um item pode ser flutuante por vez.',
+          ui: {
+            validate: (value: boolean, allValues: any) => {
+              if (value === true && allValues?.nav) {
+                const currentIndex = allValues.nav.findIndex((item: any) => item === allValues);
+                const floatingItems = allValues.nav.filter((item: any, index: number) => 
+                  item?.isFloat === true && index !== currentIndex
+                );
+                
+                if (floatingItems.length > 0) {
+                  return 'Apenas um item pode ser marcado como flutuante. Desmarque o outro item primeiro.';
+                }
+              }
+              return undefined;
+            },
+          },
         },
       ],
     },
@@ -237,7 +298,8 @@ export const globalHeaderSchema = {
       list: true,
       ui: {
         itemProps: (item: any) => {
-          return { label: item?.label || 'Item do Menu' };
+          const floatLabel = item?.isFloat ? ' (Flutuante)' : '';
+          return { label: (item?.label || 'Item do Menu') + floatLabel };
         },
       },
       fields: [
@@ -252,6 +314,12 @@ export const globalHeaderSchema = {
           label: 'Link',
           name: 'href',
           required: true,
+        },
+        {
+          type: 'boolean',
+          label: 'É flutuante no mobile',
+          name: 'isFloat',
+          description: 'Se ativado, este item aparecerá como botão flutuante no topo direito da tela mobile. Apenas um item pode ser flutuante.',
         },
       ],
     },

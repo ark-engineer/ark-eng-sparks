@@ -122,7 +122,6 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
 
   return (
     <div
-      id='custom-services'
       className={`fixed inset-0 flex items-center justify-center z-70 p-4 transition-all duration-300 ease-out ${isAnimating ? 'bg-transparent' : 'bg-opacity-0'
         }`}
       onClick={handleBackdropClick}
@@ -373,6 +372,7 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
   return (
     <>
       <div
+        id='custom-services'
         className='mx-auto'
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
