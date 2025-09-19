@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { motion, AnimatePresence, Variants, useScroll } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { LazyMotion, domAnimation } from 'motion/react';
+import * as HugeIcons from '@hugeicons/core-free-icons';
 import * as m from 'motion/react-m';
 
 import type { Template } from 'tinacms';
@@ -13,16 +14,8 @@ import { Button } from '../ui/button';
 import { tinaField } from 'tinacms/dist/react';
 import { sectionBlockSchemaField } from '../layout/section';
 import { HugeiconsIcon } from '@hugeicons/react';
-import * as HugeIcons from '@hugeicons/core-free-icons';
 import Image from 'next/image';
-
-type ProjectType = 'ARKENG' | 'eBIM' | 'ARKANE';
-
-const corporationsLogos: Record<ProjectType, string> = {
-  ARKENG: '/uploads/project-logos/ARKENG.png',
-  eBIM: '/uploads/project-logos/eBIM.png',
-  ARKANE: '/uploads/project-logos/ARKANE.png',
-};
+import { AllProjects, cardVariants, corporationsLogos, iconMap, ProjectType, scrollContainerVariants } from '../layout/projects';
 
 interface ProjectDetail {
   key: string;
@@ -33,77 +26,12 @@ interface ProjectDetail {
 
 interface ProjectSidebarProps {
   project: PageBlocksProjectsProjects;
-  activeTab: ProjectType;
+  activeTab: AllProjects;
   onClose: () => void;
 }
 
-const iconMap = {
-  'arrow-expand-02': HugeIcons.ArrowExpand02Icon,
-  'maps-square-02': HugeIcons.MapsSquare02Icon,
-  'right-angle': HugeIcons.RightAngleIcon,
-  'road-02': HugeIcons.Road02Icon,
-  'maximize-screen': HugeIcons.MaximizeScreenIcon,
-  'home-12': HugeIcons.Home12Icon,
-  'store-01': HugeIcons.Store01Icon,
-  'parking-area-square': HugeIcons.ParkingAreaSquareIcon,
-  'group-layers': HugeIcons.GroupLayersIcon,
-  'fire': HugeIcons.FireIcon,
-  'snow': HugeIcons.SnowIcon,
-  'brush': HugeIcons.BrushIcon,
-  'certificate-01': HugeIcons.Certificate01Icon,
-  'bathtub-01': HugeIcons.Bathtub01Icon,
-  'door-01': HugeIcons.Door01Icon,
-  'geometric-shapes-02': HugeIcons.GeometricShapes02Icon,
-  'legal-document-01': HugeIcons.LegalDocument01Icon,
-  'electric-home-01': HugeIcons.ElectricHome01Icon,
-  'beach-02': HugeIcons.Beach02Icon,
-  'discount-tag-02': HugeIcons.DiscountTag02Icon,
-} as const;
-
-const scrollContainerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.05,
-      delayChildren: 0.1,
-    },
-  },
-  exit: {
-    y: 100,
-    opacity: 0,
-    scale: 0.4,
-    transition: { duration: 0.2 },
-  },
-}
-
-const cardVariants: Variants = {
-  hidden: (scrollDirection: "up" | "down") => ({
-    y: scrollDirection === "down" ? 20 : -20,
-    opacity: 0,
-    scale: 0.8,
-  }),
-  visible: (scrollDirection: "up" | "down") => ({
-    y: 0,
-    opacity: 1,
-    scale: 1,
-    transition: {
-      type: "spring",
-      bounce: 0.3,
-      duration: 0.6,
-      delay: 0.1,
-    },
-  }),
-  exit: (scrollDirection: "up" | "down") => ({
-    y: scrollDirection === "down" ? 20 : -20,
-    opacity: 0,
-    scale: 0.8,
-    transition: { duration: 0.1 },
-  }),
-};
-
 export const Projects = ({ data }: { data: PageBlocksProjects }) => {
-  const [activeTab, setActiveTab] = useState<ProjectType>("ARKENG")
+  const [activeTab, setActiveTab] = useState<AllProjects>("ALL")
   const [selectedProject, setSelectedProject] = useState<PageBlocksProjectsProjects | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -120,8 +48,17 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
   const loadedImagesCount = useRef(0)
   const totalImagesCount = useRef(0)
 
-  const filteredProjects =
-    data.projects?.filter((project) => project?.services?.some((service) => service?.company === activeTab)) || []
+  const filteredProjects = useMemo(() => {
+    if (!data.projects) return [];
+    
+    if (activeTab === "ALL") {
+      return data.projects;
+    }
+    
+    return data.projects.filter((project) => 
+      project?.services?.some((service) => service?.company === activeTab)
+    );
+  }, [data.projects, activeTab]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -177,7 +114,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true })
-    handleScroll() // Initial call
+    handleScroll()
 
     return () => {
       window.removeEventListener("scroll", handleScroll)
@@ -229,21 +166,17 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
     setSelectedProject(null)
   }
 
-  // Função otimizada para calcular padding dos primeiros itens
   const updateFirstItemsInColumns = useCallback(() => {
     if (!scrollContainerRef.current) return;
 
     const container = scrollContainerRef.current;
     const items = Array.from(container.querySelectorAll<HTMLElement>('.masonry-item'));
 
-    // Remove marcações antigas
     items.forEach(it => it.classList.remove('first-in-target'));
 
     if (items.length === 0) return;
 
-    // Aguarda um frame para garantir que o layout está estabilizado
     requestAnimationFrame(() => {
-      // Agrupa por posição "left" (coluna) com tolerância
       const columnsMap = new Map<number, HTMLElement[]>();
       const TOLERANCE = 12;
 
@@ -264,12 +197,10 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
         columnsMap.set(mapKey, arr);
       });
 
-      // Ordena colunas da esquerda para direita
       const columns = Array.from(columnsMap.entries())
         .sort((a, b) => a[0] - b[0])
         .map(([_, arr]) => arr);
 
-      // Em cada coluna, escolhe o item mais alto (menor top)
       columns.forEach((colItems, colIndex) => {
         colItems.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
         const first = colItems[0];
@@ -281,17 +212,12 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
     });
   }, []);
 
-  // Callback para quando uma imagem carrega
-  const handleImageLoad = useCallback(() => {
+  const handleImageLoad = useCallback(async () => {
     loadedImagesCount.current += 1;
 
-    // Se todas as imagens carregaram, executa o cálculo final
     if (loadedImagesCount.current >= totalImagesCount.current) {
       setImagesLoaded(true);
-      // Aguarda um pouco mais para garantir que o layout masonry se estabilizou
-      setTimeout(() => {
-        updateFirstItemsInColumns();
-      }, 200);
+      await updateFirstItemsInColumns();
     }
   }, [updateFirstItemsInColumns]);
 
@@ -368,7 +294,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
                   >
                     <Button
                       variant={activeTab === tab ? "default" : "ghost"}
-                      onClick={() => setActiveTab(tab)}
+                      onClick={() => setActiveTab(activeTab === tab ? "ALL" : tab)}
                       className={`cursor-pointer px-6 py-2 rounded-4xl transition-colors duration-200 ${activeTab === tab ? "bg-black" : "bg-gray-200"}`}
                     >
                       {tab}
@@ -435,7 +361,7 @@ const ProjectCard = ({
   onImageLoad,
 }: {
   project: PageBlocksProjectsProjects
-  activeTab: ProjectType
+  activeTab: AllProjects
   onProjectClick: () => void
   onImageLoad: () => void
 }) => {
@@ -873,13 +799,13 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                               <div className="absolute bottom-2 right-2 flex gap-1">
                                 <button
                                   onClick={prevPage}
-                                  className="transition-all duration-200 hover:scale-110 rounded-full p-1 bg-white/30 backdrop-blur-sm w-[35px] h-[35px] flex-shrink-0 flex items-center justify-center"
+                                  className="transition-all duration-100 hover:scale-105 rounded-full p-1 bg-white/30 backdrop-blur-sm w-[35px] h-[35px] flex-shrink-0 flex items-center justify-center"
                                 >
                                   <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} color="white" />
                                 </button>
                                 <button
                                   onClick={nextPage}
-                                  className="transition-all duration-200 hover:scale-110 rounded-full p-1 bg-white/30 backdrop-blur-sm w-[35px] h-[35px] flex-shrink-0 flex items-center justify-center"
+                                  className="transition-all duration-100 hover:scale-105 rounded-full p-1 bg-white/30 backdrop-blur-sm w-[35px] h-[35px] flex-shrink-0 flex items-center justify-center"
                                 >
                                   <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} color="white" />
                                 </button>
@@ -893,27 +819,21 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                     </div>
                   </>
                 ) : (
-                  // Fullscreen View
                   <div className="relative flex-1 flex flex-col">
-                    {/* Botão anterior */}
                     <button
                       onClick={prevFullscreenImage}
-                      className="absolute top-1/2 left-2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/30 backdrop-blur-sm
-                                     transition-all duration-200 hover:scale-110"
+                      className="absolute top-1/2 left-2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/30 backdrop-blur-sm transition-all duration-100 hover:scale-105"
                       style={{ transform: 'translateY(-50%)' }}
                     >
                       <HugeiconsIcon icon={HugeIcons.ArrowLeft01Icon} size={34} />
                     </button>
-                    {/* Botão próximo */}
                     <button
                       onClick={nextFullscreenImage}
-                      className="absolute top-1/2 right-2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/30 backdrop-blur-sm
-                                     transition-all duration-200 hover:scale-110"
+                      className="absolute top-1/2 right-2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/30 backdrop-blur-sm transition-all duration-100 hover:scale-105"
                       style={{ transform: 'translateY(-50%)' }}
                     >
                       <HugeiconsIcon icon={HugeIcons.ArrowRight01Icon} size={34} />
                     </button>
-                    {/* Imagem em fullscreen */}
                     <div
                       onClick={closeFullscreen}
                       className="flex-1 flex items-center justify-center p-4 pb-6"
@@ -926,16 +846,13 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                           className="max-w-full max-h-full object-contain transition-all duration-500 ease-in-out rounded-lg"
                           style={{ animation: "fadeInSlide 0.5s ease-in-out" }}
                         />
-                        {/* Botão fechar */}
                         <button
                           onClick={closeFullscreen}
                           className="cursor-pointer absolute top-2 right-2 z-10 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
                         >
-                          {/* svg aqui */}
                         </button>
                       </div>
                     </div>
-                    {/* Dots do carousel */}
                     <DotNavigation
                       total={images.length}
                       activeIndex={fullscreenImageIndex}
