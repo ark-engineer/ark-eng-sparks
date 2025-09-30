@@ -16,6 +16,7 @@ import { sectionBlockSchemaField } from '../layout/section';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Image from 'next/image';
 import { AllProjects, cardVariants, corporationsLogos, iconMap, ProjectType, scrollContainerVariants } from '../layout/projects';
+import { useTina } from 'tinacms/dist/react'
 
 interface ProjectDetail {
   key: string;
@@ -31,7 +32,7 @@ interface ProjectSidebarProps {
 }
 
 export const Projects = ({ data }: { data: PageBlocksProjects }) => {
-  const [activeTab, setActiveTab] = useState<AllProjects>("ALL")
+  const [activeFilters, setActiveFilters] = useState<Set<ProjectType>>(new Set());
   const [selectedProject, setSelectedProject] = useState<PageBlocksProjectsProjects | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -48,17 +49,61 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
   const loadedImagesCount = useRef(0)
   const totalImagesCount = useRef(0)
 
+  const activeKey = useMemo(() => {
+    const arr = Array.from(activeFilters);
+    return arr.length === 0 ? 'ALL' : arr.join(',');
+  }, [activeFilters]);
+
+  const dataHash = useMemo(() => {
+    return JSON.stringify(data?.projects?.map(p => ({ 
+      name: p?.constructorName, 
+      images: p?.images?.length,
+      services: p?.services?.length 
+    })))
+  }, [data.projects])
+
   const filteredProjects = useMemo(() => {
     if (!data.projects) return [];
     
-    if (activeTab === "ALL") {
+    if (activeFilters.size === 0) {
       return data.projects;
     }
-    
-    return data.projects.filter((project) => 
-      project?.services?.some((service) => service?.company === activeTab)
+
+    return data.projects.filter((project) =>
+      project?.services?.some((service) => 
+        service?.company && activeFilters.has(service.company as ProjectType)
+      )
     );
-  }, [data.projects, activeTab]);
+  }, [data.projects, activeFilters, dataHash]) // Use dataHash instead of isEditing
+
+  // Update image loading when data changes
+  useEffect(() => {
+    setImagesLoaded(false)
+    loadedImagesCount.current = 0
+    totalImagesCount.current = filteredProjects.length
+    
+    setTimeout(() => {
+      // Re-calculate visible cards
+      const cards = scrollContainerRef.current?.querySelectorAll("[data-card-index]")
+      if (cards) {
+        const newVisibleCards = new Set<number>()
+        cards.forEach((card, index) => {
+          const cardRect = card.getBoundingClientRect()
+          const isVisible = cardRect.top < window.innerHeight && cardRect.bottom > 0
+          if (isVisible) {
+            newVisibleCards.add(index)
+          }
+        })
+        setVisibleCards(newVisibleCards)
+      }
+    }, 100)
+  }, [dataHash, activeKey])
+  const activeTabForProps: AllProjects = useMemo(() => {
+    if (activeFilters.size === 1) {
+      return Array.from(activeFilters)[0] as AllProjects;
+    }
+    return "ALL";
+  }, [activeFilters]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -133,11 +178,10 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
   }, [isHoverDevice])
 
   useEffect(() => {
-    setVisibleCards(new Set())
     setImagesLoaded(false)
     loadedImagesCount.current = 0
     totalImagesCount.current = filteredProjects.length
-
+    
     setTimeout(() => {
       const cards = scrollContainerRef.current?.querySelectorAll("[data-card-index]")
       if (cards) {
@@ -151,8 +195,8 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
         })
         setVisibleCards(newVisibleCards)
       }
-    }, 100)
-  }, [activeTab, filteredProjects.length])
+    }, 50) // Reduced timeout
+  }, [data.projects, activeKey, filteredProjects.length])
 
   const openProjectSidebar = (project: PageBlocksProjectsProjects) => {
     if (!isScrolling) {
@@ -261,7 +305,20 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       window.removeEventListener('resize', handleResize);
       if (debounceTimer) window.clearTimeout(debounceTimer);
     }
-  }, [activeTab, imagesLoaded, updateFirstItemsInColumns]);
+  }, [activeKey, imagesLoaded, updateFirstItemsInColumns]);
+
+  // Função para alternar (toggle) um filtro de empresa
+  const toggleFilter = (company: ProjectType) => {
+    setActiveFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(company)) {
+        next.delete(company);
+      } else {
+        next.add(company);
+      }
+      return next;
+    });
+  };
 
   return (
     <div ref={containerRef} className="relative">
@@ -285,17 +342,18 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
             </h2>
             <div className="flex justify-center">
               <div className="flex p-1 gap-2">
+                {/* Removed ALL button, only render the company filters */}
                 {(["ARKENG", "eBIM", "ARKANE"] as ProjectType[]).map((tab, index) => (
                   <motion.div
                     key={tab}
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 + 0.3 }}
+                    transition={{ delay: index * 0.1 + 0.2 }}
                   >
                     <Button
-                      variant={activeTab === tab ? "default" : "ghost"}
-                      onClick={() => setActiveTab(activeTab === tab ? "ALL" : tab)}
-                      className={`cursor-pointer px-6 py-2 rounded-4xl transition-colors duration-200 ${activeTab === tab ? "bg-black" : "bg-gray-200"}`}
+                      variant={activeFilters.has(tab) ? "default" : "ghost"}
+                      onClick={() => toggleFilter(tab)}
+                      className={`cursor-pointer px-6 py-2 rounded-4xl transition-colors duration-200 ${activeFilters.has(tab) ? "bg-black" : "bg-gray-200"}`}
                     >
                       {tab}
                     </Button>
@@ -310,7 +368,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       <div className="relative bg-white">
         <motion.div
           ref={scrollContainerRef}
-          key={activeTab}
+          key={activeKey}
           className="masonry-container px-[2.75rem] py-12 gap-[0.625rem] sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-4 min-h-screen"
           variants={scrollContainerVariants}
           initial="hidden"
@@ -319,7 +377,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
           <AnimatePresence mode="sync">
             {filteredProjects.map((project, index) => (
               <motion.div
-                key={`${activeTab}-${project}-${index}`}
+                key={`${activeKey}-${project?.constructorName ?? index}-${index}`}
                 data-card-index={index}
                 custom={scrollDirection}
                 variants={cardVariants}
@@ -334,9 +392,9 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
                 data-tina-field={tinaField(data, `projects.${index}` as any)}
               >
                 <ProjectCard
-                  key={`${activeTab}-${index}`}
+                  key={`${activeKey}-${index}`}
                   project={project!}
-                  activeTab={activeTab}
+                  activeTab={activeTabForProps}
                   onProjectClick={() => openProjectSidebar(project!)}
                   onImageLoad={handleImageLoad}
                 />
@@ -348,7 +406,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
 
       <AnimatePresence>
         {sidebarOpen && selectedProject && (
-          <ProjectSidebar project={selectedProject} activeTab={activeTab} onClose={closeSidebar} />
+          <ProjectSidebar project={selectedProject} activeTab={activeTabForProps} onClose={closeSidebar} />
         )}
       </AnimatePresence>
     </div>
@@ -479,6 +537,27 @@ const ProjectCard = ({
         </h3>
       </div>
     </Card>
+  )
+}
+
+const LiveProjectSidebar = ({ 
+  project, 
+  activeTab, 
+  onClose, 
+  dataVersion 
+}: ProjectSidebarProps & { dataVersion: string }) => {
+  // Force re-render of sidebar content when data changes
+  useEffect(() => {
+    // Any state resets needed when data updates
+  }, [dataVersion])
+
+  return (
+    <ProjectSidebar 
+      project={project} 
+      activeTab={activeTab} 
+      onClose={onClose}
+      key={`sidebar-${project.constructorName}-${dataVersion}`} // Force complete re-render
+    />
   )
 }
 
@@ -620,11 +699,9 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
             <h2 className="text-2xl font-semibold leading-none" data-tina-field={tinaField(project, 'constructorName')}>
               {project.constructorName}
             </h2>
-            {project.description && (
               <p className="text-lg leading-tight" data-tina-field={tinaField(project, 'description')}>
                 {project.description}
               </p>
-            )}
           </div>
           <Button variant="ghost" size="sm" onClick={onClose} className='cursor-pointer flex-shrink-0'>
             <HugeiconsIcon icon={HugeIcons.Cancel01Icon} size={20} color="#6B7280" strokeWidth={1.5} className="text-gray-500" />
