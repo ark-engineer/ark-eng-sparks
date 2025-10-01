@@ -74,9 +74,8 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
         service?.company && activeFilters.has(service.company as ProjectType)
       )
     );
-  }, [data.projects, activeFilters, dataHash]) // Use dataHash instead of isEditing
+  }, [data.projects, activeFilters, dataHash])
 
-  // Update image loading when data changes
   useEffect(() => {
     setImagesLoaded(false)
     loadedImagesCount.current = 0

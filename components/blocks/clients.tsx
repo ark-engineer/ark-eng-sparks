@@ -30,6 +30,7 @@ export const ClientsCarousel = ({ data }: { data: PageBlocksClientsCarousel }) =
                     pauseOnHover={true}
                     gradient
                     autoFill
+                    speed={data.speed || 50}
                 >
                     {(data.clients as PageBlocksClientsCarouselClients[]).map((client, index) => (
                         <div
@@ -62,6 +63,7 @@ export const clientsCarouselSchema: Template = {
         previewSrc: '/blocks/clients-carousel.png',
         defaultItem: {
             carouselTitle: 'Clientes',
+            speed: 50,
             clients: [
                 {
                     name: 'Cliente 1',
@@ -120,6 +122,17 @@ export const clientsCarouselSchema: Template = {
             type: 'string',
             label: 'Título',
             name: 'carouselTitle',
+        },
+        {
+            type: 'number',
+            label: 'Velocidade',
+            name: 'speed',
+            description: 'Velocidade do carrossel em pixels/segundo (padrão: 50)',
+            ui: {
+                step: 10,
+                min: 10,
+                max: 200,
+            },
         },
         {
             type: 'object',
