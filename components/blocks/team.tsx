@@ -51,7 +51,7 @@ export const TeamSection = ({ data }: { data: any }) => {
                   <Image
                     src={member.photo}
                     alt={member.name || "Membro da equipe"}
-                    className="relative inline-block object-cover size-44 min-w-44 min-h-44 lg:min-w-0 lg:min-h-0 lg:max-w-35 lg:max-h-35 transition-all duration-300 ease-in-out hover:-translate-y-3 hover:scale-110 z-10 rounded-full border-[10px] border-white"
+                    className="relative inline-block object-cover size-44 min-w-44 min-h-44 lg:min-w-0 lg:min-h-0 lg:max-w-35 lg:max-h-35 transition-all duration-300 ease-in-out hover:-translate-y-3 hover:scale-102 z-10 filter grayscale-85 hover:grayscale-0 rounded-full border-[10px] border-white"
                     style={{
                       background: "lightgray 50% / cover no-repeat",
                     }}

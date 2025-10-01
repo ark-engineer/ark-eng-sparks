@@ -62,8 +62,10 @@ export const Monochrome = ({ data }: { data: MonochromeData }) => {
                   data-tina-field={tinaField(data, 'leftImage')}
                   width={414}
                   height={226}
-                  loading="lazy"
+                  priority={true}
                   decoding="async"
+                  unoptimized
+                  quality={100}
                 />
               )}
             </motion.div>
