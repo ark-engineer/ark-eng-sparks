@@ -58,7 +58,7 @@ export const Monochrome = ({ data }: { data: MonochromeData }) => {
                 <Image
                   src={data.leftImage}
                   alt="logos left"
-                  className="max-w-[36rem] w-full h-auto gpu"
+                  className="max-w-[36rem] w-full h-auto gpu select-none"
                   data-tina-field={tinaField(data, 'leftImage')}
                   width={414}
                   height={226}
