@@ -16,7 +16,6 @@ import { sectionBlockSchemaField } from '../layout/section';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Image from 'next/image';
 import { AllProjects, cardVariants, corporationsLogos, iconMap, ProjectType, scrollContainerVariants } from '../layout/projects';
-import { useTina } from 'tinacms/dist/react'
 
 interface ProjectDetail {
   key: string;
@@ -31,56 +30,63 @@ interface ProjectSidebarProps {
   onClose: () => void;
 }
 
+interface ProjectCardProps {
+  project: PageBlocksProjectsProjects;
+  activeTab: AllProjects;
+  onProjectClick: () => void;
+  onImageLoad: () => void;
+  isVisible: boolean;
+  hasEnteredViewport: boolean;
+}
+
 export const Projects = ({ data }: { data: PageBlocksProjects }) => {
   const [activeFilters, setActiveFilters] = useState<Set<ProjectType>>(new Set());
   const [selectedProject, setSelectedProject] = useState<PageBlocksProjectsProjects | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("down")
   const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set())
-
   const [isScrolling, setIsScrolling] = useState(false)
   const [scrollTimeout, setScrollTimeout] = useState<NodeJS.Timeout | null>(null)
   const [isHoverDevice, setIsHoverDevice] = useState(false)
-
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const loadedImagesCount = useRef(0)
   const totalImagesCount = useRef(0)
+  
+  // NOVO: Estado para rastrear cards que entraram no viewport (para efeito grayscale mobile)
+  const [cardsEnteredViewport, setCardsEnteredViewport] = useState<Set<number>>(new Set());
+  const [isMobile, setIsMobile] = useState(false);
 
   const activeKey = useMemo(() => {
     const arr = Array.from(activeFilters);
     return arr.length === 0 ? 'ALL' : arr.join(',');
   }, [activeFilters]);
-
+  
   const dataHash = useMemo(() => {
-    return JSON.stringify(data?.projects?.map(p => ({ 
-      name: p?.constructorName, 
+    return JSON.stringify(data?.projects?.map(p => ({
+      name: p?.constructorName,
       images: p?.images?.length,
-      services: p?.services?.length 
+      services: p?.services?.length
     })))
   }, [data.projects])
-
+  
   const filteredProjects = useMemo(() => {
     if (!data.projects) return [];
-    
     if (activeFilters.size === 0) {
       return data.projects;
     }
-
     return data.projects.filter((project) =>
-      project?.services?.some((service) => 
+      project?.services?.some((service) =>
         service?.company && activeFilters.has(service.company as ProjectType)
       )
     );
   }, [data.projects, activeFilters, dataHash])
-
+  
   useEffect(() => {
     setImagesLoaded(false)
     loadedImagesCount.current = 0
     totalImagesCount.current = filteredProjects.length
-    
     setTimeout(() => {
       // Re-calculate visible cards
       const cards = scrollContainerRef.current?.querySelectorAll("[data-card-index]")
@@ -97,69 +103,100 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       }
     }, 100)
   }, [dataHash, activeKey])
+  
   const activeTabForProps: AllProjects = useMemo(() => {
     if (activeFilters.size === 1) {
       return Array.from(activeFilters)[0] as AllProjects;
     }
     return "ALL";
   }, [activeFilters]);
-
+  
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsHoverDevice(window.matchMedia('(hover: hover)').matches)
+      // NOVO: Detecta se é mobile
+      setIsMobile(window.innerWidth < 768);
+      
+      const handleResize = () => {
+        setIsMobile(window.innerWidth < 768);
+      };
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
     }
   }, [])
+  
+  useEffect(() => {
+    const options = {
+      root: null, // viewport
+      threshold: 0.1, // trigger when 10% visible
+    };
+    const observer = new IntersectionObserver((entries) => {
+      setVisibleCards((prev) => {
+        const newSet = new Set(prev);
+        entries.forEach((entry) => {
+          const index = parseInt(entry.target.getAttribute('data-card-index') || '0', 10);
+          if (entry.isIntersecting) {
+            newSet.add(index);
+            // NOVO: Marca que o card entrou no viewport (para efeito grayscale)
+            if (isMobile) {
+              setCardsEnteredViewport(prevEntered => {
+                const newEntered = new Set(prevEntered);
+                newEntered.add(index);
+                return newEntered;
+              });
+            }
+          } else {
+            newSet.delete(index);
+          }
+        });
+        return newSet;
+      });
+    }, options);
 
+    const cards = scrollContainerRef.current?.querySelectorAll('[data-card-index]');
+    cards?.forEach((card) => observer.observe(card));
+
+    return () => {
+      cards?.forEach((card) => observer.unobserve(card));
+    };
+  }, [filteredProjects, isMobile]);
+  
   useEffect(() => {
     let lastScrollY = 0
-
     const updateScrollDirection = () => {
       const currentScrollY = window.scrollY
       const direction = currentScrollY > lastScrollY ? "down" : "up"
-
       if (direction !== scrollDirection) {
         setScrollDirection(direction)
       }
-
       lastScrollY = currentScrollY
     }
-
     const handleScroll = () => {
       updateScrollDirection()
-
       setIsScrolling(true)
-
       if (scrollTimeout) {
         clearTimeout(scrollTimeout)
       }
-
       const newTimeout = setTimeout(() => {
         setIsScrolling(false)
       }, 150)
-
       setScrollTimeout(newTimeout)
-
       if (scrollContainerRef.current) {
         const container = scrollContainerRef.current
         const cards = container.querySelectorAll("[data-card-index]")
         const newVisibleCards = new Set<number>()
-
         cards.forEach((card, index) => {
           const cardRect = card.getBoundingClientRect()
           const isVisible = cardRect.top < window.innerHeight && cardRect.bottom > 0
-
           if (isVisible) {
             newVisibleCards.add(index)
           }
         })
-
         setVisibleCards(newVisibleCards)
       }
     }
-
     window.addEventListener("scroll", handleScroll, { passive: true })
     handleScroll()
-
     return () => {
       window.removeEventListener("scroll", handleScroll)
       if (scrollTimeout) {
@@ -167,7 +204,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       }
     }
   }, [scrollDirection])
-
+  
   const hoverAnimation = useMemo(() => {
     return isHoverDevice ? {
       scale: 1.01,
@@ -175,11 +212,13 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       transition: { duration: 0.1 },
     } : {}
   }, [isHoverDevice])
-
+  
   useEffect(() => {
     setImagesLoaded(false)
     loadedImagesCount.current = 0
     totalImagesCount.current = filteredProjects.length
+    // NOVO: Reset do estado de cards que entraram no viewport ao mudar filtros
+    setCardsEnteredViewport(new Set());
     
     setTimeout(() => {
       const cards = scrollContainerRef.current?.querySelectorAll("[data-card-index]")
@@ -196,37 +235,31 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       }
     }, 50) // Reduced timeout
   }, [data.projects, activeKey, filteredProjects.length])
-
+  
   const openProjectSidebar = (project: PageBlocksProjectsProjects) => {
     if (!isScrolling) {
       setSelectedProject(project)
       setSidebarOpen(true)
     }
   }
-
+  
   const closeSidebar = () => {
     setSidebarOpen(false)
     setSelectedProject(null)
   }
-
+  
   const updateFirstItemsInColumns = useCallback(() => {
     if (!scrollContainerRef.current) return;
-
     const container = scrollContainerRef.current;
     const items = Array.from(container.querySelectorAll<HTMLElement>('.masonry-item'));
-
     items.forEach(it => it.classList.remove('first-in-target'));
-
     if (items.length === 0) return;
-
     requestAnimationFrame(() => {
       const columnsMap = new Map<number, HTMLElement[]>();
       const TOLERANCE = 12;
-
       items.forEach(item => {
         const rect = item.getBoundingClientRect();
         const left = Math.round(rect.left);
-
         let foundKey: number | undefined;
         for (const key of columnsMap.keys()) {
           if (Math.abs(key - left) <= TOLERANCE) {
@@ -239,11 +272,9 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
         arr.push(item);
         columnsMap.set(mapKey, arr);
       });
-
       const columns = Array.from(columnsMap.entries())
         .sort((a, b) => a[0] - b[0])
         .map(([_, arr]) => arr);
-
       columns.forEach((colItems, colIndex) => {
         colItems.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
         const first = colItems[0];
@@ -254,58 +285,50 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       });
     });
   }, []);
-
+  
   const handleImageLoad = useCallback(async () => {
     loadedImagesCount.current += 1;
-
     if (loadedImagesCount.current >= totalImagesCount.current) {
       setImagesLoaded(true);
       await updateFirstItemsInColumns();
     }
   }, [updateFirstItemsInColumns]);
-
+  
   useEffect(() => {
     if (!scrollContainerRef.current) return;
-
     let debounceTimer: number | null = null;
     const debounce = (fn: () => void, wait = 150) => {
       if (debounceTimer) window.clearTimeout(debounceTimer);
       debounceTimer = window.setTimeout(fn, wait);
     }
-
     // Observer para mudanças no DOM (menos agressivo)
     const observer = new MutationObserver(() => {
       if (imagesLoaded) {
         debounce(updateFirstItemsInColumns, 200);
       }
     });
-
     observer.observe(scrollContainerRef.current, {
       childList: true,
       subtree: false // Reduz a sensibilidade
     });
-
     // Resize handler otimizado
     const handleResize = () => {
       if (imagesLoaded) {
         debounce(updateFirstItemsInColumns, 300);
       }
     };
-
     window.addEventListener('resize', handleResize);
-
     // Execução inicial apenas se as imagens já carregaram
     if (imagesLoaded) {
       setTimeout(updateFirstItemsInColumns, 100);
     }
-
     return () => {
       observer.disconnect();
       window.removeEventListener('resize', handleResize);
       if (debounceTimer) window.clearTimeout(debounceTimer);
     }
   }, [activeKey, imagesLoaded, updateFirstItemsInColumns]);
-
+  
   // Função para alternar (toggle) um filtro de empresa
   const toggleFilter = (company: ProjectType) => {
     setActiveFilters(prev => {
@@ -318,7 +341,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       return next;
     });
   };
-
+  
   return (
     <div ref={containerRef} className="relative">
       <Section
@@ -363,7 +386,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
           </m.div>
         </LazyMotion>
       </Section>
-
       <div className="relative bg-white">
         <motion.div
           ref={scrollContainerRef}
@@ -396,13 +418,14 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
                   activeTab={activeTabForProps}
                   onProjectClick={() => openProjectSidebar(project!)}
                   onImageLoad={handleImageLoad}
+                  isVisible={visibleCards.has(index)}
+                  hasEnteredViewport={cardsEnteredViewport.has(index)}
                 />
               </motion.div>
             ))}
           </AnimatePresence>
         </motion.div>
       </div>
-
       <AnimatePresence>
         {sidebarOpen && selectedProject && (
           <ProjectSidebar project={selectedProject} activeTab={activeTabForProps} onClose={closeSidebar} />
@@ -416,49 +439,53 @@ const ProjectCard = ({
   project,
   onProjectClick,
   onImageLoad,
-}: {
-  project: PageBlocksProjectsProjects
-  activeTab: AllProjects
-  onProjectClick: () => void
-  onImageLoad: () => void
-}) => {
+  isVisible = false,
+  hasEnteredViewport = false,
+}: ProjectCardProps) => {
   const images = project.images || []
   const mainImage = images.find((img) => img?.setAsMain) || images[0]
-
   const [pressed, setPressed] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
-
+  const [isMobile, setIsMobile] = useState(false)
   const startPosition = useRef<{ x: number; y: number } | null>(null)
   const isDragging = useRef(false)
   const MOVE_THRESHOLD = 10
-
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsMobile(window.innerWidth < 768);
+      const handleResize = () => {
+        setIsMobile(window.innerWidth < 768);
+      };
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
+  
   const handleImageLoad = () => {
     if (!imageLoaded) {
       setImageLoaded(true)
       onImageLoad()
     }
   }
-
+  
   const handlePointerDown: React.PointerEventHandler = (e) => {
     if (e.pointerType === "mouse" && e.button !== 0) return
-
     startPosition.current = { x: e.clientX, y: e.clientY }
     isDragging.current = false
     setPressed(true)
   }
-
+  
   const handlePointerMove: React.PointerEventHandler = (e) => {
     if (!startPosition.current) return
-
     const deltaX = Math.abs(e.clientX - startPosition.current.x)
     const deltaY = Math.abs(e.clientY - startPosition.current.y)
-
     if (deltaX > MOVE_THRESHOLD || deltaY > MOVE_THRESHOLD) {
       isDragging.current = true
       setPressed(false)
     }
   }
-
+  
   const handlePointerUp: React.PointerEventHandler = () => {
     if (!isDragging.current) {
       onProjectClick()
@@ -466,19 +493,19 @@ const ProjectCard = ({
     setPressed(false)
     startPosition.current = null
   }
-
+  
   const handlePointerLeave: React.PointerEventHandler = () => {
     setPressed(false)
     startPosition.current = null
   }
-
+  
   const handleKeyDown: React.KeyboardEventHandler = (e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault()
       onProjectClick()
     }
   }
-
+  
   const overlayOpacityClass = pressed
     ? "opacity-100"
     : "opacity-0 group-hover:opacity-100"
@@ -492,25 +519,36 @@ const ProjectCard = ({
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerLeave}
       onKeyDown={handleKeyDown}
-      className="overflow-hidden shadow-md grayscale-92 hover:grayscale-0 transition-all duration-300 cursor-pointer mb-[0.625rem] break-inside-avoid relative group"
+      className={`overflow-hidden shadow-md ${isVisible ? "grayscale-0 sm:grayscale-92" : "grayscale-92 sm:grayscale-92"} hover:grayscale-0 sm:hover:grayscale-0 transition-[filter] duration-500 ease-out cursor-pointer mb-[0.625rem] break-inside-avoid relative group`}
       style={{
         touchAction: "pan-y",
       }}
     >
-      {mainImage?.image && (
-        <Image
-          width={400}
-          height={400}
-          src={mainImage.image}
-          alt={project.constructorName || "Imagem do Projeto"}
-          className="object-cover w-full h-auto pointer-events-none"
-          loading="eager"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          onLoad={handleImageLoad}
-          onError={handleImageLoad}
-        />
-      )}
-
+      <motion.div
+        initial={{ filter: isMobile ? 'grayscale(100%)' : 'grayscale(0%)' }}
+        animate={{ 
+          filter: isMobile ? (hasEnteredViewport ? 'grayscale(0%)' : 'grayscale(100%)') : 'grayscale(0%)'
+        }}
+        transition={{ 
+          duration: 0.8,
+          delay: hasEnteredViewport ? 0.6 : 0,
+          ease: [0.4, 0, 0.2, 1]
+        }}
+      >
+        {mainImage?.image && (
+          <Image
+            width={400}
+            height={400}
+            src={mainImage.image}
+            alt={project.constructorName || "Imagem do Projeto"}
+            className="object-cover w-full h-auto pointer-events-none"
+            loading="eager"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            onLoad={handleImageLoad}
+            onError={handleImageLoad}
+          />
+        )}
+      </motion.div>
       <svg
         className={`absolute right-2 top-2 ${overlayOpacityClass} z-10 w-8 h-8 transition-opacity duration-300`}
         viewBox="0 0 38 38"
@@ -522,7 +560,6 @@ const ProjectCard = ({
           fill="white"
         />
       </svg>
-
       <div
         className={`absolute bottom-0 left-0 w-full
           bg-gradient-to-t from-black/60 to-transparent
@@ -536,27 +573,6 @@ const ProjectCard = ({
         </h3>
       </div>
     </Card>
-  )
-}
-
-const LiveProjectSidebar = ({ 
-  project, 
-  activeTab, 
-  onClose, 
-  dataVersion 
-}: ProjectSidebarProps & { dataVersion: string }) => {
-  // Force re-render of sidebar content when data changes
-  useEffect(() => {
-    // Any state resets needed when data updates
-  }, [dataVersion])
-
-  return (
-    <ProjectSidebar 
-      project={project} 
-      activeTab={activeTab} 
-      onClose={onClose}
-      key={`sidebar-${project.constructorName}-${dataVersion}`} // Force complete re-render
-    />
   )
 }
 
@@ -1008,14 +1024,14 @@ export const projectsBlockSchema: Template = {
       description: 'Conheça alguns dos projetos desenvolvidos pelas nossas empresas',
       project: [
         {
-          constructorName: 'Exemplo Construtora',
+          constructorName: 'Projeto',
           description: 'Projeto moderno',
           services: [
             {
               company: 'ARKENG',
               serviceItems: [
                 {
-                  icon: '',
+                  icon: '', 
                   text: 'Estrutura de Concreto',
                 },
               ],
@@ -1047,7 +1063,7 @@ export const projectsBlockSchema: Template = {
       name: 'projects',
       ui: {
         defaultItem: {
-          constructorName: 'Nova Construtora',
+          constructorName: 'Novo Projeto',
           services: [],
         },
         itemProps: (item) => ({
