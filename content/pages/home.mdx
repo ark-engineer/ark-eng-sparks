@@ -2,13 +2,11 @@
 title: Tina Cloud Starter
 blocks:
   - nav:
-      - label: Sobre
-        href: '#Monochrome'
-        isFloat: false
-      - label: Serviços
+      - label: _projetos
+        href: '#projects-list'
+      - label: _serviços
         href: '#custom-services'
-        isFloat: false
-      - label: Fale Conosco
+      - label: _contato
         href: '#contact'
         isFloat: true
     _template: header
@@ -24,106 +22,86 @@ blocks:
   - backgroundImage: /uploads/hero/Monochrome.svg
     leftImage: /uploads/animation/monochrome-animation-compressed.gif
     textRich: >
-      A premissa das nossas empresas é a **concepção coletiva.** Acreditamos nas
-      virtudes do cruzamento de ideias e no entusiasmo do conhecimento
-      compartilhado.
+      Composto por três núcleos – **ARK Arquitetura**, **eBIM Engenharia** e
+      **ARKANE Studio 3D** – somos focados em desenvolver projetos integrados.
+
+
+      Atuamos oferecendo soluções inovadoras, funcionais, personalizadas e
+      técnicas para o desenvolvimento de empreendimentos.
     _template: monochrome
   - background: bg-default
-    title: Nossos Projetos
+    title: _projetos
     description: Conheça alguns dos projetos desenvolvidos pelas nossas empresas
     projects:
-      - constructorName: Nova Construtora
+      - constructorName: Parque Camboriú
         images:
-          - image: /uploads/posts/learning-to-blog.png
-        services:
-          - company: ARKENG
-            serviceItems:
-              - icon: fire
-                text: prevenção
-      - constructorName: novo projeto 08
-        images:
-          - image: /uploads/posts/learning-about-tinacms.png
-        services:
-          - company: ARKENG
-      - constructorName: Nova Construtora
-        images:
-          - image: /uploads/posts/learning-about-tinacloud.png
-        services:
-          - company: ARKENG
-            serviceItems:
-              - {}
-      - constructorName: item 7
-        images:
-          - image: /uploads/posts/learning-about-mermaid.png
+          - image: /uploads/PZ_EMPREENDIMENTOS_FACHADA_01 - Copia.jpg
             setAsMain: true
+        description: PZ Empreendimentos
+        services:
+          - {}
+          - company: ''
+            serviceItems:
+              - icon: group-layers
+                text: '123'
+      - constructorName: Maori Residence
+        images:
+          - image: /uploads/PB.155_Fachada 02.jpg
+          - image: /uploads/PB.155_Salão.jpg
+          - image: /uploads/PB.155_Fachada 01.jpg
+            setAsMain: true
+          - image: /uploads/PB.155_Piscina.jpg
+          - image: /uploads/PB.155_Living.jpg
+          - image: /uploads/PB.155_Hall.jpg
+        description: Conrado Empreendimentos
         services:
           - company: ARKENG
             serviceItems:
               - {}
-      - constructorName: item 6
+      - constructorName: Barra Residence
         images:
-          - image: /uploads/posts/learning-about-markdown.png
+          - image: /uploads/Barra Residence - Fachada 01- jpg.jpg
+            setAsMain: true
+        description: Quadra Empreendimentos
         services:
           - company: ARKENG
             serviceItems:
-              - {}
-      - constructorName: Novo projeto 05
-        images:
-          - image: /uploads/posts/learning-about-components.png
-            setAsMain: true
-        services:
+              - icon: ''
           - company: ARKENG
-      - constructorName: projeto 4 - teste
+      - constructorName: Atlantis Tower Residence
         images:
-          - image: /uploads/projects/e86b8c9a6ac34ba405486aecd815a3d381e13160.png
-        services:
-          - company: ARKENG
-      - constructorName: projeto 3
-        images:
-          - image: /uploads/projects/efae14e24d488bba2f8d8425ec911a303c34c095.jpg
+          - image: /uploads/PB.121_Fachada 01.jpg
             setAsMain: true
-        services:
-          - company: ARKENG
-      - constructorName: projeto 2
-        images:
-          - image: /uploads/projects/1febcfca266fad9bd050832ab4fef558efee0aee.jpg
-            setAsMain: true
-        services:
-          - company: ARKENG
-            serviceItems:
-              - icon: fire
-                text: prevenção
-      - constructorName: Primeiro Projeto
-        images:
-          - image: /uploads/posts/learning-to-blog.png
-          - image: /uploads/posts/learning-about-mermaid.png
-          - image: /uploads/posts/learning-about-tinacloud.png
-          - image: /uploads/posts/learning-about-markdown.png
-          - image: /uploads/posts/learning-to-blog.png
-          - image: /uploads/projects/1febcfca266fad9bd050832ab4fef558efee0aee.jpg
-          - image: /uploads/projects/0dff4ae60a4e8c092d9c9128299427fd6d76f50f.jpg
-            setAsMain: true
-        description: salve
+          - image: /uploads/PB.121_Deck.jpg
+          - image: /uploads/PB.121_Jogos.jpg
+          - image: /uploads/PB.121_Living.jpg
+          - image: /uploads/PB.121_Hidro.jpg
+        description: |-
+          PH Empreendimentos
+
+          Esse projeto e muito legal
         landArea:
-          value: '2000'
+          value: '780,00'
           icon: arrow-expand-02
         height:
-          value: '40'
+          value: '103,20'
           icon: right-angle
         location:
-          value: 'Bairro, Rua | numero'
+          value: Porto Belo | SC
           icon: maps-square-02
+        pavilions:
+          value: '30'
+        builtArea:
+          value: '10.350,00'
+        residentialUnits:
+          value: '70'
         commercialUnits:
-          value: '4'
+          value: '01'
           icon: store-01
         parkingSpaces:
-          value: '2'
+          value: '117'
           icon: parking-area-square
         services:
-          - company: ARKANE
-            serviceItems:
-              - icon: legal-document-01
-                text: Documentação...
           - company: ARKENG
             serviceItems:
               - icon: snow
@@ -134,68 +112,182 @@ blocks:
             serviceItems:
               - icon: brush
                 text: Pintura
+          - company: ARKANE
+            serviceItems:
+              - text: Ilustrações Internas
+              - icon: legal-document-01
+                text: Projeto de Fachada
+      - constructorName: D'Alture Residencial
+        images:
+          - image: /uploads/PB.125_Fachada 01.jpg
+            setAsMain: true
+        description: Nori & Nori
+        services:
+          - company: ARKENG
+            serviceItems:
+              - {}
+      - constructorName: Martiniquê Residence
+        images:
+          - image: /uploads/IT.114_02.jpg
+            setAsMain: true
+        description: ILÊ Construtora
+        services:
+          - company: ARKENG
+      - constructorName: Alameda Perequê
+        images:
+          - image: /uploads/PB.387_Fachada 01.jpg
+            setAsMain: true
+        description: Odeza Empreendimentos
+        services:
+          - company: ARKENG
+            serviceItems:
+              - {}
+      - constructorName: Villa Savoye
+        images:
+          - image: /uploads/VILLA SAVOYE- fachada 04.jpg
+            setAsMain: true
+        description: Aegis Empreendimentos
+        services:
+          - company: ARKENG
+      - constructorName: Due Fiori
+        images:
+          - image: /uploads/PB.280_Fachada 01.jpg
+            setAsMain: true
+        description: Capitali
+        landArea:
+          value: '1.000'
+        height:
+          value: 105m
+        location:
+          value: Porto Belo
+        services:
+          - company: ARKENG
+            serviceItems:
+              - {}
+      - constructorName: Mossel Bay Residence
+        images:
+          - image: /uploads/PB.76_Fachada 01.jpeg
+            setAsMain: true
+        description: Rohregger Empreendimentos
+        services:
+          - company: ARKENG
+      - constructorName: Las Vegas Home Club
+        images:
+          - image: /uploads/PB.214_Fachada 02.jpg
+            setAsMain: true
+        description: PH Empreendimentos
+        services:
+          - company: ARKENG
+      - constructorName: Condado di Petra
+        images:
+          - image: /uploads/PB.186_Fachada 01.jpg
+            setAsMain: true
+        description: 'D''Arrigo '
+        services:
+          - company: ARKENG
+      - constructorName: Tarumã Residencial
+        images:
+          - image: /uploads/PB.38_Fachada 01.jpg
+            setAsMain: true
+        description: AS. Ramos Empreendimentos
+        services:
+          - company: ARKENG
     _template: projects
-  - mainTitle: Soluções Inovadoras
-    description: Oferecemos soluções completas e personalizadas para o mercado imobiliário
-    companiesTitle: Soluções personalizadas para suas necessidades imobiliárias
+  - mainTitle: ''
+    description: >-
+      Através da abordagem colaborativa, o Grupo AE centraliza e integra
+      serviços e etapas do processo de desenvolvimento, buscando transformar
+      ideias em espaços inteligentes, desde a concepção criativa até a entrega
+      técnica e visual. 
+    companiesTitle: Nossos Serviços
     enableAutoRotate: true
-    autoRotateDelay: 2000
+    autoRotateDelay: 8000
     companies:
       - id: arkeng
         logo: /uploads/project-logos/ARKENG.png
         services:
-          - serviceName: novo serviço
-            modalContent:
-              detailedDescription: descrição...
-              howItWorksUrl: /link do botão
-              howItWorksButtonText: 'texto do botão, opcional'
-              features:
-                - caracteristia 1
-          - serviceName: novo item editável
-            modalContent:
-              detailedDescription: descrição
-              howItWorksUrl: url
-              features:
-                - item 3
-                - teste item 2
-                - teste 1
-          - serviceName: 'Sed ut perspiciatis unde omnis iste natus error sit '
+          - serviceName: Estudo de Viabilidade
             modalContent:
               detailedDescription: >-
-                Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-                accusantium doloremque laudantium
-              howItWorksUrl: 'https://github.com/ark-engineer'
+                Avaliação inicial para determinar o potencial construtivo do
+                terreno. Fundamenta decisões de investimento e orientações para
+                o projeto.
+              howItWorksUrl: ''
               features:
-                - 'sit '
-                - sit voluptatem accusantium doloremque
-                - 'Sed ut perspiciatis unde omnis iste natus error sit '
-                - Sed ut
+                - >-
+                  Levantamento técnico da legislação aplicável (zoneamento,
+                  recuos, gabarito, taxa de ocupação, coeficientes entre
+                  outros);
+                - 'Cenários de utilização da gleba (massas, fluxos, volumetria)'
+                - Estudo de Implantação e de manchas dos pavimentos;
+                - >-
+                  Quadros de unidades, vagas, áreas, outorga onerosa e
+                  eficiência;
+          - serviceName: Unificação de Lotes
+            modalContent:
+              detailedDescription: >-
+                Desenvolvimento, protocolo e acompanhamento do processo para
+                unir terrenos de diferentes matrículas junto a Prefeitura
+                Municipal
+              howItWorksUrl: ''
+              howItWorksButtonText: ''
+              features:
+                - Projeto de Unificação;
+                - Memorial Descritivo;
       - id: ebim
         logo: /uploads/logos/ebim.svg
         servicesTitle: ''
         services:
-          - serviceName: ''
+          - serviceName: 'Hidráulico, Sanitário e Drenagem Pluvial'
+            modalContent:
+              detailedDescription: Projetos executivos e processos de aprovação junto aos órgãos.
+              features:
+                - Instalações de água fria;
+                - Instalações de água quente;
+                - Instalações de esgoto sanitário;
+                - Instalações de águas pluviais;
+                - Sistema de tratamento de esgoto;
+                - ''
+                - ''
+                - ''
+                - ''
+                - ''
+                - ''
+                - ''
+          - serviceName: Elétrico
             modalContent:
               detailedDescription: Descrição detalhada...
               features:
                 - Recurso 1
-          - serviceName: Novo Serviço
+          - serviceName: 'Comunicação, Dados e Automação'
             modalContent:
               detailedDescription: Descrição detalhada...
               features:
                 - Recurso 1
-          - serviceName: Novo Serviço
-            modalContent:
-              detailedDescription: Descrição detalhada...
-              features:
-                - Recurso 1
-          - serviceName: Novo Serviço
-            modalContent:
-              detailedDescription: Descrição detalhada...
-              features:
-                - Recurso 1
-          - serviceName: Novo Serviço
+          - serviceName: Climatização
             modalContent: {}
+          - serviceName: Prevenção e Combate a Incêndio e Pânico
+            modalContent:
+              detailedDescription: Projeto executivo e processo de aprovação junto ao CBMSC.
+              features:
+                - 'Sistema preventivo por extintores (SPE); '
+                - Sistema hidráulico preventivo (SHP);
+                - Instalações de gás combustível (IGC);
+                - Sistemas de saída de emergência;
+                - Sistema de controle de fumaça (SCF);
+                - Sistema de iluminação de emergência (SIE);
+                - Sistema de detecção e alarme de incêndio (SDAI);
+                - Sinalização para abandono de local (SAL);
+                - >-
+                  Tempo de resistência ao fogo, compartimentação e isolamento de
+                  risco;
+                - Sistema de chuveiros automáticos (SPK);
+                - Controle de materiais de acabamento e revestimento (CMAR);
+                - Instalações elétrica de baixa tensão;
+                - Planos de emergência;
+                - Piscinas e áreas recreativas aquáticas;
+                - Acesso de viaturas.
+      - id: arkane
     images:
       - image: /uploads/projects/efae14e24d488bba2f8d8425ec911a303c34c095.jpg
         alt: Imagem 1
@@ -204,114 +296,130 @@ blocks:
       - image: /uploads/authors/lucy.png
         alt: Imagem 3
     _template: solutions
-  - titleAbout: Sobre Nós
+  - titleAbout: Quem Somos
     description: >-
-      Conheça nossa história, valores e a paixão que nos move a criar soluções
-      inovadoras para o mercado imobiliário.
+      A força do Grupo AE está na integração entre profissionais de arquitetura,
+      engenharia e artistas 3D. Nossa equipe multidisciplinar trabalha de forma
+      colaborativa para transformar ideias em projetos completos e visualmente
+      marcantes.
     purposeTitle: Propósito
     purposeDescription: >
-      Nosso propósito é **transformar ideias em realidade** através de soluções
-      integradas que *conectam tecnologia, criatividade e expertise técnica*
-      para entregar projetos que superam expectativas e criam valor duradouro
-      para nossos clientes.
+      O Grupo AE nasceu com o objetivo de criar **legado** e **valor** para
+      nossos clientes.
     columns:
-      - columnTitle: Nossa História
+      - columnTitle: Missão
         description: >
-          Fundada com a visão de **revolucionar o mercado imobiliário**, nossa
-          empresa nasceu da união de profissionais experientes que
-          compartilhavam o mesmo sonho: criar soluções que *fazem a diferença*
-          na vida das pessoas.
-
-
-          testando \*\*negrito… \*\**italico*
-      - columnTitle: Nossos Valores
+          Integrar arquitetura, engenharia e visualização 3D de forma orgânica,
+          desenvolvendo projetos que aliam eficiência, funcionalidade e valor.
+      - columnTitle: Valores
+        description: |
+          Rigor Técnico • Colaboração • Criatividade
+      - columnTitle: Visão
         description: >
-          Acreditamos na **excelência**, **transparência** e **inovação**. Cada
-          projeto é tratado com *dedicação única*, garantindo resultados que
-          superam as expectativas dos nossos clientes.
-      - columnTitle: Nossa Visão
-        description: >
-          Ser reconhecida como a **empresa líder** em soluções integradas para o
-          mercado imobiliário, sempre *inovando e criando valor* para nossos
-          clientes, colaboradores e sociedade.
+          Ser referência em soluções integradas em projetos, buscando
+          excelência, inovação e identidade.
     _template: aboutUs
-  - background: bg-default
+  - background: bg-black/80
     title_section: Nossa Equipe
     teamDescription: >
-      **lorem ipsum dolor** sit amet, At vero eos et accusamus et iusto odio
-      dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque
-      corrupti quos dolores et quas molestias excepturi sint
+      Conectamos arquitetos que pensam o espaço, engenheiros que viabilizam
+      ideias, e artistas visuais que tornam tudo tangível antes mesmo de ser
+      construído.
     members:
-      - name: Name
+      - name: Gabriel
         position: Cargo
-        photo: /uploads/authors/lucy.png
-        alt: Foto da Ana Silva
-      - name: Name
+        photo: ''
+        alt: ''
+      - name: Larissa
         position: Cargo
-        photo: /uploads/authors/llamantha.png
-        alt: Foto do Carlos Santos
-      - name: Name
+        photo: ''
+        alt: ''
+      - name: Nicoly
         position: Cargo
-        photo: /uploads/authors/napoleon.png
-        alt: Foto da Maria Oliveira
-      - name: Name
+        photo: ''
+        alt: ''
+      - name: João
         position: Cargo
-        photo: /uploads/authors/llamantha.png
-        alt: Foto do João Costa
-      - name: Luciana Ferreira
-        position: Gerente de Projetos
-        photo: /uploads/authors/pedro.png
-        alt: Foto da Luciana Ferreira
+        photo: ''
+        alt: ''
+      - name: Paulo
+        position: Cargo
+        photo: ''
+        alt: ''
+      - name: Eliseu
+        position: Cargo
+        photo: ''
+        alt: ''
+      - name: Germano
+        position: Cargo
+        photo: ''
+        alt: ''
+      - name: Gabriela
+        position: Cargo
+        photo: ''
+        alt: ''
+      - name: Eduardo
+        position: Cargo
+        photo: ''
+        alt: ''
+      - name: Réges
+        position: Cargo
+        photo: ''
+        alt: ''
+      - name: Gustavo
+        position: Cargo
+        photo: ''
+        alt: ''
     _template: teamSection
   - carouselTitle: Clientes
     speed: 100
     clients:
       - name: Novo Cliente
-        image: /uploads/clientes-logos/logoipsum-395.png
+        image: /uploads/clientes-logos/capitali.png
         alt: texto alternativo a imagem
         link: ''
       - name: logoipsum
-        image: /uploads/clientes-logos/logoipsum-372.png
+        image: /uploads/clientes-logos/asramos.png
         alt: alt logo
         link: ''
       - name: Novo Cliente
-        image: /uploads/clientes-logos/logoipsum-356.png
+        image: /uploads/clientes-logos/reskatrin.png
         alt: academy
         link: ''
     _template: clientsCarousel
   - background: bg-black/80
-    contactTitle: Tem alguma dúvida? Entre em contato conosco!
-    contactSubtitle: Sua opinião é importante para nós! Entre em contato e deixe seu feedback.
-    backgroundImage: uploads/contato/Rectangle 7.png
+    contactTitle: Vamos iniciar um projeto?
+    contactSubtitle: Entre em contato pelos nossos canais
+    backgroundImage: /uploads/contato/Rectangle%207.png
     contactItems:
       - icon: chat
-        itemTitle: Envie Mensagem
-        itemDescription: Converse conosco em tempo real
+        itemTitle: Novos projetos
+        itemDescription: Envie sua mensagem
         itemExtraText: contato@gr-ae.com
-      - icon: location
-        itemTitle: Endereço
-        itemDescription: Nos visite em nosso escritório
-        itemExtraText: 'Rua das Flores, 123 - Centro'
       - icon: phone
-        itemTitle: Telefone
-        itemDescription: Ligue para nós
-        itemExtraText: (11) 99999-9999
+        itemTitle: Fale conosco!
+        itemDescription: Seg. a Sex. das 8h às 18h
+        itemExtraText: +55 (47) 3170-4923
+      - icon: location
+        itemTitle: Visite-nos
+        itemDescription: Conheça nossa empresa
+        itemExtraText: 'Rua 264, 206 | Sala 05 Itapema/SC'
       - icon: users
-        itemTitle: Suporte
-        itemDescription: Nossa equipe está pronta para ajudar
-        itemExtraText: suporte@empresa.com
+        itemTitle: Talentos
+        itemDescription: Faça parte do time
+        itemExtraText: talentos@gr-ae.com
     _template: contact
   - logo: /uploads/project-logos/AE.svg
     text: Copyright © 2025. Todos os direitos reservados
     links:
       - label: Instagram
-        url: 'https://www.instagram.com/'
+        url: 'https://www.instagram.com/grupoae'
         icon: instagram
       - label: Whatsapp
         url: /
         icon: whatsapp
       - label: Location
-        url: /
+        url: 'https://maps.app.goo.gl/gfvpPEABYRUKjVCJ8'
         icon: location
     _template: footer
 ---
