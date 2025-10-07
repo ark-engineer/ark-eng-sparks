@@ -41,7 +41,8 @@ interface ProjectCardProps {
 
 export const Projects = ({ data }: { data: PageBlocksProjects }) => {
   const [activeFilters, setActiveFilters] = useState<Set<ProjectType>>(new Set());
-  const [selectedProject, setSelectedProject] = useState<PageBlocksProjectsProjects | null>(null)
+
+  const [selectedProjectIndex, setSelectedProjectIndex] = useState<number | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -53,8 +54,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const loadedImagesCount = useRef(0)
   const totalImagesCount = useRef(0)
-  
-  // NOVO: Estado para rastrear cards que entraram no viewport (para efeito grayscale mobile)
+
   const [cardsEnteredViewport, setCardsEnteredViewport] = useState<Set<number>>(new Set());
   const [isMobile, setIsMobile] = useState(false);
 
@@ -62,7 +62,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
     const arr = Array.from(activeFilters);
     return arr.length === 0 ? 'ALL' : arr.join(',');
   }, [activeFilters]);
-  
+
   const dataHash = useMemo(() => {
     return JSON.stringify(data?.projects?.map(p => ({
       name: p?.constructorName,
@@ -70,7 +70,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       services: p?.services?.length
     })))
   }, [data.projects])
-  
+
   const filteredProjects = useMemo(() => {
     if (!data.projects) return [];
     if (activeFilters.size === 0) {
@@ -82,7 +82,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       )
     );
   }, [data.projects, activeFilters, dataHash])
-  
+
   useEffect(() => {
     setImagesLoaded(false)
     loadedImagesCount.current = 0
@@ -103,20 +103,20 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       }
     }, 100)
   }, [dataHash, activeKey])
-  
+
   const activeTabForProps: AllProjects = useMemo(() => {
     if (activeFilters.size === 1) {
       return Array.from(activeFilters)[0] as AllProjects;
     }
     return "ALL";
   }, [activeFilters]);
-  
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsHoverDevice(window.matchMedia('(hover: hover)').matches)
       // NOVO: Detecta se é mobile
       setIsMobile(window.innerWidth < 768);
-      
+
       const handleResize = () => {
         setIsMobile(window.innerWidth < 768);
       };
@@ -124,7 +124,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       return () => window.removeEventListener('resize', handleResize);
     }
   }, [])
-  
+
   useEffect(() => {
     const options = {
       root: null, // viewport
@@ -160,7 +160,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       cards?.forEach((card) => observer.unobserve(card));
     };
   }, [filteredProjects, isMobile]);
-  
+
   useEffect(() => {
     let lastScrollY = 0
     const updateScrollDirection = () => {
@@ -204,7 +204,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       }
     }
   }, [scrollDirection])
-  
+
   const hoverAnimation = useMemo(() => {
     return isHoverDevice ? {
       scale: 1.01,
@@ -212,14 +212,14 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       transition: { duration: 0.1 },
     } : {}
   }, [isHoverDevice])
-  
+
   useEffect(() => {
     setImagesLoaded(false)
     loadedImagesCount.current = 0
     totalImagesCount.current = filteredProjects.length
     // NOVO: Reset do estado de cards que entraram no viewport ao mudar filtros
     setCardsEnteredViewport(new Set());
-    
+
     setTimeout(() => {
       const cards = scrollContainerRef.current?.querySelectorAll("[data-card-index]")
       if (cards) {
@@ -235,19 +235,19 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       }
     }, 50) // Reduced timeout
   }, [data.projects, activeKey, filteredProjects.length])
-  
-  const openProjectSidebar = (project: PageBlocksProjectsProjects) => {
+
+  const openProjectSidebar = (originalIndex: number) => {
     if (!isScrolling) {
-      setSelectedProject(project)
+      setSelectedProjectIndex(originalIndex)
       setSidebarOpen(true)
     }
   }
-  
+
   const closeSidebar = () => {
     setSidebarOpen(false)
-    setSelectedProject(null)
+    setSelectedProjectIndex(null)
   }
-  
+
   const updateFirstItemsInColumns = useCallback(() => {
     if (!scrollContainerRef.current) return;
     const container = scrollContainerRef.current;
@@ -285,7 +285,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       });
     });
   }, []);
-  
+
   const handleImageLoad = useCallback(async () => {
     loadedImagesCount.current += 1;
     if (loadedImagesCount.current >= totalImagesCount.current) {
@@ -293,7 +293,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       await updateFirstItemsInColumns();
     }
   }, [updateFirstItemsInColumns]);
-  
+
   useEffect(() => {
     if (!scrollContainerRef.current) return;
     let debounceTimer: number | null = null;
@@ -328,7 +328,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       if (debounceTimer) window.clearTimeout(debounceTimer);
     }
   }, [activeKey, imagesLoaded, updateFirstItemsInColumns]);
-  
+
   // Função para alternar (toggle) um filtro de empresa
   const toggleFilter = (company: ProjectType) => {
     setActiveFilters(prev => {
@@ -341,9 +341,19 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       return next;
     });
   };
-  
+
+  // CLOSE SIDEBAR IF PROJECT DISAPPEARS / INDEX INVALID
+  useEffect(() => {
+    if (selectedProjectIndex !== null) {
+      if (!data.projects || !data.projects[selectedProjectIndex]) {
+        setSidebarOpen(false)
+        setSelectedProjectIndex(null)
+      }
+    }
+  }, [data.projects, selectedProjectIndex])
+
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className="relative select-none">
       <Section
         background={data.background!}
         className="px-[2.75rem] sticky top-0 z-10 bg-white/95 backdrop-blur-sm"
@@ -396,39 +406,45 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
           animate="visible"
         >
           <AnimatePresence mode="sync">
-            {filteredProjects.map((project, index) => (
-              <motion.div
-                key={`${activeKey}-${project?.constructorName ?? index}-${index}`}
-                data-card-index={index}
-                custom={scrollDirection}
-                variants={cardVariants}
-                initial="hidden"
-                animate={visibleCards.has(index) ? "visible" : "hidden"}
-                exit="exit"
-                className="masonry-item break-inside-avoid mb-4"
-                whileHover={hoverAnimation}
-                style={{
-                  transformOrigin: scrollDirection === "down" ? "bottom" : "top",
-                }}
-                data-tina-field={tinaField(data, `projects.${index}` as any)}
-              >
-                <ProjectCard
-                  key={`${activeKey}-${index}`}
-                  project={project!}
-                  activeTab={activeTabForProps}
-                  onProjectClick={() => openProjectSidebar(project!)}
-                  onImageLoad={handleImageLoad}
-                  isVisible={visibleCards.has(index)}
-                  hasEnteredViewport={cardsEnteredViewport.has(index)}
-                />
-              </motion.div>
-            ))}
+            {filteredProjects.map((project, index) => {
+              const originalIndex = data.projects?.findIndex(p => p === project) ?? index;
+
+              return (
+                <motion.div
+                  key={`${activeKey}-${project?.constructorName ?? index}-${index}`}
+                  data-card-index={index}
+                  data-original-index={originalIndex}
+                  custom={scrollDirection}
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate={visibleCards.has(index) ? "visible" : "hidden"}
+                  exit="exit"
+                  className="masonry-item break-inside-avoid mb-4"
+                  whileHover={hoverAnimation}
+                  style={{
+                    transformOrigin: scrollDirection === "down" ? "bottom" : "top",
+                  }}
+                  data-tina-field={tinaField(data, `projects.${originalIndex}` as any)}
+                >
+                  <ProjectCard
+                    key={`${activeKey}-${index}`}
+                    project={project!}
+                    activeTab={activeTabForProps}
+                    // passe o originalIndex para abrir o sidebar baseado no array fonte
+                    onProjectClick={() => openProjectSidebar(originalIndex)}
+                    onImageLoad={handleImageLoad}
+                    isVisible={visibleCards.has(index)}
+                    hasEnteredViewport={cardsEnteredViewport.has(index)}
+                  />
+                </motion.div>
+              )
+            })}
           </AnimatePresence>
         </motion.div>
       </div>
       <AnimatePresence>
-        {sidebarOpen && selectedProject && (
-          <ProjectSidebar project={selectedProject} activeTab={activeTabForProps} onClose={closeSidebar} />
+        {sidebarOpen && selectedProjectIndex !== null && data.projects && data.projects[selectedProjectIndex] && (
+          <ProjectSidebar project={data.projects[selectedProjectIndex]!} activeTab={activeTabForProps} onClose={closeSidebar} />
         )}
       </AnimatePresence>
     </div>
@@ -450,7 +466,7 @@ const ProjectCard = ({
   const startPosition = useRef<{ x: number; y: number } | null>(null)
   const isDragging = useRef(false)
   const MOVE_THRESHOLD = 10
-  
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsMobile(window.innerWidth < 768);
@@ -461,21 +477,21 @@ const ProjectCard = ({
       return () => window.removeEventListener('resize', handleResize);
     }
   }, []);
-  
+
   const handleImageLoad = () => {
     if (!imageLoaded) {
       setImageLoaded(true)
       onImageLoad()
     }
   }
-  
+
   const handlePointerDown: React.PointerEventHandler = (e) => {
     if (e.pointerType === "mouse" && e.button !== 0) return
     startPosition.current = { x: e.clientX, y: e.clientY }
     isDragging.current = false
     setPressed(true)
   }
-  
+
   const handlePointerMove: React.PointerEventHandler = (e) => {
     if (!startPosition.current) return
     const deltaX = Math.abs(e.clientX - startPosition.current.x)
@@ -485,7 +501,7 @@ const ProjectCard = ({
       setPressed(false)
     }
   }
-  
+
   const handlePointerUp: React.PointerEventHandler = () => {
     if (!isDragging.current) {
       onProjectClick()
@@ -493,19 +509,19 @@ const ProjectCard = ({
     setPressed(false)
     startPosition.current = null
   }
-  
+
   const handlePointerLeave: React.PointerEventHandler = () => {
     setPressed(false)
     startPosition.current = null
   }
-  
+
   const handleKeyDown: React.KeyboardEventHandler = (e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault()
       onProjectClick()
     }
   }
-  
+
   const overlayOpacityClass = pressed
     ? "opacity-100"
     : "opacity-0 group-hover:opacity-100"
@@ -526,10 +542,10 @@ const ProjectCard = ({
     >
       <motion.div
         initial={{ filter: isMobile ? 'grayscale(100%)' : 'grayscale(0%)' }}
-        animate={{ 
+        animate={{
           filter: isMobile ? (hasEnteredViewport ? 'grayscale(0%)' : 'grayscale(100%)') : 'grayscale(0%)'
         }}
-        transition={{ 
+        transition={{
           duration: 0.8,
           delay: hasEnteredViewport ? 0.6 : 0,
           ease: [0.4, 0, 0.2, 1]
@@ -541,11 +557,14 @@ const ProjectCard = ({
             height={400}
             src={mainImage.image}
             alt={project.constructorName || "Imagem do Projeto"}
-            className="object-cover w-full h-auto pointer-events-none"
+            className="object-cover w-full h-auto pointer-events-none select-none"
             loading="eager"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             onLoad={handleImageLoad}
             onError={handleImageLoad}
+            draggable={false}
+            onContextMenu={(e) => e.preventDefault()}
+            onDragStart={(e) => e.preventDefault()}
           />
         )}
       </motion.div>
@@ -699,8 +718,8 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
     <div className="flex items-center space-x-3" data-tina-field={tinaField(project, detail.key as any)}>
       <HugeiconsIcon icon={getIcon(detail.icon)} size={20} color="#6B7280" strokeWidth={1.5} className="text-gray-500" />
       <div className="flex flex-col">
-        <span className="text-xs text-black font-normal capitalize text-gray-400">{detail.label}:</span>
-        <span className="text-base text-black font-bold capitalize">
+        <span className="text-xs text-black font-normal text-gray-400">{detail.label}:</span>
+        <span className="text-base text-black font-bold">
           {detail.value} {detail.key.includes('Area') ? 'M²' : ''}
         </span>
       </div>
@@ -708,17 +727,17 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
   );
   return (
     <>
-      <div id='sidebar-content' className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[90vw] lg:min-w-[90vw] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 rounded-t-2xl backdrop-blur-md shadow-lg [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)] z-70 flex flex-col">
+      <div id='sidebar-content' className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[90vw] lg:min-w-[90vw] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 rounded-t-2xl backdrop-blur-md shadow-lg [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)] z-70 flex flex-col select-none">
         <div className="flex-shrink-0 flex items-center justify-between p-6 pb-4 bg-white/95 backdrop-blur-md rounded-t-2xl">
           <div className="flex flex-col align-left">
             <h2 className="text-2xl font-semibold leading-none" data-tina-field={tinaField(project, 'constructorName')}>
               {project.constructorName}
             </h2>
-              <p className="text-lg leading-tight" data-tina-field={tinaField(project, 'description')}>
-                {project.description}
-              </p>
+            <p className="text-lg leading-tight" data-tina-field={tinaField(project, 'description')}>
+              {project.description}
+            </p>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose} className='cursor-pointer flex-shrink-0'>
+          <Button variant="ghost" size="sm" onClick={onClose} className='absolute right-3 top-4 cursor-pointer flex-shrink-0 hover:scale-130 transition-200'>
             <HugeiconsIcon icon={HugeIcons.Cancel01Icon} size={20} color="#6B7280" strokeWidth={1.5} className="text-gray-500" />
           </Button>
         </div>
@@ -739,9 +758,12 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                             key={`mobile-${currentPage}-${currentMobileImageIndex}`}
                             src={currentPageImages[currentMobileImageIndex]?.image || ''}
                             alt={`${project.constructorName} - ${currentMobileImageIndex + 1}`}
-                            className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
+                            className="w-full h-full object-cover select-none transition-all duration-500 ease-in-out transform"
                             style={{ animation: 'fadeInSlide 0.5s ease-in-out' }}
                             data-tina-field={tinaField(project, 'images')}
+                            draggable={false}
+                            onContextMenu={(e) => e.preventDefault()}
+                            onDragStart={(e) => e.preventDefault()}
                           />
                           {/* Zoom button */}
                           <button
@@ -837,9 +859,12 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                             key={`main-${currentPage}`}
                             src={mainImage?.image || ''}
                             alt={project.constructorName || 'Projeto'}
-                            className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
+                            className="w-full h-full object-cover select-none transition-all duration-500 ease-in-out transform"
                             style={{ animation: 'fadeInSlide 0.5s ease-in-out' }}
                             data-tina-field={tinaField(project, 'images')}
+                            draggable={false}
+                            onContextMenu={(e) => e.preventDefault()}
+                            onDragStart={(e) => e.preventDefault()}
                           />
                           <button
                             onClick={() => openFullscreen(startIndex)}
@@ -875,8 +900,11 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                                 <img
                                   src={img?.image || ''}
                                   alt={`${project.constructorName} - ${index + 2}`}
-                                  className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
+                                  className="w-full h-full object-cover select-none transition-all duration-500 ease-in-out transform"
                                   style={{ animation: `fadeInSlide 0.5s ease-in-out ${index * 0.1}s both` }}
+                                  draggable={false}
+                                  onContextMenu={(e) => e.preventDefault()}
+                                  onDragStart={(e) => e.preventDefault()}
                                 />
                                 <button
                                   onClick={() => openFullscreen(startIndex + index + 1)}
@@ -935,8 +963,11 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                           key={`fullscreen-${fullscreenImageIndex}`}
                           src={images[fullscreenImageIndex]?.image || ""}
                           alt={`${project.constructorName} - ${fullscreenImageIndex + 1}`}
-                          className="max-w-full max-h-full object-contain transition-all duration-500 ease-in-out rounded-lg"
+                          className="max-w-full max-h-full select-none object-contain transition-all duration-500 ease-in-out rounded-lg"
                           style={{ animation: "fadeInSlide 0.5s ease-in-out" }}
+                          draggable={false}
+                          onContextMenu={(e) => e.preventDefault()}
+                          onDragStart={(e) => e.preventDefault()}
                         />
                         <button
                           onClick={closeFullscreen}
@@ -967,7 +998,10 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                 </div>
                 {project.services && project.services.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-semibold mb-4 border-t-2 border-gray-200 py-[0.75rem]">Serviços</h3>
+                    <h3 className="text-lg font-semibold mb-4 border-t-2 border-gray-200 py-[0.75rem]"
+                      data-tina-field={tinaField(project, 'servicesTitle' as any)}
+                    >{project.servicesTitle || "Serviços desenvolvidos"}</h3>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                       {uniqueCompanies.map((company) => {
                         const companyServices = project.services?.filter((service) => service?.company === company) || [];
@@ -981,7 +1015,10 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                                 width={38}
                                 height={38}
                                 alt={`${company} logo`}
-                                className="bg-[black] rounded-full object-contain "
+                                className="bg-[black] rounded-full object-contain select-none pointer-events-none"
+                                draggable={false}
+                                onContextMenu={(e) => e.preventDefault()}
+                                onDragStart={(e) => e.preventDefault()}
                               />
                               <span>{company}</span>
                             </h4>
@@ -1026,12 +1063,13 @@ export const projectsBlockSchema: Template = {
         {
           constructorName: 'Projeto',
           description: 'Projeto moderno',
+          servicesTitle: "Serviços desenvolvidos",
           services: [
             {
               company: 'ARKENG',
               serviceItems: [
                 {
-                  icon: '', 
+                  icon: '',
                   text: 'Estrutura de Concreto',
                 },
               ],
@@ -1073,7 +1111,7 @@ export const projectsBlockSchema: Template = {
       fields: [
         {
           type: 'string',
-          label: 'Nome da Construtora',
+          label: 'Nome do Projeto',
           name: 'constructorName',
           required: true,
         },
@@ -1350,6 +1388,11 @@ export const projectsBlockSchema: Template = {
               },
             },
           ],
+        },
+        {
+          type: 'string',
+          label: 'Serviços desenvolvidos',
+          name: 'servicesTitle',
         },
         {
           type: 'object',
