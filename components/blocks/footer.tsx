@@ -18,7 +18,7 @@ import {
 } from '@hugeicons/core-free-icons';
 import type { PageBlocksFooter } from '@/tina/__generated__/types';
 
-const options = ['instagram', 'whatsapp', 'location'];
+const options = ['instagram', 'whatsapp', 'location', 'custom'];
 const iconsMap: Record<string, IconSvgObject> = {
   instagram: InstagramIcon,
   whatsapp: WhatsappIcon,
@@ -33,7 +33,7 @@ const CustomSelect = ({ input }: any) => {
     >
       {options.map((option) => (
         <option key={option} value={option}>
-          {option}
+          {option === 'custom' ? 'Customizado' : option}
         </option>
       ))}
     </select>
@@ -88,7 +88,10 @@ export const Footer = ({ data }: { data: PageBlocksFooter }) => {
       <div className="flex flex-col justify-end p-[20px] max-[640px]:items-center max-[640px]:p-2">
         <div className="flex flex-row gap-4 max-[640px]:mb-2">
           {data?.links?.map((link, i) => {
-            const IconComp = link?.icon ? iconsMap[link.icon] : null;
+            const IconComp = link?.icon && link.icon !== 'custom' ? iconsMap[link.icon] : null;
+            const isCustom = link?.icon === 'custom';
+            const customIconSrc = link?.customImage;
+            
             return (
               <motion.div
                 key={i}
@@ -101,13 +104,22 @@ export const Footer = ({ data }: { data: PageBlocksFooter }) => {
                   aria-label={link?.label || 'footer link'}
                   data-tina-field={tinaField(link, 'url')}
                 >
-                  {IconComp && (
+                  {isCustom && customIconSrc ? (
+                    <Image
+                      src={customIconSrc}
+                      width={24}
+                      height={24}
+                      alt={link?.label || 'custom icon'}
+                      data-tina-field={tinaField(link, 'customImage')}
+                      className="cursor-pointer transition-transform duration-200 max-[640px]:w-6 max-[640px]:h-6"
+                    />
+                  ) : IconComp ? (
                     <HugeiconsIcon
                       name={link?.icon as string}
                       icon={IconComp}
                       className="cursor-pointer transition-transform duration-200 max-[640px]:text-2xl"
                     />
-                  )}
+                  ) : null}
                 </Link>
               </motion.div>
             );
@@ -179,9 +191,16 @@ export const footerBlockSchema: Template = {
           type: 'string',
           name: 'icon',
           label: 'Ícone',
+          description: 'Escolha um ícone padrão ou "Customizado" para usar sua própria imagem',
           ui: {
             component: CustomSelect,
           },
+        },
+        {
+          type: 'image',
+          name: 'customImage',
+          label: 'Imagem Customizada',
+          description: 'Faça upload de um ícone customizado (recomendado: 24x24px, formato SVG ou PNG). Você pode baixar ícones em https://hugeicons.com/icons',
         },
       ],
     },

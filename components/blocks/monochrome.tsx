@@ -35,6 +35,9 @@ export const Monochrome = ({ data }: { data: MonochromeData }) => {
   const opacity = useTransform(smoothProgress, [0, 0.2, 0.4, 0.8, 0.9], [0, 0.9, 0.9, 1, 0.4]);
   const contentY = useTransform(smoothProgress, [0, 0.5, 0.9], [50, 0, -50]);
   const contentOpacity = useTransform(smoothProgress, [0, 0.15, 0.8, 0.9], [0, 1, 1, 0]);
+  
+  // Animação de escala: cresce ao aproximar (0.5) e diminui ao afastar
+  const scale = useTransform(smoothProgress, [0, 0.3, 0.5, 0.7, 0.9], [0.85, 0.95, 1, 0.95, 0.85]);
 
   const content = data.textRich ?? { type: 'root', children: [] };
 
@@ -47,6 +50,7 @@ export const Monochrome = ({ data }: { data: MonochromeData }) => {
             backgroundImage: `url(${data.backgroundImage})`,
             y: contentY,
             opacity,
+            scale,
           }}
         >
           <div className="flex flex-col md:flex-row items-center gap-8 p-8" style={{ minHeight: 'inherit' }}>
