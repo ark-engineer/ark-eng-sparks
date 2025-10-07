@@ -41,7 +41,6 @@ interface ProjectCardProps {
 
 export const Projects = ({ data }: { data: PageBlocksProjects }) => {
   const [activeFilters, setActiveFilters] = useState<Set<ProjectType>>(new Set());
-
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -54,7 +53,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const loadedImagesCount = useRef(0)
   const totalImagesCount = useRef(0)
-
   const [cardsEnteredViewport, setCardsEnteredViewport] = useState<Set<number>>(new Set());
   const [isMobile, setIsMobile] = useState(false);
 
@@ -88,7 +86,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
     loadedImagesCount.current = 0
     totalImagesCount.current = filteredProjects.length
     setTimeout(() => {
-      // Re-calculate visible cards
       const cards = scrollContainerRef.current?.querySelectorAll("[data-card-index]")
       if (cards) {
         const newVisibleCards = new Set<number>()
@@ -114,7 +111,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsHoverDevice(window.matchMedia('(hover: hover)').matches)
-      // NOVO: Detecta se é mobile
       setIsMobile(window.innerWidth < 768);
 
       const handleResize = () => {
@@ -127,8 +123,8 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
 
   useEffect(() => {
     const options = {
-      root: null, // viewport
-      threshold: 0.1, // trigger when 10% visible
+      root: null,
+      threshold: 0.1,
     };
     const observer = new IntersectionObserver((entries) => {
       setVisibleCards((prev) => {
@@ -137,7 +133,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
           const index = parseInt(entry.target.getAttribute('data-card-index') || '0', 10);
           if (entry.isIntersecting) {
             newSet.add(index);
-            // NOVO: Marca que o card entrou no viewport (para efeito grayscale)
             if (isMobile) {
               setCardsEnteredViewport(prevEntered => {
                 const newEntered = new Set(prevEntered);
@@ -217,7 +212,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
     setImagesLoaded(false)
     loadedImagesCount.current = 0
     totalImagesCount.current = filteredProjects.length
-    // NOVO: Reset do estado de cards que entraram no viewport ao mudar filtros
     setCardsEnteredViewport(new Set());
 
     setTimeout(() => {
@@ -233,7 +227,7 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
         })
         setVisibleCards(newVisibleCards)
       }
-    }, 50) // Reduced timeout
+    }, 50)
   }, [data.projects, activeKey, filteredProjects.length])
 
   const openProjectSidebar = (originalIndex: number) => {
@@ -278,7 +272,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       columns.forEach((colItems, colIndex) => {
         colItems.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
         const first = colItems[0];
-        // Marca apenas 1ª e 3ª coluna (índices 0 e 2)
         if (first && (colIndex === 0 || colIndex === 2)) {
           first.classList.add('first-in-target');
         }
@@ -301,7 +294,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
       if (debounceTimer) window.clearTimeout(debounceTimer);
       debounceTimer = window.setTimeout(fn, wait);
     }
-    // Observer para mudanças no DOM (menos agressivo)
     const observer = new MutationObserver(() => {
       if (imagesLoaded) {
         debounce(updateFirstItemsInColumns, 200);
@@ -309,16 +301,14 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
     });
     observer.observe(scrollContainerRef.current, {
       childList: true,
-      subtree: false // Reduz a sensibilidade
+      subtree: false
     });
-    // Resize handler otimizado
     const handleResize = () => {
       if (imagesLoaded) {
         debounce(updateFirstItemsInColumns, 300);
       }
     };
     window.addEventListener('resize', handleResize);
-    // Execução inicial apenas se as imagens já carregaram
     if (imagesLoaded) {
       setTimeout(updateFirstItemsInColumns, 100);
     }
@@ -329,7 +319,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
     }
   }, [activeKey, imagesLoaded, updateFirstItemsInColumns]);
 
-  // Função para alternar (toggle) um filtro de empresa
   const toggleFilter = (company: ProjectType) => {
     setActiveFilters(prev => {
       const next = new Set(prev);
@@ -342,7 +331,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
     });
   };
 
-  // CLOSE SIDEBAR IF PROJECT DISAPPEARS / INDEX INVALID
   useEffect(() => {
     if (selectedProjectIndex !== null) {
       if (!data.projects || !data.projects[selectedProjectIndex]) {
@@ -374,7 +362,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
             </h2>
             <div className="flex justify-center">
               <div className="flex p-1 gap-2">
-                {/* Removed ALL button, only render the company filters */}
                 {(["ARKENG", "eBIM", "ARKANE"] as ProjectType[]).map((tab, index) => (
                   <motion.div
                     key={tab}
@@ -430,7 +417,6 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
                     key={`${activeKey}-${index}`}
                     project={project!}
                     activeTab={activeTabForProps}
-                    // passe o originalIndex para abrir o sidebar baseado no array fonte
                     onProjectClick={() => openProjectSidebar(originalIndex)}
                     onImageLoad={handleImageLoad}
                     isVisible={visibleCards.has(index)}
@@ -677,10 +663,8 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
   ].filter((detail) => detail.value);
   const nextPage = () => setCurrentPage((prev) => (prev + 1) % totalPages);
   const prevPage = () => setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
-  // Mobile image navigation
   const nextMobileImage = () => setCurrentMobileImageIndex((prev) => (prev + 1) % currentPageImages.length);
   const prevMobileImage = () => setCurrentMobileImageIndex((prev) => (prev - 1 + currentPageImages.length) % currentPageImages.length);
-  // Reset mobile image index when page changes
   useEffect(() => {
     setCurrentMobileImageIndex(0);
   }, [currentPage]);
@@ -741,14 +725,12 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
             <HugeiconsIcon icon={HugeIcons.Cancel01Icon} size={20} color="#6B7280" strokeWidth={1.5} className="text-gray-500" />
           </Button>
         </div>
-        {/* Content Scrollable */}
         <div className={`flex-1 overflow-y-auto project-sidebar-scrollable ${isFullscreen ? 'p-0 overflow-hidden' : ''}`}>
           <div className={`space-y-6 ${isFullscreen ? 'h-full flex flex-col' : 'p-6'}`}>
             {images.length > 0 && (
               <div className="space-y-4 flex-1 flex flex-col">
                 {!isFullscreen ? (
                   <>
-                    {/* Mobile View - Single Image */}
                     <div className="block md:hidden">
                       <div className="relative h-[290px] overflow-hidden rounded-lg">
                         <div
@@ -765,7 +747,6 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                             onContextMenu={(e) => e.preventDefault()}
                             onDragStart={(e) => e.preventDefault()}
                           />
-                          {/* Zoom button */}
                           <button
                             onClick={() => openFullscreen(startIndex + currentMobileImageIndex)}
                             className="cursor-pointer absolute top-2 right-2 transition-all duration-200 hover:scale-110 rounded-full p-1 backdrop-blur-sm"
@@ -788,7 +769,6 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                               />
                             </svg>
                           </button>
-                          {/* Navigation arrows - only show if there are multiple images */}
                           {currentPageImages.length > 1 && (
                             <>
                               <button
@@ -811,7 +791,6 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                               </button>
                             </>
                           )}
-                          {/* Image counter */}
                           <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1">
                             <span className="text-white text-sm font-medium">
                               {currentMobileImageIndex + 1} / {currentPageImages.length}
@@ -819,7 +798,6 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                           </div>
                         </div>
                       </div>
-                      {/* Mobile dot navigation for current page images */}
                       {currentPageImages.length > 1 && (
                         <DotNavigation
                           total={currentPageImages.length}
@@ -828,7 +806,6 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                           maxWidth={400}
                         />
                       )}
-                      {/* Page navigation for mobile */}
                       {totalPages > 1 && (
                         <div className="flex justify-center items-center gap-4 mt-4">
                           <button
@@ -849,7 +826,6 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                         </div>
                       )}
                     </div>
-                    {/* Desktop View - Modified Layout (50/50) */}
                     <div className="hidden md:block">
                       <div className="flex gap-[0.625rem] h-[290px] overflow-hidden">
                         <div
@@ -889,7 +865,6 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                             </svg>
                           </button>
                         </div>
-                        {/* Thumbnails Grid - Now 50% */}
                         {hasThumbnails && (
                           <div className="w-1/2 grid grid-cols-2 gap-[0.625rem] relative max-h-[290px]">
                             {thumbnailImages.map((img, index) => (
@@ -914,7 +889,6 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                                 </button>
                               </div>
                             ))}
-                            {/* Page Navigation Controls */}
                             {totalPages > 1 && thumbnailImages.length > 0 && (
                               <div className="absolute bottom-2 right-2 flex gap-1">
                                 <button
@@ -934,7 +908,6 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                           </div>
                         )}
                       </div>
-                      {/* Desktop Dot Navigation */}
                       {totalPages > 1 && <DotNavigation total={totalPages} activeIndex={currentPage} onClick={setCurrentPage} />}
                     </div>
                   </>
@@ -1401,6 +1374,9 @@ export const projectsBlockSchema: Template = {
           name: 'services',
           ui: {
             max: 3,
+            itemProps: (item: any) => ({
+              label: item?.company ? `${item.company}` : 'Serviço (sem empresa)',
+            }),
           },
           fields: [
             {
@@ -1420,6 +1396,11 @@ export const projectsBlockSchema: Template = {
               list: true,
               label: 'Itens de Serviço',
               name: 'serviceItems',
+              ui: {
+                itemProps: (item: any) => ({
+                  label: item?.text ? item.text : 'Item de serviço',
+                }),
+              },
               fields: [
                 {
                   type: 'string',
