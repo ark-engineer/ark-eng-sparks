@@ -586,6 +586,31 @@ const getIcon = (iconKey?: string) =>
     ? iconMap[iconKey as keyof typeof iconMap]
     : HugeIcons.RulerFreeIcons;
 
+const renderIcon = (iconObj?: { icon?: string; customImage?: string } | string, size = 18, props: any = {}) => {
+  if (!iconObj) return null;
+
+  if (typeof iconObj === 'string') {
+    const hugeIcon = getIcon(iconObj);
+    return <HugeiconsIcon icon={hugeIcon} size={size} {...props} />;
+  }
+
+  if (iconObj.customImage) {
+    return (
+      <Image
+        src={iconObj.customImage}
+        width={size}
+        height={size}
+        alt="icon"
+        data-tina-field={tinaField(iconObj as any, 'customImage')}
+        className="object-contain select-none"
+        {...props}
+      />
+    );
+  }
+
+  const huge = getIcon(iconObj.icon);
+  return <HugeiconsIcon icon={huge} size={size} {...props} />;
+};
 
 const DotNavigation = React.memo(({ total, activeIndex, onClick, maxWidth = 800 }: {
   total: number;
@@ -651,16 +676,18 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
   const hasOnlyOneImage = currentPageImages.length === 1;
   const mainImage = currentPageImages[0];
   const thumbnailImages = useMemo(() => currentPageImages.slice(1, 5), [currentPageImages]);
-  const projectDetails: any = [
-    { key: 'landArea', label: 'área do terreno', value: project.landArea?.value, icon: project.landArea?.icon },
-    { key: 'location', label: 'localização', value: project.location?.value, icon: project.location?.icon },
-    { key: 'height', label: 'altura', value: project.height?.value, icon: project.height?.icon },
-    { key: 'pavilions', label: 'pavimentos', value: project.pavilions?.value, icon: project.pavilions?.icon },
-    { key: 'builtArea', label: 'área construída', value: project.builtArea?.value, icon: project.builtArea?.icon },
-    { key: 'residentialUnits', label: 'unid. residenciais', value: project.residentialUnits?.value, icon: project.residentialUnits?.icon },
-    { key: 'commercialUnits', label: 'unid. comerciais', value: project.commercialUnits?.value, icon: project.commercialUnits?.icon },
-    { key: 'parkingSpaces', label: 'vagas de garagem', value: project.parkingSpaces?.value, icon: project.parkingSpaces?.icon },
+
+  const projectDetails = [
+    { key: 'landArea', label: 'área do terreno', value: project.landArea?.value, iconObj: project.landArea },
+    { key: 'location', label: 'localização', value: project.location?.value, iconObj: project.location },
+    { key: 'height', label: 'altura', value: project.height?.value, iconObj: project.height },
+    { key: 'pavilions', label: 'pavimentos', value: project.pavilions?.value, iconObj: project.pavilions },
+    { key: 'builtArea', label: 'área construída', value: project.builtArea?.value, iconObj: project.builtArea },
+    { key: 'residentialUnits', label: 'unid. residenciais', value: project.residentialUnits?.value, iconObj: project.residentialUnits },
+    { key: 'commercialUnits', label: 'unid. comerciais', value: project.commercialUnits?.value, iconObj: project.commercialUnits },
+    { key: 'parkingSpaces', label: 'vagas de garagem', value: project.parkingSpaces?.value, iconObj: project.parkingSpaces },
   ].filter((detail) => detail.value);
+
   const nextPage = () => setCurrentPage((prev) => (prev + 1) % totalPages);
   const prevPage = () => setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
   const nextMobileImage = () => setCurrentMobileImageIndex((prev) => (prev + 1) % currentPageImages.length);
@@ -698,17 +725,19 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
       ),
     [project.services]
   );
-  const ProjectDetailItem = ({ detail }: { detail: ProjectDetail }) => (
+
+  const ProjectDetailItem = ({ detail }: { detail: any }) => (
     <div className="flex items-center space-x-3" data-tina-field={tinaField(project, detail.key as any)}>
-      <HugeiconsIcon icon={getIcon(detail.icon)} size={20} color="#6B7280" strokeWidth={1.5} className="text-gray-500" />
+      {renderIcon(detail.iconObj, 20, { color: '#6B7280', strokeWidth: 1.5, className: 'text-gray-500' })}
       <div className="flex flex-col">
         <span className="text-xs text-black font-normal text-gray-400">{detail.label}:</span>
         <span className="text-base text-black font-bold">
-          {detail.value} {detail.key.includes('Area') ? 'M²' : ''}
+          {detail.value} {String(detail.key).toLowerCase().includes('area') ? 'M²' : ''}
         </span>
       </div>
     </div>
   );
+
   return (
     <>
       <div id='sidebar-content' className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[90vw] lg:min-w-[90vw] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 rounded-t-2xl backdrop-blur-md shadow-lg [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)] z-70 flex flex-col select-none">
@@ -1000,8 +1029,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                                 <div key={serviceIndex}>
                                   {service?.serviceItems?.map((item, itemIndex) => (
                                     <div key={itemIndex} className="flex items-start space-x-2 text-sm text-gray-400">
-                                      {item?.icon && <HugeiconsIcon icon={getIcon(item.icon)} size={18} color="#374151" />}
-                                      <span className="flex-1" data-tina-field={tinaField(item, 'text')}>
+                                      {renderIcon(item as any, 18, { color: '#374151' })}                                      <span className="flex-1" data-tina-field={tinaField(item, 'text')}>
                                         {item?.text}
                                       </span>
                                     </div>
@@ -1114,6 +1142,8 @@ export const projectsBlockSchema: Template = {
             component: 'textarea',
           },
         },
+
+        // Área do Terreno
         {
           type: 'object',
           label: 'Área do Terreno',
@@ -1140,11 +1170,20 @@ export const projectsBlockSchema: Template = {
                   { value: 'home-12', label: 'Casa' },
                   { value: 'store-01', label: 'Loja' },
                   { value: 'parking-area-square', label: 'Área de Estacionamento' },
+                  { value: 'custom', label: 'Customizado' },
                 ],
               },
             },
+            {
+              type: 'image',
+              label: 'Ícone Customizado (SVG/PNG, 24x24 recomendado)',
+              name: 'customImage',
+              description: 'Faça upload de um ícone customizado (aparecerá no frontend se presente).',
+            },
           ],
         },
+
+        // Altura
         {
           type: 'object',
           label: 'Altura',
@@ -1171,11 +1210,20 @@ export const projectsBlockSchema: Template = {
                   { value: 'home-12', label: 'Casa' },
                   { value: 'store-01', label: 'Loja' },
                   { value: 'parking-area-square', label: 'Área de Estacionamento' },
+                  { value: 'custom', label: 'Customizado' },
                 ],
               },
             },
+            {
+              type: 'image',
+              label: 'Ícone Customizado (SVG/PNG)',
+              name: 'customImage',
+              description: 'Faça upload de um ícone customizado (aparecerá no frontend se presente).',
+            },
           ],
         },
+
+        // Localização
         {
           type: 'object',
           label: 'Localização',
@@ -1202,11 +1250,20 @@ export const projectsBlockSchema: Template = {
                   { value: 'home-12', label: 'Casa' },
                   { value: 'store-01', label: 'Loja' },
                   { value: 'parking-area-square', label: 'Área de Estacionamento' },
+                  { value: 'custom', label: 'Customizado' },
                 ],
               },
             },
+            {
+              type: 'image',
+              label: 'Ícone Customizado (SVG/PNG)',
+              name: 'customImage',
+              description: 'Faça upload de um ícone customizado (aparecerá no frontend se presente).',
+            },
           ],
         },
+
+        // Pavilhões
         {
           type: 'object',
           label: 'Pavilhões',
@@ -1233,11 +1290,20 @@ export const projectsBlockSchema: Template = {
                   { value: 'home-12', label: 'Casa' },
                   { value: 'store-01', label: 'Loja' },
                   { value: 'parking-area-square', label: 'Área de Estacionamento' },
+                  { value: 'custom', label: 'Customizado' },
                 ],
               },
             },
+            {
+              type: 'image',
+              label: 'Ícone Customizado (SVG/PNG)',
+              name: 'customImage',
+              description: 'Faça upload de um ícone customizado (aparecerá no frontend se presente).',
+            },
           ],
         },
+
+        // Área Construída
         {
           type: 'object',
           label: 'Área Construída',
@@ -1264,11 +1330,20 @@ export const projectsBlockSchema: Template = {
                   { value: 'home-12', label: 'Casa' },
                   { value: 'store-01', label: 'Loja' },
                   { value: 'parking-area-square', label: 'Área de Estacionamento' },
+                  { value: 'custom', label: 'Customizado' },
                 ],
               },
             },
+            {
+              type: 'image',
+              label: 'Ícone Customizado (SVG/PNG)',
+              name: 'customImage',
+              description: 'Faça upload de um ícone customizado (aparecerá no frontend se presente).',
+            },
           ],
         },
+
+        // Unid. Residenciais
         {
           type: 'object',
           label: 'Unid. Residenciais',
@@ -1295,11 +1370,20 @@ export const projectsBlockSchema: Template = {
                   { value: 'home-12', label: 'Casa' },
                   { value: 'store-01', label: 'Loja' },
                   { value: 'parking-area-square', label: 'Área de Estacionamento' },
+                  { value: 'custom', label: 'Customizado' },
                 ],
               },
             },
+            {
+              type: 'image',
+              label: 'Ícone Customizado (SVG/PNG)',
+              name: 'customImage',
+              description: 'Faça upload de um ícone customizado (aparecerá no frontend se presente).',
+            },
           ],
         },
+
+        // Unid. Comerciais
         {
           type: 'object',
           label: 'Unid. Comerciais',
@@ -1326,11 +1410,20 @@ export const projectsBlockSchema: Template = {
                   { value: 'home-12', label: 'Casa' },
                   { value: 'store-01', label: 'Loja' },
                   { value: 'parking-area-square', label: 'Área de Estacionamento' },
+                  { value: 'custom', label: 'Customizado' },
                 ],
               },
             },
+            {
+              type: 'image',
+              label: 'Ícone Customizado (SVG/PNG)',
+              name: 'customImage',
+              description: 'Faça upload de um ícone customizado (aparecerá no frontend se presente).',
+            },
           ],
         },
+
+        // Vagas de Garagem
         {
           type: 'object',
           label: 'Vagas de Garagem',
@@ -1357,11 +1450,19 @@ export const projectsBlockSchema: Template = {
                   { value: 'home-12', label: 'Casa' },
                   { value: 'store-01', label: 'Loja' },
                   { value: 'parking-area-square', label: 'Área de Estacionamento' },
+                  { value: 'custom', label: 'Customizado' },
                 ],
               },
             },
+            {
+              type: 'image',
+              label: 'Ícone Customizado (SVG/PNG)',
+              name: 'customImage',
+              description: 'Faça upload de um ícone customizado (aparecerá no frontend se presente).',
+            },
           ],
         },
+
         {
           type: 'string',
           label: 'Serviços desenvolvidos',
@@ -1422,8 +1523,15 @@ export const projectsBlockSchema: Template = {
                       { value: 'electric-home-01', label: 'Casa Inteligente' },
                       { value: 'beach-02', label: 'Praia' },
                       { value: 'discount-tag-02', label: 'Etiqueta de Desconto' },
+                      { value: 'custom', label: 'Customizado' },
                     ],
                   },
+                },
+                {
+                  type: 'image',
+                  label: 'Ícone Customizado (SVG/PNG)',
+                  name: 'customImage',
+                  description: 'Upload para ícone customizado do item de serviço. Recomendado: https://hugeicons.com/icons?style=Stroke&type=Rounded',
                 },
                 {
                   type: 'string',
