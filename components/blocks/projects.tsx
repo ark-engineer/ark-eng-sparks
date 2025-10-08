@@ -740,7 +740,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
 
   return (
     <>
-      <div id='sidebar-content' className="shadow-xl fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[90vw] lg:min-w-[90vw] h-[75vh] bg-white/95 dark:bg-gray-900/95 z-50 rounded-t-2xl backdrop-blur-md shadow-lg [box-shadow:0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)] z-70 flex flex-col select-none">
+      <div id='sidebar-content' className="shadow-2xl fixed bottom-3 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-[90vw] lg:min-w-[90vw] h-[95vh] bg-white/95 z-50 rounded-2xl backdrop-blur-md z-70 flex flex-col select-none">
         <div className="flex-shrink-0 flex items-center justify-between p-6 pb-4 bg-white/95 backdrop-blur-md rounded-t-2xl">
           <div className="flex flex-col align-left">
             <h2 className="text-2xl font-semibold leading-none" data-tina-field={tinaField(project, 'constructorName')}>
