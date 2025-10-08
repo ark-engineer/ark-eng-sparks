@@ -2,7 +2,7 @@
 import React, { PropsWithChildren, useEffect, useState, useRef, useCallback } from "react";
 import { LayoutProvider } from "./layout-context";
 import client from "../../tina/__generated__/client";
-import { SplashScreen } from "../splashEscreen";
+import { SplashScreen } from "../splashEscreen"; // adjust path if needed
 import { motion, AnimatePresence } from 'framer-motion';
 
 type LayoutProps = PropsWithChildren & {
@@ -11,15 +11,10 @@ type LayoutProps = PropsWithChildren & {
 
 export default function Layout({ children, rawPageData }: LayoutProps) {
   const [globalData, setGlobalData] = useState<any>(null);
-
   const [loading, setLoading] = useState(true);
-
   const [overlayVisible, setOverlayVisible] = useState(true);
-
   const [progress, setProgress] = useState<number>(0);
-
   const [contentReadyToRender, setContentReadyToRender] = useState(true);
-
   const isScrolling = useRef<boolean>(false);
   const rafId = useRef<number | null>(null);
   const progressTimerRef = useRef<number | null>(null);
@@ -39,14 +34,13 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
             }
             return p;
           });
-          return (p: any) => p; // noop (não usado)
         }, 250) as unknown as number;
 
         const fetchGlobal = client.queries.global(
           { relativePath: "index.json" },
           { fetchOptions: { next: { revalidate: 60 } } }
         );
-        const delay = new Promise((resolve) => setTimeout(resolve, 400)); // garante um pequeno tempo mínimo UX
+        const delay = new Promise((resolve) => setTimeout(resolve, 400));
         const [{ data }] = await Promise.all([fetchGlobal, delay]);
 
         setGlobalData(data?.global ?? { theme: {} });
@@ -158,6 +152,10 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
 
   const safeGlobalData = globalData || { theme: {} };
 
+  // read splash image from global content (Tina CMS)
+  const splashImage = safeGlobalData?.splash?.image ?? '/animation/logoanimation.gif';
+  const splashAlt = safeGlobalData?.splash?.alt ?? 'splash logo';
+
   return (
     <>
       <LayoutProvider globalSettings={safeGlobalData} pageData={rawPageData}>
@@ -190,7 +188,7 @@ export default function Layout({ children, rawPageData }: LayoutProps) {
           >
             <div className="w-full max-w-3xl px-6">
               <div className="mx-auto max-w-2xl">
-                <SplashScreen />
+                <SplashScreen imageSrc={splashImage} imageAlt={splashAlt} />
               </div>
             </div>
           </motion.div>

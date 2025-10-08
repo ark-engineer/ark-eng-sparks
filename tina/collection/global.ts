@@ -61,6 +61,25 @@ const Global: Collection = {
         },
       ],
     },
+
+    {
+      type: "object",
+      label: "Splash",
+      name: "splash",
+      fields: [
+        {
+          type: "image",
+          label: "Splash Image",
+          name: "image",
+        },
+        {
+          type: "string",
+          label: "Alt Text",
+          name: "alt",
+        },
+      ],
+    },
+
     {
       type: "object",
       label: "Footer",

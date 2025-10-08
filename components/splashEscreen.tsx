@@ -1,11 +1,29 @@
 'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
-type SplashScreenProps = {};
+type SplashScreenProps = {
+    imageSrc?: string;
+    imageAlt?: string;
+};
 
-export const SplashScreen: React.FC<SplashScreenProps> = () => {
+export const SplashScreen: React.FC<SplashScreenProps> = ({
+    imageSrc = '/animation/logoanimation.gif',
+    imageAlt = 'splash logo',
+}) => {
+    const safeSrc = (typeof imageSrc === 'string' && imageSrc.trim().length > 0)
+        ? imageSrc.trim()
+        : '/animation/logoanimation.gif';
+
+    const safeAlt = (typeof imageAlt === 'string' && imageAlt.trim().length > 0)
+        ? imageAlt.trim()
+        : 'splash logo';
+
+    if (!imageSrc || (typeof imageSrc === 'string' && imageSrc.trim() === '')) {
+        console.warn('[SplashScreen] empty imageSrc received — using fallback image');
+    }
 
     return (
         <motion.div
@@ -37,8 +55,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = () => {
                 >
                     <div className="relative">
                         <Image
-                            src="/animation/logoanimation.gif"
-                            alt="splash logo"
+                            src={safeSrc}
+                            alt={safeAlt}
                             unoptimized
                             width={340}
                             height={340}
@@ -50,11 +68,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = () => {
                                 display: 'block',
                             }}
                         />
-
                         <div
                             className="absolute inset-0 rounded-full opacity-20 blur-xl pointer-events-none"
                             style={{
-                                background: 'radial-gradient(circle, rgba(59, 130, 246, 0.28) 0%, transparent 70%)',
+                                background:
+                                    'radial-gradient(circle, rgba(59, 130, 246, 0.28) 0%, transparent 70%)',
                                 transform: 'scale(1.12)',
                             }}
                         />
