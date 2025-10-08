@@ -103,6 +103,8 @@ export const Footer = ({ data }: { data: PageBlocksFooter }) => {
                   href={link?.url || '/'}
                   aria-label={link?.label || 'footer link'}
                   data-tina-field={tinaField(link, 'url')}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   {isCustom && customIconSrc ? (
                     <Image

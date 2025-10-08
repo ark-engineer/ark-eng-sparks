@@ -189,8 +189,13 @@ export const TeamSection = ({ data }: { data: any }) => {
               const g = grayscales[index] ?? 1
               const scale = 1 + (1 - g) * 0.06
               const z = getZIndex(index, data.members.length)
+              
+              // Determina a direção da animação: esquerda para índices pares, direita para ímpares
+              const isEven = index % 2 === 0
+              const animationDirection = isEven ? -100 : 100
+              
               return (
-                <div
+                <motion.div
                   key={index}
                   ref={(el: any) => (itemRefs.current[index] = el)}
                   className={`
@@ -203,6 +208,24 @@ export const TeamSection = ({ data }: { data: any }) => {
                     zIndex: z,
                     transform: isMobile ? `scale(${scale})` : undefined,
                     transition: "transform 220ms cubic-bezier(.2,.9,.2,1), filter 200ms ease",
+                  }}
+                  initial={!isMobile ? { 
+                    opacity: 0, 
+                    x: animationDirection 
+                  } : false}
+                  whileInView={!isMobile ? { 
+                    opacity: 1, 
+                    x: 0 
+                  } : undefined}
+                  exit={!isMobile ? { 
+                    opacity: 0, 
+                    x: animationDirection 
+                  } : undefined}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{
+                    duration: 0.6,
+                    delay: index * 0.1,
+                    ease: [0.25, 0.46, 0.45, 0.94]
                   }}
                 >
                   {member.photo ? (
@@ -240,7 +263,7 @@ export const TeamSection = ({ data }: { data: any }) => {
                   >
                     {member.position}
                   </p>
-                </div>
+                </motion.div>
               )
             })}
           </motion.div>
