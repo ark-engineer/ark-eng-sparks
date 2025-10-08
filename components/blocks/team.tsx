@@ -1,4 +1,5 @@
 "use client"
+
 import type { Template } from "tinacms"
 import { tinaField } from "tinacms/dist/react"
 import { TinaMarkdown } from "tinacms/dist/rich-text"
@@ -20,16 +21,12 @@ export const TeamSection = ({ data }: { data: any }) => {
   const stickyRef = useRef<HTMLDivElement | null>(null)
   const itemRefs = useRef<Array<HTMLDivElement | null>>([])
 
-  // Inicialize isMobile como false para combinar com o render do servidor
   const [isMobile, setIsMobile] = useState<boolean>(false)
   const [viewportWidth, setViewportWidth] = useState<number>(0)
   const [viewportHeight, setViewportHeight] = useState<number>(0)
   const [stickyTop, setStickyTop] = useState<number>(0)
-  const [grayscales, setGrayscales] = useState<number[]>(
-    Array((data.members?.length) || 0).fill(1)
-  )
+  const [grayscales, setGrayscales] = useState<number[]>(Array((data.members?.length) || 0).fill(1))
 
-  // Detecte isMobile, viewportWidth e viewportHeight apenas após o mount no client-side
   useEffect(() => {
     if (typeof window === "undefined") return
 
@@ -51,7 +48,6 @@ export const TeamSection = ({ data }: { data: any }) => {
     }
   }, [])
 
-  // Calcule o top para sticky no meio da tela
   useEffect(() => {
     if (!isMobile || !stickyRef.current || viewportHeight === 0) return
 
@@ -63,7 +59,6 @@ export const TeamSection = ({ data }: { data: any }) => {
 
     updateStickyTop()
 
-    // Atualize ao redimensionar ou quando o conteúdo mudar
     const resizeObserver = new ResizeObserver(updateStickyTop)
     if (stickyRef.current) {
       resizeObserver.observe(stickyRef.current)
@@ -76,41 +71,35 @@ export const TeamSection = ({ data }: { data: any }) => {
     }
   }, [isMobile, viewportHeight, data])
 
-  // Scroll tracking for mobile horizontal animation
   const { scrollYProgress } = useScroll({
     target: wrapperRef,
     offset: ["start end", "end start"],
   })
 
-  // Rotation animation
   const rotateX = useTransform(scrollYProgress, [0, 0.5, 1], ["30deg", "0deg", "-30deg"])
   const springRotate = useSpring(rotateX, { stiffness: 220, damping: 30 })
 
-  // Calculate horizontal scroll for mobile with centering
-  const CARD_WIDTH = 180 // min-w-[180px] from your component
-  const CARD_OVERLAP = 24 // -ml-6 = 24px overlap
+  const CARD_WIDTH = 180
+  const CARD_OVERLAP = 24
   const spacing = CARD_WIDTH - CARD_OVERLAP
 
   const totalMembers = data.members?.length || 0
   const lastPos = (totalMembers - 1) * spacing
-  const maxScale = 1.06 // Max scale for centered item
+  const maxScale = 1.06
   const scaledCardWidth = CARD_WIDTH * maxScale
   const centerOffset = viewportWidth > 0 ? (viewportWidth - scaledCardWidth) / 2 : 0
   const initialX = centerOffset
   const finalX = centerOffset - lastPos
 
-  // Map scroll progress to horizontal translation with asymmetric plateaus for better visibility on reverse scroll
   const x = useTransform(scrollYProgress, [0, 0.2, 0.9, 1], [initialX, initialX, finalX, finalX])
   const springX = useSpring(x, { stiffness: 100, damping: 30 })
 
-  // Update grayscale based on position during scroll
   useEffect(() => {
     if (!isMobile || viewportWidth === 0) return
 
     const unsubscribe = scrollYProgress.on("change", (latest) => {
       const centerPosition = viewportWidth / 2
       const newGs = data.members?.map((_: any, index: number) => {
-        // Calculate item position based on scroll
         const itemPosition = index * spacing + springX.get()
         const itemCenter = itemPosition + CARD_WIDTH / 2
         const distance = Math.abs(itemCenter - centerPosition)
@@ -129,12 +118,10 @@ export const TeamSection = ({ data }: { data: any }) => {
     setGrayscales(Array((data.members?.length) || 0).fill(1))
   }, [data.members?.length])
 
-  // Mobile wrapper height for scroll area - increased to 400vh for slower animation, giving more time to view items
   const mobileWrapperHeight = isMobile ? "400vh" : "auto"
 
-  // If viewportWidth not set yet, fallback to non-mobile render to avoid hydration issues
   if (isMobile && viewportWidth === 0) {
-    return null // Or a loading spinner, but since quick, null is fine
+    return null
   }
 
   return (
@@ -189,11 +176,71 @@ export const TeamSection = ({ data }: { data: any }) => {
               const g = grayscales[index] ?? 1
               const scale = 1 + (1 - g) * 0.06
               const z = getZIndex(index, data.members.length)
+              const isEven = index % 2 === 0
+              const animationDirection = isEven ? -100 : 100
+
+              if (isMobile) {
+                return (
+                  <div
+                    key={index}
+                    ref={(el: any) => (itemRefs.current[index] = el)}
+                    className={`
+                      relative flex flex-col items-center text-center
+                      min-w-[180px] md:w-full md:min-w-0 sm:w-1/2 mb-8 md:mb-0 flex-shrink-0 md:flex-shrink
+                      ${index > 0 ? "-ml-6 md:ml-0 lg:-ml-[calc(2rem+10px)]" : ""}
+                    `}
+                    data-tina-field={tinaField(data.members, `${index}`)}
+                    style={{
+                      zIndex: z,
+                      transform: `scale(${scale})`,
+                      transition: "transform 220ms cubic-bezier(.2,.9,.2,1), filter 200ms ease",
+                    }}
+                  >
+                    {member.photo ? (
+                      <Image
+                        src={member.photo}
+                        alt={member.name || "Membro da equipe"}
+                        className="relative inline-block object-cover size-44 min-w-44 min-h-44 lg:min-w-0 lg:min-h-0 lg:max-w-35 lg:max-h-35 transition-all duration-300 ease-in-out hover:-translate-y-3 hover:scale-102 rounded-full border-[10px] border-white md:grayscale md:hover:grayscale-0"
+                        style={{
+                          background: "lightgray 50% / cover no-repeat",
+                          filter: `grayscale(${Math.round(g * 100)}%)`,
+                        }}
+                        width={193}
+                        height={193}
+                      />
+                    ) : (
+                      <div
+                        className="relative grid place-items-center size-44 min-w-44 min-h-44 lg:min-w-0 lg:min-h-0 lg:max-w-35 lg:max-h-35 transition-all duration-300 ease-in-out hover:-translate-y-3 hover:scale-110 rounded-full border-[10px] border-white text-xl font-bold text-gray-700 md:grayscale md:hover:grayscale-0"
+                        style={{
+                          backgroundColor: "lightgray",
+                          filter: `grayscale(${Math.round(g * 100)}%)`,
+                        }}
+                      >
+                        <span className="font-extralight">{initials || "MN"}</span>
+                      </div>
+                    )}
+                    <h3
+                      className="prose-2xl lg:prose-xl text-black text-center font-medium capitalize mb-0 leading-[20px] lg:leading-6"
+                      data-tina-field={tinaField(member, "name")}
+                    >
+                      {member.name}
+                    </h3>
+                    <p
+                      className="prose-xl lg:prose-md mt-2 lg:mt-0 opacity-[0.5] text-center font-medium capitalize leading-[1.25rem]"
+                      data-tina-field={tinaField(member, "position")}
+                    >
+                      {member.position}
+                    </p>
+                  </div>
+                )
+              }
+
               return (
-                <div
+                <motion.div
                   key={index}
                   ref={(el: any) => (itemRefs.current[index] = el)}
-                  className={`
+                  className={
+                    `
                     relative flex flex-col items-center text-center
                     min-w-[180px] md:w-full md:min-w-0 sm:w-1/2 mb-8 md:mb-0 flex-shrink-0 md:flex-shrink
                     ${index > 0 ? "-ml-6 md:ml-0 lg:-ml-[calc(2rem+10px)]" : ""}
@@ -201,8 +248,25 @@ export const TeamSection = ({ data }: { data: any }) => {
                   data-tina-field={tinaField(data.members, `${index}`)}
                   style={{
                     zIndex: z,
-                    transform: isMobile ? `scale(${scale})` : undefined,
-                    transition: "transform 220ms cubic-bezier(.2,.9,.2,1), filter 200ms ease",
+                    transition: "filter 200ms ease",
+                  }}
+                  initial={{
+                    opacity: 0,
+                    x: animationDirection,
+                  }}
+                  whileInView={{
+                    opacity: 1,
+                    x: 0,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    x: animationDirection,
+                  }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{
+                    duration: 0.6,
+                    delay: index * 0.1,
+                    ease: [0.25, 0.46, 0.45, 0.94],
                   }}
                 >
                   {member.photo ? (
@@ -212,7 +276,6 @@ export const TeamSection = ({ data }: { data: any }) => {
                       className="relative inline-block object-cover size-44 min-w-44 min-h-44 lg:min-w-0 lg:min-h-0 lg:max-w-35 lg:max-h-35 transition-all duration-300 ease-in-out hover:-translate-y-3 hover:scale-102 rounded-full border-[10px] border-white md:grayscale md:hover:grayscale-0"
                       style={{
                         background: "lightgray 50% / cover no-repeat",
-                        filter: isMobile ? `grayscale(${Math.round(g * 100)}%)` : undefined,
                       }}
                       width={193}
                       height={193}
@@ -222,7 +285,6 @@ export const TeamSection = ({ data }: { data: any }) => {
                       className="relative grid place-items-center size-44 min-w-44 min-h-44 lg:min-w-0 lg:min-h-0 lg:max-w-35 lg:max-h-35 transition-all duration-300 ease-in-out hover:-translate-y-3 hover:scale-110 rounded-full border-[10px] border-white text-xl font-bold text-gray-700 md:grayscale md:hover:grayscale-0"
                       style={{
                         backgroundColor: "lightgray",
-                        filter: isMobile ? `grayscale(${Math.round(g * 100)}%)` : undefined,
                       }}
                     >
                       <span className="font-extralight">{initials || "MN"}</span>
@@ -240,7 +302,7 @@ export const TeamSection = ({ data }: { data: any }) => {
                   >
                     {member.position}
                   </p>
-                </div>
+                </motion.div>
               )
             })}
           </motion.div>

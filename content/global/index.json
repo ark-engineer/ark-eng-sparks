@@ -26,6 +26,9 @@
       }
     ]
   },
+  "splash": {
+    "image": "/uploads/animation/hub.png"
+  },
   "footer": {
     "social": [
       {

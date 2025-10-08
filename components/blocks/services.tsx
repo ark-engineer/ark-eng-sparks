@@ -5,12 +5,14 @@ import { tinaField } from 'tinacms/dist/react';
 import { sectionBlockSchemaField } from '../layout/section';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowUpRight01Icon, CheckmarkCircle02Icon, PlayCircleIcon } from '@hugeicons/core-free-icons';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 
 type ProjectType = 'arkeng' | 'ebim' | 'arkane';
 
 type ServiceModalContent = {
   detailedDescription?: string;
   features?: string[];
+  featuresTitle?: string;
   howItWorksUrl?: string;
   howItWorksButtonText?: string;
 };
@@ -148,11 +150,16 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
           </p>
           {service?.modalContent?.features && service.modalContent.features.length > 0 && (
             <div className='text-left mb-8'>
-              <h3 className='font-semibold text-gray-900 mb-4'>Principais Características:</h3>
+              <h3
+                className='font-semibold text-gray-900 mb-4'
+                data-tina-field={tinaField(service.modalContent, 'featuresTitle')}
+              >
+                {service.modalContent.featuresTitle || 'Principais Características:'}
+              </h3>
               <div className='space-y-3 flex flex-col'>
                 {service.modalContent.features.map((feature, index) => (
                   <div key={index} className='flex items-start gap-3 min-w-0'>
-                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={24} className="aspect-square flex-shrink-0 mt-1" />
+                    {/* <HugeiconsIcon icon={CheckmarkCircle02Icon} size={24} className="aspect-square flex-shrink-0 mt-1" /> */}
                     <span className='text-gray-700 flex-1 break-words'>{feature}</span>
                   </div>
                 ))}
@@ -202,7 +209,7 @@ const AnimatedServiceButton = ({
     <button
       onClick={() => onServiceClick(service)}
       className='cursor-pointer relative bg-white rounded-full px-6 py-3 text-left
-                 w-full sm:w-auto min-w-0
+                 w-full sm:w-auto min-w-0 min-h-[48px]
                  hover:bg-gray-50 group transition-colors duration-200
                  overflow-hidden'
       style={{
@@ -212,7 +219,7 @@ const AnimatedServiceButton = ({
       data-tina-field={tinaField(service, 'serviceName')}
     >
       <span className='block text-gray-900 font-medium break-words pr-8'>
-        {service.serviceName}<sup>0{index + 1}</sup>
+        {service.serviceName}
       </span>
       <HugeiconsIcon icon={ArrowUpRight01Icon} className='absolute top-4 right-4 w-5 h-5 text-gray-600 group-hover:text-gray-900 transition-colors' />
     </button>
@@ -243,7 +250,7 @@ const CompanySelector = ({
             <img
               src={company.logo || '/api/placeholder/120/60'}
               alt={companyName}
-              className={`w-full h-28 object-contain transition-all duration-300 ${activeIndex === index ? 'grayscale-0 opacity-100' : 'grayscale opacity-50'
+              className={`w-full h-32 object-contain transition-all duration-300 ${activeIndex === index ? 'grayscale-0 opacity-100' : 'grayscale opacity-50'
                 }`}
             />
           </button>
@@ -369,9 +376,19 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
     }
   }, [modalState.isOpen, resumeRotation, pauseRotation]);
 
+  // --- Scroll-based grow animation (inspired by Monochrome) ---
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const { scrollYProgress } = useScroll({ target: wrapperRef, offset: ['start end', 'end start'] });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30, mass: 1 });
+  const opacity = useTransform(smoothProgress, [0, 0.2, 0.4, 0.8, 0.9], [0, 0.9, 0.9, 1, 0.4]);
+  const contentY = useTransform(smoothProgress, [0, 0.5, 0.9], [50, 0, -50]);
+  const contentOpacity = useTransform(smoothProgress, [0, 0.15, 0.8, 0.9], [0, 1, 1, 0]);
+  const scale = useTransform(smoothProgress, [0, 0.3, 0.5, 0.7, 0.9], [0.85, 0.95, 1, 0.95, 0.85]);
+
   return (
     <>
-      <div
+      <motion.div
+        ref={wrapperRef}
         id='custom-services'
         className='mx-auto'
         onMouseEnter={handleMouseEnter}
@@ -386,9 +403,12 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
           flexDirection: 'column',
           alignItems: 'center',
           gap: '2.5rem',
+          y: contentY,
+          opacity,
+          scale,
         }}
       >
-        <div className='flex flex-col items-center gap-6 w-full'>
+        <motion.div className='flex flex-col items-center gap-6 w-full' style={{ y: contentY, opacity: contentOpacity }}>
           <div className='text-center space-y-4'>
             <h2 className='text-white text-3xl font-bold' data-tina-field={tinaField(data, 'mainTitle')}>
               {data.mainTitle}
@@ -422,9 +442,9 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
         <div className='flex w-full gap-12 flex-wrap'>
-          <div className='prose lg:prose-xl flex-1 space-y-6 max-w-[30rem]'>
+          <div className='prose prose-lg flex-1 space-y-6 max-w-[30rem]'>
             <h3 className='text-white font-medium leading-normal uppercase font-inter' data-tina-field={tinaField(data, 'companiesTitle')}>
               {data.companiesTitle}
             </h3>
@@ -432,7 +452,7 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
           </div>
           {currentCompany && <ServicesSection company={currentCompany} servicesVisible={servicesVisible} onServiceClick={handleServiceClick} />}
         </div>
-      </div>
+      </motion.div>
       <ServiceModal modalState={modalState} onClose={handleModalClose} />
     </>
   );
@@ -440,11 +460,11 @@ export const SolutionsBlock = ({ data }: { data: any }) => {
 
 export const solutionsBlockSchema: Template = {
   name: 'solutions',
-  label: 'Soluções Personalizadas',
+  label: 'Nossos serviços',
   ui: {
     previewSrc: '/blocks/solutions.png',
     defaultItem: {
-      mainTitle: 'Soluções Inovadoras',
+      mainTitle: 'Nossos serviços',
       description: 'Oferecemos soluções completas e personalizadas para o mercado imobiliário',
       companiesTitle: 'Soluções personalizadas para suas necessidades imobiliárias',
       enableAutoRotate: true,
@@ -499,9 +519,10 @@ export const solutionsBlockSchema: Template = {
               label: 'Conteúdo do Modal',
               fields: [
                 { type: 'string', name: 'detailedDescription', label: 'Descrição Detalhada' },
+                { type: 'string', name: 'featuresTitle', label: 'Título das Características' },
+                { type: 'string', list: true, name: 'features', label: 'Características' },
                 { type: 'string', name: 'howItWorksUrl', label: 'URL Como Funciona' },
                 { type: 'string', name: 'howItWorksButtonText', label: 'Texto do Botão "Como Funciona"' },
-                { type: 'string', list: true, name: 'features', label: 'Características' },
               ],
             },
           ],
