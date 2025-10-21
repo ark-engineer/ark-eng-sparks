@@ -74,11 +74,22 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
     if (activeFilters.size === 0) {
       return data.projects;
     }
-    return data.projects.filter((project) =>
-      project?.services?.some((service) =>
-        service?.company && activeFilters.has(service.company as ProjectType)
-      )
-    );
+
+    // Filter projects that have ALL selected companies
+    return data.projects.filter((project) => {
+      if (!project?.services) return false;
+
+      const projectCompanies = new Set(
+        project.services
+          .map(service => service?.company)
+          .filter(Boolean) as ProjectType[]
+      );
+
+      // Check if project has ALL selected companies
+      return Array.from(activeFilters).every(company =>
+        projectCompanies.has(company)
+      );
+    });
   }, [data.projects, activeFilters, dataHash])
 
   useEffect(() => {
