@@ -365,12 +365,15 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
+            <div className='flex flex-col'>
             <h2
               className="text-2xl sm:text-3xl lg:text-4xl text-title font-semibold"
               data-tina-field={tinaField(data, "title")}
             >
               {data.title}
             </h2>
+            <span className='opacity-[0.5]' data-tina-field={tinaField(data, "description")}>{data.description}</span>
+            </div>
             <div className="flex justify-center">
               <div className="flex p-1 gap-2">
                 {(["ARKENG", "eBIM", "ARKANE"] as ProjectType[]).map((tab, index) => (

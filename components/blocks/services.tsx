@@ -136,7 +136,7 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
         <button onClick={onClose} className='absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-light transition-colors duration-200 z-10'>
           ×
         </button>
-        <div className='p-8 text-center'>
+        <div className='p-8 text-center max-h-[95dvh] overflow-y-auto'>
           <div className='mb-6'>
             <img
               src={company?.logo || '/api/placeholder/120/60'}
