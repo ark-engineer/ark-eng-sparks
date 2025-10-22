@@ -12,6 +12,7 @@ import { Section } from '../layout/section';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { tinaField } from 'tinacms/dist/react';
+import { TinaMarkdown } from 'tinacms/dist/rich-text';
 import { sectionBlockSchemaField } from '../layout/section';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Image from 'next/image';
@@ -365,12 +366,15 @@ export const Projects = ({ data }: { data: PageBlocksProjects }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h2
-              className="text-2xl sm:text-3xl lg:text-4xl text-title font-semibold"
-              data-tina-field={tinaField(data, "title")}
-            >
-              {data.title}
-            </h2>
+            <div className='flex flex-col'>
+              <h2
+                className="text-2xl sm:text-3xl lg:text-4xl text-title font-semibold"
+                data-tina-field={tinaField(data, "title")}
+              >
+                {data.title}
+              </h2>
+              <span className='opacity-[0.5]' data-tina-field={tinaField(data, "description")}>{data.description}</span>
+            </div>
             <div className="flex justify-center">
               <div className="flex p-1 gap-2">
                 {(["ARKENG", "eBIM", "ARKANE"] as ProjectType[]).map((tab, index) => (
@@ -743,7 +747,7 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
       <div className="flex flex-col">
         <span className="text-xs text-black font-normal text-gray-400">{detail.label}:</span>
         <span className="text-base text-black font-bold">
-          {detail.value} {String(detail.key).toLowerCase().includes('area') ? 'M²' : ''}
+          {detail.value} {String(detail.key).toLowerCase().includes('area') ? 'm²' : ''}
         </span>
       </div>
     </div>
@@ -757,9 +761,13 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
             <h2 className="text-2xl font-semibold leading-none" data-tina-field={tinaField(project, 'constructorName')}>
               {project.constructorName}
             </h2>
-            <p className="text-lg leading-tight" data-tina-field={tinaField(project, 'description')}>
-              {project.description}
-            </p>
+            <div className="text-lg leading-tight" data-tina-field={tinaField(project, 'description')}>
+              {project.description && typeof project.description === 'object' ? (
+                <TinaMarkdown content={project.description} />
+              ) : (
+                <p>{project.description}</p>
+              )}
+            </div>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose} className='absolute right-3 top-4 cursor-pointer flex-shrink-0 hover:scale-130 transition-200'>
             <HugeiconsIcon icon={HugeIcons.Cancel01Icon} size={20} color="#6B7280" strokeWidth={1.5} className="text-gray-500" />
@@ -1146,12 +1154,9 @@ export const projectsBlockSchema: Template = {
           ],
         },
         {
-          type: 'string',
+          type: 'rich-text',
           label: 'Descrição',
           name: 'description',
-          ui: {
-            component: 'textarea',
-          },
         },
 
         // Área do Terreno

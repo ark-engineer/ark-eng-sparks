@@ -136,7 +136,7 @@ const ServiceModal = ({ modalState, onClose }: { modalState: ModalState; onClose
         <button onClick={onClose} className='absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-light transition-colors duration-200 z-10'>
           ×
         </button>
-        <div className='p-8 text-center'>
+        <div className='p-8 text-center max-h-[95dvh] overflow-y-auto'>
           <div className='mb-6'>
             <img
               src={company?.logo || '/api/placeholder/120/60'}
@@ -511,6 +511,11 @@ export const solutionsBlockSchema: Template = {
           name: 'services',
           label: 'Serviços',
           list: true,
+          ui: {
+            itemProps: (item) => ({
+              label: item?.serviceName || 'Novo Serviço'
+            })
+          },
           fields: [
             { type: 'string', name: 'serviceName', label: 'Nome do Serviço' },
             {
@@ -518,7 +523,7 @@ export const solutionsBlockSchema: Template = {
               name: 'modalContent',
               label: 'Conteúdo do Modal',
               fields: [
-                { type: 'string', name: 'detailedDescription', label: 'Descrição Detalhada' },
+                { type: 'string', name: 'detailedDescription', label: 'Descrição Detalhada', ui: { component: 'textarea' } },
                 { type: 'string', name: 'featuresTitle', label: 'Título das Características' },
                 { type: 'string', list: true, name: 'features', label: 'Características' },
                 { type: 'string', name: 'howItWorksUrl', label: 'URL Como Funciona' },

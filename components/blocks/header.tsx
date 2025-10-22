@@ -5,9 +5,7 @@ import type { Template } from 'tinacms';
 import { tinaField } from 'tinacms/dist/react';
 import { useLayout } from '../layout/layout-context';
 
-// Função para scroll suave para âncoras
 const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-  // Verifica se é um link interno (âncora)
   if (href.startsWith('#')) {
     e.preventDefault();
     const targetId = href.substring(1);
@@ -93,7 +91,29 @@ export const Header = ({ data }: { data?: any }) => {
       <div className="lg:hidden">
         {/* Botão flutuante no topo direito - apenas se houver um item com isFloat = true */}
         {floatingItem && (
-          <div className="fixed top-2 right-2 bg-black text-white rounded-sm px-3 py-2 text-sm z-50">
+          <>
+          <svg 
+          className='fixed top-4 left-4'
+          width='40' height='36' viewBox='0 0 40 36' fill='none' xmlns='http://www.w3.org/2000/svg'>
+              <path d='M11.7102 7.29765L14.6223 0.426758L29.1281 35.5742H23.4584L11.7102 7.29765Z' fill='white' />
+              <path
+                d='M3.11808 28.207C2.07872 30.6602 1.03936 33.114 0 35.5671C5.12373 35.5623 10.2475 35.5574 15.3718 35.5526C13.6228 35.2325 10.8043 34.4843 7.86436 32.5517C5.63163 31.0848 4.09584 29.439 3.11869 28.207H3.11808Z'
+                fill='white'
+              />
+              <path
+                d='M38.1314 28.2783H40.0006V35.5738H35.2078V33.3495C35.7858 32.5384 36.3837 31.6156 36.9659 30.5787C37.4146 29.7785 37.8005 29.0073 38.1314 28.2789V28.2783Z'
+                fill='white'
+              />
+              <path
+                d='M38.1308 7.72612H39.9994V0.430664H35.2078C35.2096 1.1898 35.2121 1.94894 35.2139 2.70868C35.7864 3.43762 36.4 4.31876 36.9852 5.35631C37.4599 6.19818 37.8343 6.99839 38.1308 7.72612Z'
+                fill='white'
+              />
+              <path
+                d='M33.8924 12.8965H35.2144V23.2647H33.9305C33.3767 22.4524 32.2008 20.9662 30.1747 19.8809C28.6038 19.0396 27.1496 18.7757 26.2395 18.6839H24.8444V17.5528H26.2014C27.1387 17.4241 28.5586 17.1113 30.0895 16.2755C32.0879 15.1848 33.2897 13.7414 33.8924 12.8965Z'
+                fill='white'
+              />
+            </svg>
+          <div className="fixed top-2 right-2 bg-black text-white rounded-lg px-4 py-3 text-sm z-50">
             <Link 
               href={floatingItem.href || '/'} 
               data-tina-field={tinaField(floatingItem, 'href')}
@@ -104,15 +124,17 @@ export const Header = ({ data }: { data?: any }) => {
               </span>
             </Link>
           </div>
+          </>
         )}
 
         {/* Logo e outros itens de navegação no rodapé */}
-        <div className="fixed bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-6 bg-black text-white rounded-sm px-4 py-3 z-51 min-w-[65%] opacity-[0.9.4]">
+        <div className="fixed bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-black text-white rounded-lg px-3 py-2 z-51 opacity-[0.9.4]">
           {/* Logo */}
           <Link
             href="/"
             aria-label={logoAlt}
-            className="flex items-center"
+            className="flex items-center border p-2 rounded-sm"
+            style={{borderColor: "gray"}}
             data-tina-field={tinaField(header, 'name')}
           >
             <svg width='40' height='36' viewBox='0 0 40 36' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -136,15 +158,15 @@ export const Header = ({ data }: { data?: any }) => {
             </svg>
           </Link>
           
-          {/* Itens de navegação principais (exceto os flutuantes) */}
-          <div className='flex ml-auto w-[100%] gap-6 justify-end'>
+          <div className='flex w-[100%] gap-4 justify-end'>
             {mainNavItems?.map((item: any, index: number) => {
               if (!item || !item.label) return null;
               return (
                 <Link
                   key={index}
                   href={item.href || '/'}
-                  className="text-sm"
+                  className="text-sm border px-5 py-3 rounded-sm"
+                  style={{borderColor: "gray"}}
                   data-tina-field={tinaField(item, 'href')}
                   onClick={(e) => handleSmoothScroll(e, item.href || '/')}
                 >
