@@ -10,7 +10,7 @@ const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string
     e.preventDefault();
     const targetId = href.substring(1);
     const targetElement = document.getElementById(targetId);
-    
+
     if (targetElement) {
       targetElement.scrollIntoView({
         behavior: 'smooth',
@@ -28,11 +28,7 @@ export const Header = ({ data }: { data?: any }) => {
 
   const logoAlt = header.name || 'home';
 
-  // Encontrar o item que deve flutuar (apenas um pode ter isFloat = true)
-  const floatingItem = header.nav?.find((item: any) => item?.isFloat === true);
-  
-  // Filtrar itens que não são flutuantes para o menu principal
-  const mainNavItems = header.nav?.filter((item: any) => !item?.isFloat);
+
 
   return (
     <header>
@@ -89,84 +85,46 @@ export const Header = ({ data }: { data?: any }) => {
 
       {/* MOBILE */}
       <div className="lg:hidden">
-        {/* Botão flutuante no topo direito - apenas se houver um item com isFloat = true */}
-        {floatingItem && (
-          <>
-          <svg 
-          className='fixed top-4 left-4'
-          width='40' height='36' viewBox='0 0 40 36' fill='none' xmlns='http://www.w3.org/2000/svg'>
-              <path d='M11.7102 7.29765L14.6223 0.426758L29.1281 35.5742H23.4584L11.7102 7.29765Z' fill='white' />
-              <path
-                d='M3.11808 28.207C2.07872 30.6602 1.03936 33.114 0 35.5671C5.12373 35.5623 10.2475 35.5574 15.3718 35.5526C13.6228 35.2325 10.8043 34.4843 7.86436 32.5517C5.63163 31.0848 4.09584 29.439 3.11869 28.207H3.11808Z'
-                fill='white'
-              />
-              <path
-                d='M38.1314 28.2783H40.0006V35.5738H35.2078V33.3495C35.7858 32.5384 36.3837 31.6156 36.9659 30.5787C37.4146 29.7785 37.8005 29.0073 38.1314 28.2789V28.2783Z'
-                fill='white'
-              />
-              <path
-                d='M38.1308 7.72612H39.9994V0.430664H35.2078C35.2096 1.1898 35.2121 1.94894 35.2139 2.70868C35.7864 3.43762 36.4 4.31876 36.9852 5.35631C37.4599 6.19818 37.8343 6.99839 38.1308 7.72612Z'
-                fill='white'
-              />
-              <path
-                d='M33.8924 12.8965H35.2144V23.2647H33.9305C33.3767 22.4524 32.2008 20.9662 30.1747 19.8809C28.6038 19.0396 27.1496 18.7757 26.2395 18.6839H24.8444V17.5528H26.2014C27.1387 17.4241 28.5586 17.1113 30.0895 16.2755C32.0879 15.1848 33.2897 13.7414 33.8924 12.8965Z'
-                fill='white'
-              />
-            </svg>
-          <div className="fixed top-2 right-2 bg-black text-white rounded-lg px-4 py-3 text-sm z-50">
-            <Link 
-              href={floatingItem.href || '/'} 
-              data-tina-field={tinaField(floatingItem, 'href')}
-              onClick={(e) => handleSmoothScroll(e, floatingItem.href || '/')}
+        {/* Menu inferior responsivo com todos os itens */}
+        <div className="fixed bottom-2 left-1/2 -translate-x-1/2 bg-black text-white rounded-lg px-3 py-2 z-50 opacity-[0.94] max-w-[calc(100%-1rem)]">
+          <div className="flex items-center gap-2 overflow-x-auto">
+            {/* Logo */}
+            <Link
+              href="/"
+              aria-label={logoAlt}
+              className="flex items-center p-1.5 flex-shrink-0"
+              data-tina-field={tinaField(header, 'name')}
             >
-              <span data-tina-field={tinaField(floatingItem, 'label')}>
-                {floatingItem.label}
-              </span>
+              <svg width='32' height='29' viewBox='0 0 40 36' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                <path d='M11.7102 7.29765L14.6223 0.426758L29.1281 35.5742H23.4584L11.7102 7.29765Z' fill='white' />
+                <path
+                  d='M3.11808 28.207C2.07872 30.6602 1.03936 33.114 0 35.5671C5.12373 35.5623 10.2475 35.5574 15.3718 35.5526C13.6228 35.2325 10.8043 34.4843 7.86436 32.5517C5.63163 31.0848 4.09584 29.439 3.11869 28.207H3.11808Z'
+                  fill='white'
+                />
+                <path
+                  d='M38.1314 28.2783H40.0006V35.5738H35.2078V33.3495C35.7858 32.5384 36.3837 31.6156 36.9659 30.5787C37.4146 29.7785 37.8005 29.0073 38.1314 28.2789V28.2783Z'
+                  fill='white'
+                />
+                <path
+                  d='M38.1308 7.72612H39.9994V0.430664H35.2078C35.2096 1.1898 35.2121 1.94894 35.2139 2.70868C35.7864 3.43762 36.4 4.31876 36.9852 5.35631C37.4599 6.19818 37.8343 6.99839 38.1308 7.72612Z'
+                  fill='white'
+                />
+                <path
+                  d='M33.8924 12.8965H35.2144V23.2647H33.9305C33.3767 22.4524 32.2008 20.9662 30.1747 19.8809C28.6038 19.0396 27.1496 18.7757 26.2395 18.6839H24.8444V17.5528H26.2014C27.1387 17.4241 28.5586 17.1113 30.0895 16.2755C32.0879 15.1848 33.2897 13.7414 33.8924 12.8965Z'
+                  fill='white'
+                />
+              </svg>
             </Link>
-          </div>
-          </>
-        )}
 
-        {/* Logo e outros itens de navegação no rodapé */}
-        <div className="fixed bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-black text-white rounded-lg px-3 py-2 z-51 opacity-[0.9.4]">
-          {/* Logo */}
-          <Link
-            href="/"
-            aria-label={logoAlt}
-            className="flex items-center border p-2 rounded-sm"
-            style={{borderColor: "gray"}}
-            data-tina-field={tinaField(header, 'name')}
-          >
-            <svg width='40' height='36' viewBox='0 0 40 36' fill='none' xmlns='http://www.w3.org/2000/svg'>
-              <path d='M11.7102 7.29765L14.6223 0.426758L29.1281 35.5742H23.4584L11.7102 7.29765Z' fill='white' />
-              <path
-                d='M3.11808 28.207C2.07872 30.6602 1.03936 33.114 0 35.5671C5.12373 35.5623 10.2475 35.5574 15.3718 35.5526C13.6228 35.2325 10.8043 34.4843 7.86436 32.5517C5.63163 31.0848 4.09584 29.439 3.11869 28.207H3.11808Z'
-                fill='white'
-              />
-              <path
-                d='M38.1314 28.2783H40.0006V35.5738H35.2078V33.3495C35.7858 32.5384 36.3837 31.6156 36.9659 30.5787C37.4146 29.7785 37.8005 29.0073 38.1314 28.2789V28.2783Z'
-                fill='white'
-              />
-              <path
-                d='M38.1308 7.72612H39.9994V0.430664H35.2078C35.2096 1.1898 35.2121 1.94894 35.2139 2.70868C35.7864 3.43762 36.4 4.31876 36.9852 5.35631C37.4599 6.19818 37.8343 6.99839 38.1308 7.72612Z'
-                fill='white'
-              />
-              <path
-                d='M33.8924 12.8965H35.2144V23.2647H33.9305C33.3767 22.4524 32.2008 20.9662 30.1747 19.8809C28.6038 19.0396 27.1496 18.7757 26.2395 18.6839H24.8444V17.5528H26.2014C27.1387 17.4241 28.5586 17.1113 30.0895 16.2755C32.0879 15.1848 33.2897 13.7414 33.8924 12.8965Z'
-                fill='white'
-              />
-            </svg>
-          </Link>
-          
-          <div className='flex w-[100%] gap-4 justify-end'>
-            {mainNavItems?.map((item: any, index: number) => {
+            {/* Itens de navegação */}
+            {header.nav?.map((item: any, index: number) => {
               if (!item || !item.label) return null;
               return (
                 <Link
                   key={index}
                   href={item.href || '/'}
-                  className="text-sm border px-5 py-3 rounded-sm"
-                  style={{borderColor: "gray"}}
+                  className="text-xs border px-3 py-2 rounded-sm whitespace-nowrap flex-shrink-0"
+                  style={{ borderColor: "gray" }}
                   data-tina-field={tinaField(item, 'href')}
                   onClick={(e) => handleSmoothScroll(e, item.href || '/')}
                 >
@@ -226,8 +184,7 @@ export const headerBlockSchema: Template = {
       list: true,
       ui: {
         itemProps: (item: any) => {
-          const floatLabel = item?.isFloat ? ' (Flutuante)' : '';
-          return { label: (item?.label || 'Item do Menu') + floatLabel };
+          return { label: item?.label || 'Item do Menu' };
         },
       },
       fields: [
@@ -243,27 +200,6 @@ export const headerBlockSchema: Template = {
           name: 'href',
           required: true,
           description: 'Ex: /, #Monochrome, #contact, #projects-list, https://www.outro-site.com, etc.',
-        },
-        {
-          type: 'boolean',
-          label: 'É flutuante no mobile',
-          name: 'isFloat',
-          description: 'Se ativado, este item aparecerá como botão flutuante no topo direito da tela mobile. ATENÇÃO: Apenas um item pode ser flutuante por vez.',
-          ui: {
-            validate: (value: boolean, allValues: any) => {
-              if (value === true && allValues?.nav) {
-                const currentIndex = allValues.nav.findIndex((item: any) => item === allValues);
-                const floatingItems = allValues.nav.filter((item: any, index: number) => 
-                  item?.isFloat === true && index !== currentIndex
-                );
-                
-                if (floatingItems.length > 0) {
-                  return 'Apenas um item pode ser marcado como flutuante. Desmarque o outro item primeiro.';
-                }
-              }
-              return undefined;
-            },
-          },
         },
       ],
     },
@@ -320,8 +256,7 @@ export const globalHeaderSchema = {
       list: true,
       ui: {
         itemProps: (item: any) => {
-          const floatLabel = item?.isFloat ? ' (Flutuante)' : '';
-          return { label: (item?.label || 'Item do Menu') + floatLabel };
+          return { label: item?.label || 'Item do Menu' };
         },
       },
       fields: [
@@ -336,12 +271,6 @@ export const globalHeaderSchema = {
           label: 'Link',
           name: 'href',
           required: true,
-        },
-        {
-          type: 'boolean',
-          label: 'É flutuante no mobile',
-          name: 'isFloat',
-          description: 'Se ativado, este item aparecerá como botão flutuante no topo direito da tela mobile. Apenas um item pode ser flutuante.',
         },
       ],
     },
