@@ -1024,35 +1024,36 @@ const ProjectSidebar = ({ project, activeTab, onClose }: ProjectSidebarProps) =>
                     >{project.servicesTitle || "Serviços desenvolvidos"}</h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {uniqueCompanies.map((company) => {
-                        const companyServices = project.services?.filter((service) => service?.company === company) || [];
-                        if (!company) return null;
-                        const logoSrc = corporationsLogos[company] ?? '/uploads/project-logos/AE.svg';
+                      {project.services?.map((service, serviceIndex) => {
+                        if (!service?.company) return null;
+                        
+                        const logoSrc = service.companyLogo
+                        || corporationsLogos[service.company as keyof typeof corporationsLogos]
+                        || '/uploads/project-logos/AE.svg';
+                        
                         return (
-                          <div key={company} className="space-y-3">
+                          <div key={serviceIndex} className="space-y-3" data-tina-field={tinaField(service, 'company')}>
                             <h4 className="font-medium text-base flex items-center gap-3 mb-4">
                               <Image
                                 src={logoSrc}
                                 width={38}
                                 height={38}
-                                alt={`${company} logo`}
+                                alt={`${service.company} logo`}
                                 className="bg-[black] rounded-full object-contain select-none pointer-events-none"
                                 draggable={false}
                                 onContextMenu={(e) => e.preventDefault()}
                                 onDragStart={(e) => e.preventDefault()}
+                                data-tina-field={tinaField(service, 'companyLogo')}
                               />
-                              <span>{company}</span>
+                              <span>{service.company}</span>
                             </h4>
                             <div className="space-y-2 ml-2">
-                              {companyServices.map((service, serviceIndex) => (
-                                <div key={serviceIndex}>
-                                  {service?.serviceItems?.map((item, itemIndex) => (
-                                    <div key={itemIndex} className="flex items-start space-x-2 text-sm text-gray-400">
-                                      {renderIcon(item as any, 18, { color: '#374151' })}                                      <span className="flex-1" data-tina-field={tinaField(item, 'text')}>
-                                        {item?.text}
-                                      </span>
-                                    </div>
-                                  ))}
+                              {service?.serviceItems?.map((item, itemIndex) => (
+                                <div key={itemIndex} className="flex items-start space-x-2 text-sm text-gray-400">
+                                  {renderIcon(item as any, 18, { color: '#374151' })}
+                                  <span className="flex-1" data-tina-field={tinaField(item, 'text')}>
+                                    {item?.text}
+                                  </span>
                                 </div>
                               ))}
                             </div>
@@ -1507,6 +1508,12 @@ export const projectsBlockSchema: Template = {
                 value: company,
               })),
               required: false,
+            },
+            {
+              type: 'image',
+              label: 'Logo da Empresa (Opcional)',
+              name: 'companyLogo',
+              description: 'Faça upload de uma logo customizada para esta empresa. Se não fornecida, será usada a logo padrão.',
             },
             {
               type: 'object',
