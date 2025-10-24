@@ -297,7 +297,7 @@ export const TeamSection = ({ data }: { data: any }) => {
                     {member.name}
                   </h3>
                   <p
-                    className="prose-lg lg:prose-md mt-2 lg:mt-0 opacity-[0.5] text-center font-medium capitalize leading-[1.25rem]"
+                    className="prose-md lg:prose-md mt-2 lg:mt-0 opacity-[0.5] text-center font-medium capitalize leading-[1.25rem]"
                     data-tina-field={tinaField(member, "position")}
                   >
                     {member.position}
